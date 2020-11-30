@@ -1,0 +1,208 @@
+{
+	"info": {
+		"_postman_id": "5a75798e-292b-4972-a8ea-4889fea0e493",
+		"name": "OsmIntegrator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UserName\": \"admin\",\r\n    \"Password\": \"1234\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:44388/api/Account/Login",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"Login"
+					]
+				},
+				"description": "Account/Login"
+			},
+			"response": []
+		},
+		{
+			"name": "Register user",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"UserName\": \"admin\",\r\n\t\"Password\": \"1234\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:44388/api/Account/Register",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"Register"
+					]
+				},
+				"description": "Account/Register"
+			},
+			"response": []
+		},
+		{
+			"name": "Protected",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c66805-84cf-4af1-b211-229d3b6e8594",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://localhost:44388/api/Account/Protected",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"Protected"
+					]
+				},
+				"description": "Account/Protected"
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "40378078-aa07-4584-9991-a542d1cec85a",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"refreshToken\": \"{{refreshToken}}\",\r\n\t\"token\": \"{{token}}\"\r\n}"
+				},
+				"url": {
+					"raw": "https://localhost:44388/api/Account/Refresh",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"Refresh"
+					]
+				},
+				"description": "Account/Refresh"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
