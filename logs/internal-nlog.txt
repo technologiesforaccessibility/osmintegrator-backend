@@ -65,3 +65,35 @@
 2020-12-13 17:14:12.7765 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.5.12092. Product version: 4.7.5+ed343d5690d9c97a96fcff430e240e2d7c31a8d7. GlobalAssemblyCache: False
 2020-12-13 17:14:14.0496 Info AppDomain Shutting down. Logger closing...
 2020-12-13 17:14:14.0665 Info Logger has been shut down.
+2020-12-13 18:09:36.6165 Info Message Template Auto Format enabled
+2020-12-13 18:09:36.6462 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-13 18:09:36.6959 Info Adding target FileTarget(Name=allfile)
+2020-12-13 18:09:36.7149 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-13 18:09:36.7668 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-13 18:10:06.8392 Info Message Template Auto Format enabled
+2020-12-13 18:10:06.8514 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-13 18:10:06.8843 Info Adding target FileTarget(Name=allfile)
+2020-12-13 18:10:06.8843 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-13 18:10:06.9062 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\NLog.config
+2020-12-13 18:10:06.9194 Info Configuration initialized.
+2020-12-13 18:10:06.9194 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.5.12092. Product version: 4.7.5+ed343d5690d9c97a96fcff430e240e2d7c31a8d7. GlobalAssemblyCache: False
+2020-12-13 18:10:07.9391 Info AppDomain Shutting down. Logger closing...
+2020-12-13 18:10:07.9585 Info Logger has been shut down.
+2020-12-13 18:12:14.9202 Info Message Template Auto Format enabled
+2020-12-13 18:12:14.9348 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-13 18:12:14.9725 Info Adding target FileTarget(Name=allfile)
+2020-12-13 18:12:14.9792 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-13 18:12:15.0013 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\NLog.config
+2020-12-13 18:12:15.0171 Info Configuration initialized.
+2020-12-13 18:12:15.0220 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.5.12092. Product version: 4.7.5+ed343d5690d9c97a96fcff430e240e2d7c31a8d7. GlobalAssemblyCache: False
+2020-12-13 18:12:15.8629 Info AppDomain Shutting down. Logger closing...
+2020-12-13 18:12:15.8762 Info Logger has been shut down.
+2020-12-13 18:12:27.4147 Info Message Template Auto Format enabled
+2020-12-13 18:12:27.4362 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-13 18:12:27.4710 Info Adding target FileTarget(Name=allfile)
+2020-12-13 18:12:27.4793 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-13 18:12:27.5020 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\NLog.config
+2020-12-13 18:12:27.5207 Info Configuration initialized.
+2020-12-13 18:12:27.5207 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.7.5.12092. Product version: 4.7.5+ed343d5690d9c97a96fcff430e240e2d7c31a8d7. GlobalAssemblyCache: False
+2020-12-13 18:12:28.6290 Info AppDomain Shutting down. Logger closing...
+2020-12-13 18:12:28.6465 Info Logger has been shut down.
