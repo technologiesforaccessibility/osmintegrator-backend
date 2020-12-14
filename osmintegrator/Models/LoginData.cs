@@ -4,6 +4,7 @@ namespace TS.Mobile.WebApp.Models
 {
     public class LoginData
     {
+        [Key]
         [Required]
         public string UserName { get; set; }
 
