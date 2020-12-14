@@ -29,6 +29,16 @@ namespace osmintegrator
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
 
+
+            // ===== Allow-Orgin ========
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
             // ===== Add Identity ========
             services.AddIdentity<IdentityUser, IdentityRole>(options => {
                 options.Password.RequireDigit = false;
@@ -85,6 +95,8 @@ namespace osmintegrator
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             // ===== Use Authentication ======
             app.UseAuthentication();

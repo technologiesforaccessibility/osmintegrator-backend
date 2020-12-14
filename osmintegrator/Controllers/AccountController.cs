@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -17,6 +18,7 @@ using TS.Mobile.WebApp.Models;
 
 namespace osmintegrator.Controllers
 {
+    [EnableCors("AllowOrigin")]
     [Authorize]
     [Route("api/[controller]/[action]")]
     public class AccountController : Controller
