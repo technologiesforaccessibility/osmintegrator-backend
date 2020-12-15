@@ -10,9 +10,6 @@ namespace osmintegrator.Database
     {
         private static IConfiguration _configuration;
 
-        public DbSet<Stop> Stops { get; set; }
-        public DbSet<LoginData> LoginDatas { get; set; }
-
         public ApplicationDbContext(IConfiguration configuration)
         {
             _configuration = configuration;
