@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using osmintegrator.Database.DataInitialization;
 using osmintegrator.Models;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using TS.Mobile.WebApp.Models;
 
 namespace osmintegrator.Database
@@ -32,17 +36,9 @@ namespace osmintegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stop>().HasData(GetEmployees());
+            //modelBuilder.Entity<Stop>().HasData(GetStopList());
+            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetZtmStopList("Files\\stops.txt"));
             base.OnModelCreating(modelBuilder);
-        }
-
-        private List<Stop> GetEmployees()
-        {
-            return new List<Stop>
-            {
-                new Stop { StopId=2000, TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},
-                new Stop { StopId=2001, TypeId = 1, StopName = "Katowice, Lipowa 3", Lat=59.645f, Lon=18.8353f},
-            };
         }
     }
 }

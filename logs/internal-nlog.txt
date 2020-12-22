@@ -200,3 +200,48 @@
 2020-12-22 15:39:10.6799 Info Adding target FileTarget(Name=allfile)
 2020-12-22 15:39:10.6978 Info Adding target FileTarget(Name=ownFile-web)
 2020-12-22 15:39:10.7429 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 15:55:03.7628 Info Message Template Auto Format enabled
+2020-12-22 15:55:03.7944 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 15:55:03.8480 Info Adding target FileTarget(Name=allfile)
+2020-12-22 15:55:03.8688 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 15:55:03.9104 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 15:56:57.3288 Info Message Template Auto Format enabled
+2020-12-22 15:56:57.3592 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 15:56:57.4098 Info Adding target FileTarget(Name=allfile)
+2020-12-22 15:56:57.4290 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 15:56:57.4716 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 15:58:32.1742 Info Message Template Auto Format enabled
+2020-12-22 15:58:32.2033 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 15:58:32.2649 Info Adding target FileTarget(Name=allfile)
+2020-12-22 15:58:32.2816 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 15:58:32.3239 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 15:59:08.7061 Info Message Template Auto Format enabled
+2020-12-22 15:59:08.7333 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 15:59:08.7884 Info Adding target FileTarget(Name=allfile)
+2020-12-22 15:59:08.8049 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 15:59:08.8446 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 16:01:19.2357 Info Message Template Auto Format enabled
+2020-12-22 16:01:19.2644 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 16:01:19.3146 Info Adding target FileTarget(Name=allfile)
+2020-12-22 16:01:19.3307 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 16:01:19.3694 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 16:02:42.6919 Info Message Template Auto Format enabled
+2020-12-22 16:02:42.7210 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 16:02:42.7792 Info Adding target FileTarget(Name=allfile)
+2020-12-22 16:02:42.8196 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 16:02:42.8847 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 17:13:18.9229 Info Message Template Auto Format enabled
+2020-12-22 17:13:18.9511 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 17:13:19.0034 Info Adding target FileTarget(Name=allfile)
+2020-12-22 17:13:19.0234 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 17:13:19.0837 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 17:15:01.2472 Info Message Template Auto Format enabled
+2020-12-22 17:15:01.2865 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 17:15:01.3377 Info Adding target FileTarget(Name=allfile)
+2020-12-22 17:15:01.3542 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 17:15:01.3922 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
+2020-12-22 17:17:25.3867 Info Message Template Auto Format enabled
+2020-12-22 17:17:25.4175 Info Loading assembly: NLog.Web.AspNetCore
+2020-12-22 17:17:25.4717 Info Adding target FileTarget(Name=allfile)
+2020-12-22 17:17:25.4877 Info Adding target FileTarget(Name=ownFile-web)
+2020-12-22 17:17:25.5263 Info Validating config: TargetNames=allfile, ownFile-web, ConfigItems=45, FilePath=K:\It\Work\OsmIntegrator\Repo\Github_Technologies_For_Accessibility\osmintegrator-backend\osmintegrator-backend\osmintegrator\bin\Debug\net5.0\nlog.config
