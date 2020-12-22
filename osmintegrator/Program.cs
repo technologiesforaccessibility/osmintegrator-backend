@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using osmintegrator.Database.DataInitialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace osmintegrator
 {
@@ -14,7 +16,8 @@ namespace osmintegrator
             try
             {
                 logger.Debug("init main");
-                CreateHostBuilder(args).Build().Run();
+                IHost host = CreateHostBuilder(args).Build();
+                host.Run();
             }
             catch (Exception exception)
             {
@@ -35,10 +38,10 @@ namespace osmintegrator
                 {
                     webBuilder.UseStartup<Startup>();
                 })
-            .ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
-                logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-            }).UseNLog();
+                .ConfigureLogging(logging =>
+                {
+                    logging.ClearProviders();
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                }).UseNLog();
     }
 }

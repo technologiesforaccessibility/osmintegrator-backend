@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using osmintegrator.Database;
+using osmintegrator.Database.DataInitialization;
 
 namespace osmintegrator
 {
@@ -108,7 +109,7 @@ namespace osmintegrator
             });
 
             // ===== Create tables ======
-            dbContext.Database.EnsureCreated();
+            //dbContext.Database.EnsureCreated();
         }
     }
 }

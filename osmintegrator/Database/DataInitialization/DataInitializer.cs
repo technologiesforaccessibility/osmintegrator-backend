@@ -3,29 +3,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace osmintegrator.Database.DataInitialization
 {
     public class DataInitializer
     {
-        public static void InitializeData(AppDbContext context)
+        private ApplicationDbContext _context;
+
+        public DataInitializer(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+        public void InitializeData()
         {
             var customers = new List<Stop>
             {
-                new Stop {TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},
-                new Stop {TypeId = 1, StopName = "Katowice, Lipowa 3", Lat=59.645f, Lon=18.8353f},
+                new Stop { StopId=2000, TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},
+                new Stop { StopId=2001, TypeId = 1, StopName = "Katowice, Lipowa 3", Lat=59.645f, Lon=18.8353f},
             };
-            customers.ForEach(x => context.Stops.Add(x));
-            context.SaveChanges();
+            customers.ForEach(x => _context.Stops.Add(x));
+            _context.SaveChanges();
         }
 
+        /*
         public static void RecreateDatabase(AppDbContext context)
         {
+            
             context.Database.EnsureDeleted();
             //context.Database.Migrate();
         }
 
-        /*
         public static void ClearData(AppDbContext context)
         {
             ExecuteDeleteSql(context, "Orders");
