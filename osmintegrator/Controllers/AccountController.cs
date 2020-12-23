@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using osmintegrator.Interfaces;
@@ -25,16 +26,19 @@ namespace osmintegrator.Controllers
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
+            IEmailService emailService,
             IConfiguration configuration
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
             _configuration = configuration;
         }
 
@@ -219,6 +223,115 @@ namespace osmintegrator.Controllers
         {
             var identity = new ClaimsIdentity(claims);
             _signInManager.Context.User = new ClaimsPrincipal(identity);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IResponse> ForgotPassword([FromBody] ForgotPassword model)
+        {
+            IResponse response = new BaseResponse();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+
+                    if (user != null && await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                        //Generate reset password link using url to frontend service, email and reset password token
+                        //for example: 
+                        string urlToResetPassword = _configuration["FrontendUrl"] + "/ResetPassword?email=" + model.Email + "&token=" + token;
+                        // to do: create function to generate email message and subject
+                        // containing instruction what to do and url link to reset password
+
+                        _emailService.Send("noreply@rozwiazaniadlaniewidomych.org", model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
+                        response = new BaseResponse() { IsSuccess = true };
+                    }
+                    else
+                    {
+                        string errorMessage = "User with this email does not exist or email was not confirmed.";
+                        response = new BaseResponse() { ErrorMsg = errorMessage };
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    //response = new BaseResponse() { ErrorMsg = e.Message };
+                    response = new BaseResponse() { ErrorMsg = "Unknown error!" };
+                }
+            }
+            else
+            {
+                IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
+                string errorMessage = string.Empty;
+                foreach (var modalError in allErrors)
+                {
+                    errorMessage += modalError.ErrorMessage;
+                }
+
+                response = new BaseResponse() { ErrorMsg = errorMessage };
+            }
+
+            return response;
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IResponse> ResetPassword([FromBody] ResetPassword model)
+        {
+            IResponse response = new BaseResponse();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+
+                    if (user != null)
+                    {
+                        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+                        if (result.Succeeded)
+                        {
+                            response = new BaseResponse() { IsSuccess = true };
+                        }
+                        else
+                        {
+                            string errorMessage = string.Empty;
+                            foreach(var identityError in result.Errors)
+                            {
+                                errorMessage += identityError.Description;
+                            }
+
+                            response = new BaseResponse() { ErrorMsg = errorMessage };
+                        }
+                    }
+                    else
+                    {
+                        string errorMessage = "User with this email does not exist.";
+                        response = new BaseResponse() { ErrorMsg = errorMessage };
+                    }
+                }
+                catch (Exception e)
+                {
+                    //response = new BaseResponse() { ErrorMsg = e.Message };
+                    response = new BaseResponse() { ErrorMsg = "Unknown error!" };
+                }
+            }
+            else
+            {
+                IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
+                string errorMessage = string.Empty;
+                foreach (var modalError in allErrors)
+                {
+                    errorMessage += modalError.ErrorMessage;
+                }
+
+                response = new BaseResponse() { ErrorMsg = errorMessage };
+            }
+
+            return response;
         }
     }
 }

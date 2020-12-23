@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "35a91111-2ec2-4173-81fc-1898f5b0013e",
+		"_postman_id": "5a75798e-292b-4972-a8ea-4889fea0e493",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,7 +11,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "df5f8f0c-6ccc-40e8-a69a-aaab02856c50",
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
 						"exec": [
 							""
 						],
@@ -40,9 +40,11 @@
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Login",
+					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
+					"port": "44388",
 					"path": [
 						"api",
 						"Account",
@@ -76,9 +78,11 @@
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Register",
+					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
+					"port": "44388",
 					"path": [
 						"api",
 						"Account",
@@ -95,7 +99,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "e2f62e2d-7be1-40a5-87c5-1e86099ab724",
+						"id": "89c66805-84cf-4af1-b211-229d3b6e8594",
 						"exec": [
 							""
 						],
@@ -134,9 +138,11 @@
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Protected",
+					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
+					"port": "44388",
 					"path": [
 						"api",
 						"Account",
@@ -153,7 +159,7 @@
 				{
 					"listen": "test",
 					"script": {
-						"id": "956fed79-cc76-4516-8c85-3fa587701109",
+						"id": "40378078-aa07-4584-9991-a542d1cec85a",
 						"exec": [
 							""
 						],
@@ -182,9 +188,11 @@
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Refresh",
+					"protocol": "https",
 					"host": [
 						"{{host}}"
 					],
+					"port": "44388",
 					"path": [
 						"api",
 						"Account",
@@ -192,6 +200,106 @@
 					]
 				},
 				"description": "Account/Refresh"
+			},
+			"response": []
+		},
+		{
+			"name": "ForgotPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Email\": \"rpapros@hotmail.com\"\r\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/Account/ForgotPassword",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"ForgotPassword"
+					]
+				},
+				"description": "Account/ForgotPassword"
+			},
+			"response": []
+		},
+		{
+			"name": "ResetPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Email\": \"rpapros@hotmail.com\",\r\n    \"Password\": \"1111\",\r\n    \"ConfirmPassword\": \"1111\",\r\n    \"Token\": \"CfDJ8Icc4MV4C0RBld1x4zAOKfeSDrZNjMk76Kdr5I92wzVKZZddDncbOkd94eJVkI1WpjU+4AvCPnbwenKndgg5wjqL0yYafer8X/wXpb/rH+D3S5cuSG8maYOmaPeZSMYXnYVz1I2aKDrX7aHEhesgbuNrm4kanxww4DbLSZJHP8OE4AR0dqHUP1up2dtuvRwkDFv5bslHzowaMsCFL8ZfcmoWPUDSShf6qeQx/WfaFbQo\"\r\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/Account/ResetPassword",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"ResetPassword"
+					]
+				},
+				"description": "Account/ResetPassword"
 			},
 			"response": []
 		}
