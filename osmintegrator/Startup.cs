@@ -11,6 +11,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using osmintegrator.Database;
+using osmintegrator.Interfaces;
+using osmintegrator.Services;
 
 namespace osmintegrator
 {
@@ -78,6 +80,8 @@ namespace osmintegrator
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "osmintegrator", Version = "v1" });
             });
+
+            services.AddSingleton<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
