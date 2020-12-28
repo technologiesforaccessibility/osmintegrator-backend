@@ -39,10 +39,10 @@
 					"raw": "{\r\n    \"UserName\": \"admin\",\r\n    \"Password\": \"1234\"\r\n}"
 				},
 				"url": {
-					"raw": "https://localhost:44388/api/Account/Login",
+					"raw": "{{host}}/api/Account/Login",
 					"protocol": "https",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"port": "44388",
 					"path": [
@@ -77,10 +77,10 @@
 					"raw": "{\r\n\t\"UserName\": \"admin\",\r\n\t\"Password\": \"1234\"\r\n}"
 				},
 				"url": {
-					"raw": "https://localhost:44388/api/Account/Register",
+					"raw": "{{host}}/api/Account/Register",
 					"protocol": "https",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"port": "44388",
 					"path": [
@@ -137,10 +137,10 @@
 					"raw": ""
 				},
 				"url": {
-					"raw": "https://localhost:44388/api/Account/Protected",
+					"raw": "{{host}}/api/Account/Protected",
 					"protocol": "https",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"port": "44388",
 					"path": [
@@ -187,10 +187,10 @@
 					"raw": "{\r\n\t\"refreshToken\": \"{{refreshToken}}\",\r\n\t\"token\": \"{{token}}\"\r\n}"
 				},
 				"url": {
-					"raw": "https://localhost:44388/api/Account/Refresh",
+					"raw": "{{host}}/api/Account/Refresh",
 					"protocol": "https",
 					"host": [
-						"localhost"
+						"{{host}}"
 					],
 					"port": "44388",
 					"path": [
@@ -200,6 +200,106 @@
 					]
 				},
 				"description": "Account/Refresh"
+			},
+			"response": []
+		},
+		{
+			"name": "ForgotPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Email\": \"rpapros@hotmail.com\"\r\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/Account/ForgotPassword",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"ForgotPassword"
+					]
+				},
+				"description": "Account/ForgotPassword"
+			},
+			"response": []
+		},
+		{
+			"name": "ResetPassword",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "89c3a867-939f-49fa-bfef-24fb47fff706",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"Email\": \"rpapros@hotmail.com\",\r\n    \"Password\": \"1111\",\r\n    \"ConfirmPassword\": \"1111\",\r\n    \"Token\": \"CfDJ8Icc4MV4C0RBld1x4zAOKfeSDrZNjMk76Kdr5I92wzVKZZddDncbOkd94eJVkI1WpjU+4AvCPnbwenKndgg5wjqL0yYafer8X/wXpb/rH+D3S5cuSG8maYOmaPeZSMYXnYVz1I2aKDrX7aHEhesgbuNrm4kanxww4DbLSZJHP8OE4AR0dqHUP1up2dtuvRwkDFv5bslHzowaMsCFL8ZfcmoWPUDSShf6qeQx/WfaFbQo\"\r\n}"
+				},
+				"url": {
+					"raw": "{{host}}/api/Account/ResetPassword",
+					"protocol": "https",
+					"host": [
+						"localhost"
+					],
+					"port": "44388",
+					"path": [
+						"api",
+						"Account",
+						"ResetPassword"
+					]
+				},
+				"description": "Account/ResetPassword"
 			},
 			"response": []
 		}
