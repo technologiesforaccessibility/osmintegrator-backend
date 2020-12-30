@@ -5,6 +5,7 @@ namespace osmintegrator.Models
     public class RegisterData
     {
         [Required]
+        [EmailAddress(ErrorMessage ="User name must be an email")]
         public string UserName { get; set; }
 
         [Required]

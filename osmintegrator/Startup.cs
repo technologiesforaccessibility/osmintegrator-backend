@@ -31,6 +31,11 @@ namespace osmintegrator
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
 
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.WriteIndented = true;
+                });
 
             // ===== Allow-Orgin ========
             services.AddCors(c =>
@@ -44,7 +49,7 @@ namespace osmintegrator
             // ===== Add Identity ========
             services.AddIdentity<IdentityUser, IdentityRole>(options => {
                 options.Password.RequireDigit = false;
-                options.Password.RequiredLength = 4;
+                options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;

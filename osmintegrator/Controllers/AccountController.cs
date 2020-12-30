@@ -9,11 +9,13 @@ using osmintegrator.Interfaces;
 using osmintegrator.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TS.Mobile.WebApp.Models;
 
@@ -124,11 +126,22 @@ namespace osmintegrator.Controllers
         public async Task<IAuthenticationResponse> Register([FromBody] RegisterData model)
         {
             AuthenticationResponse authResponse = new AuthenticationResponse();
+
+            if (!ModelState.IsValid)
+            {
+                var serializableModelState = new SerializableError(ModelState);
+                authResponse.IsSuccess = false;
+                authResponse.ErrorMsg = JsonSerializer.Serialize(serializableModelState);
+                return authResponse;
+            }
+
             try
             {
                 var user = new IdentityUser
                 {
-                    UserName = model.UserName
+                    UserName = model.UserName,
+                    Email = model.UserName,
+                    EmailConfirmed = true
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
