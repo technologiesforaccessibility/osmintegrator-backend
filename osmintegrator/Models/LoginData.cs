@@ -6,6 +6,7 @@ namespace TS.Mobile.WebApp.Models
     {
         [Key]
         [Required]
+        [EmailAddress]
         public string UserName { get; set; }
 
         [Required]

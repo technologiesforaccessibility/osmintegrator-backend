@@ -64,6 +64,14 @@ namespace osmintegrator.Controllers
             AuthenticationResponse authResponse = new AuthenticationResponse();
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var serializableModelState = new SerializableError(ModelState);
+                    authResponse.IsSuccess = false;
+                    authResponse.ErrorMsg = JsonSerializer.Serialize(serializableModelState);
+                    return authResponse;
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
 
                 if (result.Succeeded)
