@@ -9,7 +9,6 @@ using osmintegrator.Interfaces;
 using osmintegrator.Models;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -72,13 +71,13 @@ namespace osmintegrator.Controllers
                     return authResponse;
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
 
                 if (result.Succeeded)
                 {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == model.UserName);
+                    var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
                     authResponse.IsSuccess = true;
-                    authResponse.TokenData = GenerateJwtToken(model.UserName, appUser);
+                    authResponse.TokenData = GenerateJwtToken(model.Email, appUser);
                 }
                 else
                 {
@@ -147,8 +146,8 @@ namespace osmintegrator.Controllers
             {
                 var user = new IdentityUser
                 {
-                    UserName = model.UserName,
-                    Email = model.UserName,
+                    UserName = model.Email,
+                    Email = model.Email,
                     EmailConfirmed = true
                 };
 
@@ -158,7 +157,7 @@ namespace osmintegrator.Controllers
                 {
                     await _signInManager.SignInAsync(user, false);
                     authResponse.IsSuccess = true;
-                    authResponse.TokenData = GenerateJwtToken(model.UserName, user);
+                    authResponse.TokenData = GenerateJwtToken(model.Email, user);
                 }
                 else
                 {

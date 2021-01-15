@@ -6,7 +6,7 @@ namespace osmintegrator.Models
     {
         [Required]
         [EmailAddress(ErrorMessage ="User name must be an email")]
-        public string UserName { get; set; }
+        public string Email { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "PASSWORD_MIN_LENGTH", MinimumLength = 6)]
