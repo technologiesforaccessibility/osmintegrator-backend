@@ -27,8 +27,8 @@ namespace osmintegrator.Services
 
             using var smtp = new SmtpClient();
 
-            smtp.Connect(_configuration["SmtpHost"], Convert.ToInt32(_configuration["SmtpPort"]), SecureSocketOptions.StartTls);
-            smtp.Authenticate(_configuration["SmtpUser"], _configuration["SmtpPass"]);
+            smtp.Connect(_configuration["Email:SmtpHost"], Convert.ToInt32(_configuration["Email:SmtpPort"]), SecureSocketOptions.StartTls);
+            smtp.Authenticate(_configuration["Email:SmtpUser"], _configuration["Email:SmtpPass"]);
             smtp.Send(email);
             smtp.Disconnect(true);           
         }
