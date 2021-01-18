@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TS.Mobile.WebApp.Models
+namespace osmintegrator.Models
 {
     public class LoginData
     {

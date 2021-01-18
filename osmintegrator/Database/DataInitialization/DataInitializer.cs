@@ -40,43 +40,5 @@ namespace osmintegrator.Database.DataInitialization
             }).ToList();
             return ztmStopList;
         }
-
-
-
-        /*
-        public static void RecreateDatabase(AppDbContext context)
-        {
-            
-            context.Database.EnsureDeleted();
-            //context.Database.Migrate();
-        }
-
-        public static void ClearData(AppDbContext context)
-        {
-            ExecuteDeleteSql(context, "Orders");
-            ExecuteDeleteSql(context, "Customers");
-            ExecuteDeleteSql(context, "Inventory");
-            ExecuteDeleteSql(context, "CreditRisks");
-            ResetIdentity(context);
-        }
-
-        private static void ExecuteDeleteSql(AppDbContext context, string tableName)
-        {
-            //With 2.0, must separate string interpolation if not passing in params
-            var rawSqlString = $"Delete from dbo.{tableName}";
-            context.Database.ExecuteSqlCommand(rawSqlString);
-        }
-
-        private static void ResetIdentity(AppDbContext context)
-        {
-            var tables = new[] { "Inventory", "Orders", "Customers", "CreditRisks" };
-            foreach (var itm in tables)
-            {
-                //With 2.0, must separate string interpolation if not passing in params
-                var rawSqlString = $"DBCC CHECKIDENT (\"dbo.{itm}\", RESEED, -1);";
-                context.Database.ExecuteSqlCommand(rawSqlString);
-            }
-        }
-        */
     }
 }

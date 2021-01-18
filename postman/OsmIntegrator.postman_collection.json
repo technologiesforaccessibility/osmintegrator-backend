@@ -35,7 +35,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112222\"\r\n}"
+					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"12345678\"\r\n}"
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Login",

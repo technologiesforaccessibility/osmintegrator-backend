@@ -16,7 +16,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TS.Mobile.WebApp.Models;
 
 namespace osmintegrator.Controllers
 {
@@ -46,29 +45,26 @@ namespace osmintegrator.Controllers
         [HttpGet]
         public async Task<string> Protected()
         {
-            return await System.Threading.Tasks.Task.Run(() => { return "Protected area"; });
+            return await Task.Run(() => { return "Protected area"; });
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<string> NoProtected()
         {
-            return await System.Threading.Tasks.Task.Run(() => { return "No protected area"; });
+            return await Task.Run(() => { return "No protected area"; });
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IAuthenticationResponse> Login([FromBody] LoginData model)
+        public async Task<IActionResult> Login([FromBody] LoginData model)
         {
-            AuthenticationResponse authResponse = new AuthenticationResponse();
             try
             {
                 if (!ModelState.IsValid)
                 {
                     var serializableModelState = new SerializableError(ModelState);
-                    authResponse.IsSuccess = false;
-                    authResponse.ErrorMsg = JsonSerializer.Serialize(serializableModelState);
-                    return authResponse;
+                    return BadRequest(new ValidationError() { Message = JsonSerializer.Serialize(serializableModelState) });
                 }
 
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
@@ -76,70 +72,58 @@ namespace osmintegrator.Controllers
                 if (result.Succeeded)
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                    authResponse.IsSuccess = true;
-                    authResponse.TokenData = GenerateJwtToken(model.Email, appUser);
+                    TokenData tokenData = GenerateJwtToken(model.Email, appUser);
+                    return Ok(tokenData);
                 }
-                else
-                {
-                    authResponse.IsSuccess = false;
-                    authResponse.ErrorMsg = "The username or password were not correct. Try again.";
-                }
+
+                return Unauthorized(new AuthorizationError() { Message = "The username or password were not correct. Try again." });
+
             }
             catch (Exception ex)
             {
-                authResponse.IsSuccess = false;
-                authResponse.ErrorMsg = ex.Message;
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
-
-            return authResponse;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IAuthenticationResponse> Refresh([FromBody] TokenData refreshTokenData)
+        public async Task<IActionResult> Refresh([FromBody] TokenData refreshTokenData)
         {
-            AuthenticationResponse authResponse = new AuthenticationResponse();
             try
             {
-                var principal = await System.Threading.Tasks.Task.Run(() => { return GetPrincipalFromExpiredToken(refreshTokenData.Token); });
+                var principal = await Task.Run(() => { return GetPrincipalFromExpiredToken(refreshTokenData.Token); });
 
                 var username = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
                 var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refresh_token").Value;
 
                 if (savedRefreshToken != refreshTokenData.RefreshToken)
                 {
-                    authResponse.IsSuccess = false;
-                    authResponse.ErrorMsg = "Invalid refresh token";
+                    return Unauthorized(new AuthorizationError() { Message = "Invalid refresh token" });
                 }
                 else
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == username);
-                    authResponse.IsSuccess = true;
-                    authResponse.TokenData = GenerateJwtToken(username, appUser);
+                    TokenData tokenData = GenerateJwtToken(username, appUser);
+                    return Ok(tokenData);
                 }
 
             }
             catch (Exception ex)
             {
-                authResponse.IsSuccess = false;
-                authResponse.ErrorMsg = ex.Message;
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
-
-            return authResponse;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IAuthenticationResponse> Register([FromBody] RegisterData model)
+        public async Task<IActionResult> Register([FromBody] RegisterData model)
         {
-            AuthenticationResponse authResponse = new AuthenticationResponse();
-
             if (!ModelState.IsValid)
             {
+                Error error = new ValidationError();
                 var serializableModelState = new SerializableError(ModelState);
-                authResponse.IsSuccess = false;
-                authResponse.ErrorMsg = JsonSerializer.Serialize(serializableModelState);
-                return authResponse;
+                error.Message = JsonSerializer.Serialize(serializableModelState);
+                return BadRequest(error);
             }
 
             try
@@ -156,24 +140,20 @@ namespace osmintegrator.Controllers
                 if (result.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, false);
-                    authResponse.IsSuccess = true;
-                    authResponse.TokenData = GenerateJwtToken(model.Email, user);
-                }
-                else
-                {
-                    authResponse.IsSuccess = false;
-                    authResponse.ErrorMsg = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
+                    TokenData tokenData = GenerateJwtToken(model.Email, user);
+                    return Ok(tokenData);
                 }
 
+                Error error = new UnknownError();
+                error.Message = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
+                return BadRequest(error);
             }
             catch (Exception ex)
             {
-                authResponse.IsSuccess = false;
-                authResponse.ErrorMsg = ex.Message;
+                Error error = new UnknownError();
+                error.Message = ex.Message;
+                return BadRequest(error);
             }
-
-
-            return authResponse;
         }
 
 
@@ -247,12 +227,11 @@ namespace osmintegrator.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IResponse> ForgotPassword([FromBody] ForgotPassword model)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
         {
-            IResponse response = new BaseResponse();
-            if (ModelState.IsValid)
+            try
             {
-                try
+                if (ModelState.IsValid)
                 {
                     var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -267,23 +246,14 @@ namespace osmintegrator.Controllers
                         // containing instruction what to do and url link to reset password
 
                         _emailService.Send("noreply@rozwiazaniadlaniewidomych.org", model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
-                        response = new BaseResponse() { IsSuccess = true };
+                        return Ok();
                     }
                     else
                     {
-                        string errorMessage = "User with this email does not exist or email was not confirmed.";
-                        response = new BaseResponse() { ErrorMsg = errorMessage };
+                        return Unauthorized(new AuthorizationError() { Message = "User with this email does not exist or email was not confirmed." });
                     }
+                }
 
-                }
-                catch (Exception e)
-                {
-                    //response = new BaseResponse() { ErrorMsg = e.Message };
-                    response = new BaseResponse() { ErrorMsg = "Unknown error!" };
-                }
-            }
-            else
-            {
                 IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
                 string errorMessage = string.Empty;
                 foreach (var modalError in allErrors)
@@ -291,21 +261,25 @@ namespace osmintegrator.Controllers
                     errorMessage += modalError.ErrorMessage;
                 }
 
-                response = new BaseResponse() { ErrorMsg = errorMessage };
+                Error error = new Error() { Message = errorMessage };
+                return BadRequest(error);
             }
-
-            return response;
+            catch (Exception e)
+            {
+                Error error = new UnknownError() { Message = e.Message };
+                return BadRequest(error);
+            }
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IResponse> ResetPassword([FromBody] ResetPassword model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
         {
-            IResponse response = new BaseResponse();
-            if (ModelState.IsValid)
+            try
             {
-                try
+                if (ModelState.IsValid)
                 {
+
                     var user = await _userManager.FindByEmailAsync(model.Email);
 
                     if (user != null)
@@ -314,44 +288,41 @@ namespace osmintegrator.Controllers
 
                         if (result.Succeeded)
                         {
-                            response = new BaseResponse() { IsSuccess = true };
+                            return Ok();
                         }
                         else
                         {
                             string errorMessage = string.Empty;
-                            foreach(var identityError in result.Errors)
+                            foreach (var identityError in result.Errors)
                             {
                                 errorMessage += identityError.Description;
                             }
 
-                            response = new BaseResponse() { ErrorMsg = errorMessage };
+                            return BadRequest(new Error() { Description = "Reset password failed", Message = errorMessage });
                         }
                     }
                     else
                     {
                         string errorMessage = "User with this email does not exist.";
-                        response = new BaseResponse() { ErrorMsg = errorMessage };
+                        return Unauthorized(new AuthorizationError() { Message = errorMessage });
                     }
                 }
-                catch (Exception e)
+                else
                 {
-                    //response = new BaseResponse() { ErrorMsg = e.Message };
-                    response = new BaseResponse() { ErrorMsg = "Unknown error!" };
+                    IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
+                    string errorMessage = string.Empty;
+                    foreach (var modalError in allErrors)
+                    {
+                        errorMessage += modalError.ErrorMessage;
+                    }
+
+                    return BadRequest(new ValidationError() { Message = errorMessage });
                 }
             }
-            else
+            catch (Exception e)
             {
-                IEnumerable<ModelError> allErrors = ModelState.Values.SelectMany(v => v.Errors);
-                string errorMessage = string.Empty;
-                foreach (var modalError in allErrors)
-                {
-                    errorMessage += modalError.ErrorMessage;
-                }
-
-                response = new BaseResponse() { ErrorMsg = errorMessage };
+                return BadRequest(new UnknownError() { Message = e.Message });
             }
-
-            return response;
         }
     }
 }
