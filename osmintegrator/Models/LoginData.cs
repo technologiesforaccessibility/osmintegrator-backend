@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TS.Mobile.WebApp.Models
+namespace osmintegrator.Models
 {
     public class LoginData
     {
         [Key]
         [Required]
         [EmailAddress]
-        public string UserName { get; set; }
+        public string Email { get; set; }
 
         [Required]
         public string Password { get; set; }

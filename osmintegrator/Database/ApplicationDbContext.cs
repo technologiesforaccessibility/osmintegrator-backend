@@ -3,11 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using osmintegrator.Database.DataInitialization;
 using osmintegrator.Models;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using TS.Mobile.WebApp.Models;
 
 namespace osmintegrator.Database
 {
@@ -27,7 +22,6 @@ namespace osmintegrator.Database
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             _ = optionsBuilder.UseNpgsql(GetConnectionString());
-            //_ = optionsBuilder.UseNpgsql("User ID=osm_integrator;Password=super_compolicated_password_12345;Host=localhost;Port=5433;Database=osm_integrator;Pooling=true;");
         }
         public static string GetConnectionString()
         {
@@ -36,8 +30,7 @@ namespace osmintegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<Stop>().HasData(GetStopList());
-            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetZtmStopList("Files\\stops.txt"));
+            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetZtmStopList("Files/stops.txt"));
             base.OnModelCreating(modelBuilder);
         }
     }

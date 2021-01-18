@@ -35,7 +35,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"UserName\": \"admin\",\r\n    \"Password\": \"11112222\"\r\n}"
+					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"12345678\"\r\n}"
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Login",
@@ -71,7 +71,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\t\"UserName\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
+					"raw": "{\r\n\t\"Email\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/Register",
@@ -269,7 +269,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112222\",\r\n    \"ConfirmPassword\": \"11112222\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8wkKCYZ0nXbrLb0AwnMl0fiNgx4Lc4Vpt7A1X8wRtIUxifsyM8EMPGrVGLENXL7XhglNXG0HsdxhaY2p6QfHPGMn7p2wPuQIduZ92TJtjr770ss9sK1qegcbGywoJgMJQfKuk3DQJGuHzbTMap0LTsk0SPUygjuTfEDMELnqIDdhIN4Gfz2bdj8a2MrhPxiARrkZFas799i32oJWz/yePrC\"\r\n}"
+					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112222\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8wwVjCDuqf15F+UBPiy32sBsjgJKNt5PsHK7nMYqLH58sfYMd44KilhgH5jD3iIc05KIOW+JtM/naWbmQ2db4uEkHWhlXWF+ION+fM7fyqLELR1VVYRD+CBSR4eyjVafgIR+7SnACdDxymQIbf+P9I+YKxgxX2js/+pWbk1n7NvgMzOPuIZe3cMdXdjmvin1MRenXvY2mtuSJymh8NdNe70\"\r\n}"
 				},
 				"url": {
 					"raw": "{{host}}/api/Account/ResetPassword",
