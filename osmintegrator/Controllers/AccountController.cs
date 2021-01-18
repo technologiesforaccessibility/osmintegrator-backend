@@ -241,7 +241,7 @@ namespace osmintegrator.Controllers
 
                         //Generate reset password link using url to frontend service, email and reset password token
                         //for example: 
-                        string urlToResetPassword = _configuration["FrontendUrl"] + "/ResetPassword?email=" + model.Email + "&token=" + token;
+                        string urlToResetPassword = _configuration["FrontendUrl"] + "/auth/reset?email=" + model.Email + "&token=" + token;
                         // to do: create function to generate email message and subject
                         // containing instruction what to do and url link to reset password
 
