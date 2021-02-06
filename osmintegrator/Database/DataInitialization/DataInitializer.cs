@@ -18,12 +18,12 @@ namespace osmintegrator.Database.DataInitialization
         }
         public void InitializeData()
         {
-            var customers = new List<Stop>
+            var stops = new List<Stop>
             {
                 new Stop { StopId=2000, TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},
                 new Stop { StopId=2001, TypeId = 1, StopName = "Katowice, Lipowa 3", Lat=59.645f, Lon=18.8353f},
             };
-            customers.ForEach(x => _context.Stops.Add(x));
+            stops.ForEach(x => _context.Stops.Add(x));
             _context.SaveChanges();
         }
 
