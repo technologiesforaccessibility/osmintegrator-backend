@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using osmintegrator.Interfaces;
 using osmintegrator.Models;
@@ -28,14 +29,17 @@ namespace osmintegrator.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<AccountController> _logger;
 
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IEmailService emailService,
-            IConfiguration configuration
+            IConfiguration configuration,
+            ILogger<AccountController> logger
             )
         {
+            _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
@@ -67,7 +71,14 @@ namespace osmintegrator.Controllers
                     return BadRequest(new ValidationError() { Message = JsonSerializer.Serialize(serializableModelState) });
                 }
 
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+                IdentityUser userEmail = await _userManager.FindByEmailAsync(model.Email);
+
+                if (userEmail == null)
+                {
+                    return BadRequest(new ValidationError() { Message = "Email doesn't exist" });
+                }
+
+                var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
 
                 if (result.Succeeded)
                 {
@@ -81,6 +92,8 @@ namespace osmintegrator.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(Login)} method.");
+
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
@@ -110,6 +123,51 @@ namespace osmintegrator.Controllers
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(Refresh)} method.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmRegistration([FromBody] ConfirmRegistration model)
+        {
+            try
+            {
+                model.Email = model.Email.ToLower().Trim();
+
+                if (!ModelState.IsValid)
+                {
+                    Error error = new ValidationError();
+                    var serializableModelState = new SerializableError(ModelState);
+                    error.Message = JsonSerializer.Serialize(serializableModelState);
+                    return BadRequest(error);
+                }
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user == null)
+                {
+                    string errorMessage = "User with this email does not exist.";
+                    return BadRequest(new ValidationError() { Message = errorMessage });
+                }
+
+                var result = await _userManager.ConfirmEmailAsync(user, model.Token);
+
+                if (!result.Succeeded)
+                {
+                    string errorMessage = string.Empty;
+                    foreach (var identityError in result.Errors)
+                    {
+                        errorMessage += identityError.Description;
+                    }
+
+                    return BadRequest(new Error() { Description = "Reset password failed", Message = errorMessage });
+                }
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(ConfirmRegistration)} method.");
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
@@ -118,44 +176,64 @@ namespace osmintegrator.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterData model)
         {
-            if (!ModelState.IsValid)
-            {
-                Error error = new ValidationError();
-                var serializableModelState = new SerializableError(ModelState);
-                error.Message = JsonSerializer.Serialize(serializableModelState);
-                return BadRequest(error);
-            }
-
             try
             {
-                var user = new IdentityUser
-                {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    EmailConfirmed = true
-                };
+                model.Email = model.Email.ToLower().Trim();
+                model.Username = model.Username.Trim();
 
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
+                if (!ModelState.IsValid)
                 {
-                    await _signInManager.SignInAsync(user, false);
-                    TokenData tokenData = GenerateJwtToken(model.Email, user);
-                    return Ok(tokenData);
+                    Error error = new ValidationError();
+                    var serializableModelState = new SerializableError(ModelState);
+                    error.Message = JsonSerializer.Serialize(serializableModelState);
+                    return BadRequest(error);
                 }
 
-                Error error = new UnknownError();
-                error.Message = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
-                return BadRequest(error);
+                IdentityUser user = new IdentityUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    EmailConfirmed = false
+                };
+
+                var emailUser = await _userManager.FindByEmailAsync(model.Email);
+                if (emailUser != null)
+                {
+                    if (emailUser.EmailConfirmed)
+                    {
+                        Error error = new ValidationError();
+                        error.Message = "Email occupied";
+                        return BadRequest(error);
+                    }
+                }
+                else
+                {
+                    IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (!result.Succeeded)
+                    {
+                        Error error = new UnknownError();
+                        error.Message = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
+                        return BadRequest(error);
+                    }
+                }
+
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
+                _emailService.Send(model.Email, "Confirm account registration", "Click to confirm account registratino:" + urlToResetPassword);
+
+                return Ok();
             }
             catch (Exception ex)
             {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(Register)} method.");
+
                 Error error = new UnknownError();
                 error.Message = ex.Message;
                 return BadRequest(error);
             }
         }
-
 
         private TokenData GenerateJwtToken(string userName, IdentityUser user)
         {
@@ -245,7 +323,7 @@ namespace osmintegrator.Controllers
                         // to do: create function to generate email message and subject
                         // containing instruction what to do and url link to reset password
 
-                        _emailService.Send("noreply@rozwiazaniadlaniewidomych.org", model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
+                        _emailService.Send(model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
                         return Ok();
                     }
                     else
@@ -264,9 +342,10 @@ namespace osmintegrator.Controllers
                 Error error = new Error() { Message = errorMessage };
                 return BadRequest(error);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Error error = new UnknownError() { Message = e.Message };
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(ForgotPassword)} method.");
+                Error error = new UnknownError() { Message = ex.Message };
                 return BadRequest(error);
             }
         }
@@ -319,9 +398,10 @@ namespace osmintegrator.Controllers
                     return BadRequest(new ValidationError() { Message = errorMessage });
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return BadRequest(new UnknownError() { Message = e.Message });
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(ResetPassword)} method.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
     }
