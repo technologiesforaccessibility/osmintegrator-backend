@@ -17,10 +17,10 @@ namespace osmintegrator.Services
             _configuration = configuration;
         }
 
-        public void Send(string from, string to, string subject, string message)
+        public void Send(string to, string subject, string message)
         {
             var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse(from));
+            email.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
             email.To.Add(MailboxAddress.Parse(to));
             email.Subject = subject;
             email.Body = new TextPart(TextFormat.Html) { Text = message };
