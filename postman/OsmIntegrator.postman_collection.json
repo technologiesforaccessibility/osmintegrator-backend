@@ -6,285 +6,342 @@
 	},
 	"item": [
 		{
-			"name": "Login",
-			"event": [
+			"name": "Account",
+			"item": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"12345678\"\r\n}"
-				},
-				"url": {
-					"raw": "{{host}}/api/Account/Login",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"api",
-						"Account",
-						"Login"
-					]
-				},
-				"description": "Account/Login"
-			},
-			"response": []
-		},
-		{
-			"name": "Register user",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"Email\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
-				},
-				"url": {
-					"raw": "{{host}}/api/Account/Register",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"api",
-						"Account",
-						"Register"
-					]
-				},
-				"description": "Account/Register"
-			},
-			"response": []
-		},
-		{
-			"name": "Protected",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
+					"name": "Login",
+					"event": [
 						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
-					]
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": ""
-				},
-				"url": {
-					"raw": "{{host}}/api/Account/Protected",
-					"host": [
-						"{{host}}"
 					],
-					"path": [
-						"api",
-						"Account",
-						"Protected"
-					]
-				},
-				"description": "Account/Protected"
-			},
-			"response": []
-		},
-		{
-			"name": "Refresh",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
 						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
 					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"refreshToken\": \"{{refreshToken}}\",\r\n\t\"token\": \"{{token}}\"\r\n}"
+					"response": []
 				},
-				"url": {
-					"raw": "{{host}}/api/Account/Refresh",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"api",
-						"Account",
-						"Refresh"
-					]
-				},
-				"description": "Account/Refresh"
-			},
-			"response": []
-		},
-		{
-			"name": "ForgotPassword",
-			"event": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
 						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Username\": \"luktar\",\r\n\t\"Email\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Register"
+							]
+						},
+						"description": "Account/Register"
 					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\"\r\n}"
+					"response": []
 				},
-				"url": {
-					"raw": "{{host}}/api/Account/ForgotPassword",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"api",
-						"Account",
-						"ForgotPassword"
-					]
-				},
-				"description": "Account/ForgotPassword"
-			},
-			"response": []
-		},
-		{
-			"name": "ResetPassword",
-			"event": [
 				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							""
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "POST",
-				"header": [
-					{
-						"key": "Cache-Control",
-						"value": "no-cache"
-					},
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112222\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8wwVjCDuqf15F+UBPiy32sBsjgJKNt5PsHK7nMYqLH58sfYMd44KilhgH5jD3iIc05KIOW+JtM/naWbmQ2db4uEkHWhlXWF+ION+fM7fyqLELR1VVYRD+CBSR4eyjVafgIR+7SnACdDxymQIbf+P9I+YKxgxX2js/+pWbk1n7NvgMzOPuIZe3cMdXdjmvin1MRenXvY2mtuSJymh8NdNe70\"\r\n}"
-				},
-				"url": {
-					"raw": "{{host}}/api/Account/ResetPassword",
-					"host": [
-						"{{host}}"
+					"name": "Protected",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
 					],
-					"path": [
-						"api",
-						"Account",
-						"ResetPassword"
-					]
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Protected",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Protected"
+							]
+						},
+						"description": "Account/Protected"
+					},
+					"response": []
 				},
-				"description": "Account/ResetPassword"
-			},
-			"response": []
+				{
+					"name": "Refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"refreshToken\": \"wggpU/rUu7ZTfq9J1N+HDPvRtSPX+DZBW4bSmE9HIJk=\",\r\n\t\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiYWMzYWZmZjktMzYwZi00NTRkLWExMTQtMDI1MWM3OTM3YjRjIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiI3NWQyOWVjNS1jMjUwLTQ0NjEtODE5Zi05YTc0YzA2OGU5ZmUiLCJyZWZyZXNoX3Rva2VuIjoid2dncFUvclV1N1pUZnE5SjFOK0hEUHZSdFNQWCtEWkJXNGJTbUU5SElKaz0iLCJleHAiOjE2MTEwODU4OTIsImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.oHHoHbY4oRnLycOCt4c9Jd8lKehtXTvV-XmwHZHKJrg\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Refresh",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Refresh"
+							]
+						},
+						"description": "Account/Refresh"
+					},
+					"response": []
+				},
+				{
+					"name": "ForgotPassword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ForgotPassword",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ForgotPassword"
+							]
+						},
+						"description": "Account/ForgotPassword"
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112223\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yo/IXH+NkTC9yB18AK/4llXUOO2KZI2DUijkFySoGiovIVyJagJYfVVauvdQ4dgLeBYPueQUR/WqtoWroh2mXAeu3jDE3c4VExwkeSv8Cpue8U/xetqkT8L03OW6SFQ9u4+RwR+vgLbFCi0rfraK8HqqDtUyYjOfMu9DHt8pCBJAJEgG4GateyndXRXHIspBIikvJHKkwJGMddzN7MYu83\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ResetPassword",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ResetPassword"
+							]
+						},
+						"description": "Account/ResetPassword"
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmRegistration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yLd1RRAtDjLHv5snRTH+mSxQQ8kZ7g602ta69KzM8WFxprxBWQkkBXRUTc+3N77Hjg56o35Enh/1ueRjPynvsNsl1DBlioxcV4Ohhfu/jnzRYNbybNNBXKqXtJi3CfqZgCEjS8+2lj8q7mUj2dK9Xbe0yRECJZacmhXI40CnDA2QgVuTDTBPHKGTjUiua5XaQq4ncd+7vWQpry2fgBKGHBRyxY8bCkt1auuQ0O1pS83g==\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ConfirmRegistration",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ConfirmRegistration"
+							]
+						},
+						"description": "Account/ResetPassword"
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
