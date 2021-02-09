@@ -28,9 +28,14 @@ dotnet run -p osmintegrator
 ### Check website
 
 Project should work on following websites:
-* Linux (Kestrel): 
-* Wndows (IISExpres): 
+* Linux (Kestrel): `https://0.0.0.0:9999`
+* Wndows (IISExpres): ``
 
+# Examine the API with Postman
+
+Download and install [Postman](https://www.postman.com/downloads/).
+
+Import
 
 # Documentation
 
