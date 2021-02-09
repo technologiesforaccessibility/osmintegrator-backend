@@ -29,13 +29,16 @@ dotnet run -p osmintegrator
 
 Project should work on following websites:
 * Linux (Kestrel): `https://0.0.0.0:9999`
-* Wndows (IISExpres): ``
+* Wndows (IISExpres): `http://localhost:44388`
 
 # Examine the API with Postman
 
 Download and install [Postman](https://www.postman.com/downloads/).
-
-Import
+Postman collections are located in `postman` driectory.
+* collection: `OsmIntegrator.postman_collection.json`
+* environments for IISExpress: `osmintegrator_local_iis.postman_environment.json`
+* environments for Kestrel: `osmintegrator_local_kestrel.postman_environment.json`
+* environments for remote: `osmintegrator_local_remote.postman_environment.json`
 
 # Documentation
 
