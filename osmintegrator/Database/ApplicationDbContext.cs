@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using osmintegrator.Database.DataInitialization;
+using osmintegrator.Database.Models;
 using osmintegrator.Models;
 
 namespace osmintegrator.Database
@@ -10,7 +11,7 @@ namespace osmintegrator.Database
     {
         private static IConfiguration _configuration;
 
-        public DbSet<Stop> Stops { get; set; }
+        public DbSet<Stop> GtfsStops { get; set; }
         public DbSet<LoginData> LoginDatas { get; set; }
 
         public ApplicationDbContext(IConfiguration configuration)
@@ -30,7 +31,7 @@ namespace osmintegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetZtmStopList("Files/stops.txt"));
+            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetGtfsStopList("Files/GtfsStops.txt"));
             base.OnModelCreating(modelBuilder);
         }
     }

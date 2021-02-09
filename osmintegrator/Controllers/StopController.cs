@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using osmintegrator.Database;
@@ -11,26 +10,35 @@ using osmintegrator.Models;
 namespace osmintegrator.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]/[action]")]
     public class StopController : ControllerBase
     {
         private readonly ILogger<StopController> _logger;
-        private readonly IConfiguration _configuration;
+        private readonly ApplicationDbContext _dbContext;
 
         public StopController(
             ILogger<StopController> logger,
-            IConfiguration configuration
+            IConfiguration configuration,
+            ApplicationDbContext dbContext
         )
         {
             _logger = logger;
-            _configuration = configuration;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
-        public IEnumerable<Stop> Get()
+        public async Task<IActionResult> GetAll()
         {
-            var applicationDbContext = new ApplicationDbContext(_configuration);
-            return applicationDbContext.Stops.ToArray();
+            try
+            {
+                var result = await _dbContext.GtfsStops.ToListAsync();
+                return Ok(result);
+
+            } catch(Exception ex)
+            {
+                _logger.LogWarning(ex, "Unknown error while performing ");
+                return BadRequest(new UnknownError() { Description = ex.Message });
+            }
         }
     }
 }

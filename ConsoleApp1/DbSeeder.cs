@@ -21,7 +21,7 @@ namespace ConsoleApp1
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _dbContext.Stops.AddRangeAsync(
+            await _dbContext.GtfsStops.AddRangeAsync(
                 new List<Stop>
                 {
                 new Stop { StopId=9006, TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},
