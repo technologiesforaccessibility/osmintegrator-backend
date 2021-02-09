@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace osmintegrator.Models
+namespace OsmIntegrator.Models
 {
     public class ForgotPassword
     {

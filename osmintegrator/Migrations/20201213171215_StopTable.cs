@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace osmintegrator.Migrations
+namespace OsmIntegrator.Migrations
 {
     public partial class StopTable : Migration
     {

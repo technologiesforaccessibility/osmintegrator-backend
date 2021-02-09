@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using osmintegrator.Interfaces;
-using osmintegrator.Models;
+using OsmIntegrator.Interfaces;
+using OsmIntegrator.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +18,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace osmintegrator.Controllers
+namespace OsmIntegrator.Controllers
 {
     [EnableCors("AllowOrigin")]
     [Authorize]

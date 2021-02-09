@@ -3,10 +3,10 @@ using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MimeKit.Text;
-using osmintegrator.Interfaces;
+using OsmIntegrator.Interfaces;
 using System;
 
-namespace osmintegrator.Services
+namespace OsmIntegrator.Services
 {
     public class EmailService : IEmailService
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace osmintegrator.Models
+namespace OsmIntegrator.Models
 {
     public class AuthorizationError : Error
     {

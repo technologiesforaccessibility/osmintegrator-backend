@@ -1,14 +1,14 @@
-﻿using osmintegrator.Models;
+﻿using OsmIntegrator.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
-using osmintegrator.Database.Models;
+using OsmIntegrator.Database.Models;
 using OsmIntegrator.Enums;
 
-namespace osmintegrator.Database.DataInitialization
+namespace OsmIntegrator.Database.DataInitialization
 {
     public class DataInitializer
     {

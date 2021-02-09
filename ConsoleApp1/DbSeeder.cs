@@ -1,5 +1,5 @@
-﻿using osmintegrator.Database;
-using osmintegrator.Models;
+﻿using OsmIntegrator.Database;
+using OsmIntegrator.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace ConsoleApp1
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _dbContext.GtfsStops.AddRangeAsync(
+            await _dbContext.Stops.AddRangeAsync(
                 new List<Stop>
                 {
                 new Stop { StopId=9006, TypeId = 1, StopName = "Katowice, Kolista 2", Lat=59.345f, Lon=18.4353f},

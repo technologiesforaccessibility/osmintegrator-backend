@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using osmintegrator.Database;
+using OsmIntegrator.Database;
 
-namespace osmintegrator.Migrations
+namespace OsmIntegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -227,7 +227,7 @@ namespace osmintegrator.Migrations
                     b.ToTable("LoginDatas");
                 });
 
-            modelBuilder.Entity("osmintegrator.Models.Stop", b =>
+            modelBuilder.Entity("OsmIntegrator.Models.Stop", b =>
                 {
                     b.Property<int>("StopId")
                         .ValueGeneratedOnAdd()

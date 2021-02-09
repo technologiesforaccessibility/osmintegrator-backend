@@ -1,4 +1,4 @@
-﻿namespace osmintegrator.Interfaces
+﻿namespace OsmIntegrator.Interfaces
 {
     public interface IEmailService
     {

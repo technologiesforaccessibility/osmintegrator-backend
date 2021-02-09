@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using osmintegrator.Database;
+using OsmIntegrator.Database;
 
-namespace osmintegrator.Migrations
+namespace OsmIntegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20201213160516_CreateDatabase")]

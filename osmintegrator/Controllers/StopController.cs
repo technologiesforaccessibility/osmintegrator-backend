@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using osmintegrator.Database;
-using osmintegrator.Models;
+using OsmIntegrator.Database;
+using OsmIntegrator.Models;
 
-namespace osmintegrator.Controllers
+namespace OsmIntegrator.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
@@ -31,7 +31,7 @@ namespace osmintegrator.Controllers
         {
             try
             {
-                var result = await _dbContext.GtfsStops.ToListAsync();
+                var result = await _dbContext.Stops.ToListAsync();
                 return Ok(result);
 
             } catch(Exception ex)

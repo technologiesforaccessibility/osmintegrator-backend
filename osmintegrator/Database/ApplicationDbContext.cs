@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using osmintegrator.Database.DataInitialization;
-using osmintegrator.Database.Models;
-using osmintegrator.Models;
+using OsmIntegrator.Database.DataInitialization;
+using OsmIntegrator.Database.Models;
+using OsmIntegrator.Models;
 
-namespace osmintegrator.Database
+namespace OsmIntegrator.Database
 {
     public class ApplicationDbContext : IdentityDbContext
     {
         private static IConfiguration _configuration;
 
-        public DbSet<Stop> GtfsStops { get; set; }
+        public DbSet<Stop> Stops { get; set; }
         public DbSet<LoginData> LoginDatas { get; set; }
 
         public ApplicationDbContext(IConfiguration configuration)
