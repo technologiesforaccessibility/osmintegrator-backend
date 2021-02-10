@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
-using OsmIntegrator.Models;
+using OsmIntegrator.ApiModels;
 
 namespace OsmIntegrator.Controllers
 {
@@ -31,7 +31,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var result = await _dbContext.Stops.ToListAsync();
+                var result = await _dbContext.GtfsStops.ToListAsync();
                 return Ok(result);
 
             } catch(Exception ex)

@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Models;
+using OsmIntegrator.ApiModels;
+using System.Collections.Generic;
 
 namespace OsmIntegrator.Database
 {
@@ -11,7 +12,12 @@ namespace OsmIntegrator.Database
     {
         private static IConfiguration _configuration;
 
-        public DbSet<Stop> Stops { get; set; }
+        public DbSet<GtfsStop> GtfsStops { get; set; }
+
+        public DbSet<OsmStop> OsmStops { get; set; }
+
+        public DbSet<OsmTag> OsmTags { get; set; }
+
         public DbSet<LoginData> LoginDatas { get; set; }
 
         public ApplicationDbContext(IConfiguration configuration)
@@ -31,7 +37,13 @@ namespace OsmIntegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Stop>().HasData(DataInitializer.GetGtfsStopList("Files/GtfsStops.txt"));
+            modelBuilder.Entity<GtfsStop>().HasData(DataInitializer.GetGtfsStopsList());
+
+            (List<OsmStop> Stops, List<OsmTag> Tags) = DataInitializer.GetOsmStopsList();
+
+            modelBuilder.Entity<OsmStop>().HasData(Stops);
+            modelBuilder.Entity<OsmTag>().HasData(Tags);
+
             base.OnModelCreating(modelBuilder);
         }
     }

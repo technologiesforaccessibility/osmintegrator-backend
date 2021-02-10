@@ -1,6 +1,6 @@
 ﻿using OsmIntegrator.Interfaces;
 
-namespace OsmIntegrator.Models
+namespace OsmIntegrator.ApiModels
 {
     public class Error
     {

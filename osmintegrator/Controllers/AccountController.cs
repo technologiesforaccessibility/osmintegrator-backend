@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using OsmIntegrator.Interfaces;
-using OsmIntegrator.Models;
+using OsmIntegrator.ApiModels;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;

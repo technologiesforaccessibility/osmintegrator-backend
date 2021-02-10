@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
-using OsmIntegrator.Models;
+using OsmIntegrator.ApiModels;
 using System;
 using System.IO;
 using System.Threading.Tasks;
