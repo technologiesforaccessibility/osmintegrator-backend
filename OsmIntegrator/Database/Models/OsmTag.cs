@@ -9,6 +9,7 @@ namespace OsmIntegrator.Database.Models
 {
     public class OsmTag
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
 

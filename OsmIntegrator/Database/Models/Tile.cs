@@ -7,26 +7,34 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class GtfsStop
+    public class Tile
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
 
         [Required]
-        public long StopId { get; set; }
+        public long X { get; set; }
 
         [Required]
-        public string Name { get; set; }
-
-        [Required]
-        public string Number { get; set; }
+        public long Y { get; set; }
 
         [Required]
         public double Lat { get; set; }
 
         [Required]
         public double Lon { get; set; }
-        
+
+        public override bool Equals(object obj)
+        {
+            return obj is Tile tile &&
+                   X == tile.X &&
+                   Y == tile.Y;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y);
+        }
     }
 }

@@ -10,9 +10,9 @@ namespace OsmIntegrator.Database
 {
     public class ApplicationDbContext : IdentityDbContext
     {
-        private static IConfiguration _configuration;
+        private IConfiguration _configuration;
 
-        public DbSet<GtfsStop> GtfsStops { get; set; }
+        public  DbSet<GtfsStop> GtfsStops { get; set; }
 
         public DbSet<OsmStop> OsmStops { get; set; }
 
@@ -20,9 +20,14 @@ namespace OsmIntegrator.Database
 
         public DbSet<LoginData> LoginDatas { get; set; }
 
-        public ApplicationDbContext(IConfiguration configuration)
+        public DbSet<Tile> Tiles { get; set; }
+
+        private DataInitializer _dataInitializer { get; set; }
+
+        public ApplicationDbContext(IConfiguration configuration, DataInitializer dataInitializer)
         {
             _configuration = configuration;
+            _dataInitializer = dataInitializer;
             Database.EnsureCreated();
         }
 
@@ -30,16 +35,19 @@ namespace OsmIntegrator.Database
         {
             _ = optionsBuilder.UseNpgsql(GetConnectionString());
         }
-        public static string GetConnectionString()
+        public string GetConnectionString()
         {
             return _configuration["DBConnectionString"].ToString();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GtfsStop>().HasData(DataInitializer.GetGtfsStopsList());
+            List<GtfsStop> gtfsStops = _dataInitializer.GetGtfsStopsList();
+            modelBuilder.Entity<GtfsStop>().HasData(gtfsStops);
 
-            (List<OsmStop> Stops, List<OsmTag> Tags) = DataInitializer.GetOsmStopsList();
+            (List<OsmStop> Stops, List<OsmTag> Tags) = _dataInitializer.GetOsmStopsList();
+
+            List<Tile> tiles = _dataInitializer.GetTiles(gtfsStops, Stops);
 
             modelBuilder.Entity<OsmStop>().HasData(Stops);
             modelBuilder.Entity<OsmTag>().HasData(Tags);

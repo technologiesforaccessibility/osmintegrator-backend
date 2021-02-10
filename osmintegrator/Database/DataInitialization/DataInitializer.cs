@@ -6,12 +6,21 @@ using System.Xml.Serialization;
 using OsmIntegrator.Tools;
 using System.IO;
 using System;
+using Microsoft.Extensions.Configuration;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
     public class DataInitializer
     {
-        public static List<GtfsStop> GetGtfsStopsList()
+
+        private readonly int _zoomLevel;
+
+        public DataInitializer(IConfiguration configuration)
+        {
+            _zoomLevel = int.Parse(configuration["ZoomLevel"]);
+        }
+
+        public List<GtfsStop> GetGtfsStopsList()
         {
             List<string[]> csvStopList = CsvParser.Parse("Files/GtfsStops.txt");
             List<GtfsStop> ztmStopList = csvStopList.Select((x, index) => new GtfsStop()
@@ -26,7 +35,7 @@ namespace OsmIntegrator.Database.DataInitialization
             return ztmStopList;
         }
 
-        public static (List<OsmStop> Stops, List<OsmTag> Tags) GetOsmStopsList()
+        public (List<OsmStop> Stops, List<OsmTag> Tags) GetOsmStopsList()
         {
             List<OsmStop> result = new List<OsmStop>();
             List<OsmTag> tags = new List<OsmTag>();
@@ -68,6 +77,31 @@ namespace OsmIntegrator.Database.DataInitialization
             }
 
             return (result, tags);
+        }
+
+        public List<Tile> GetTiles(List<GtfsStop> gtfsStops, List<OsmStop> osmStops)
+        {
+            HashSet<Tile> result = new HashSet<Tile>();
+
+            foreach(GtfsStop stop in gtfsStops)
+            {
+                Point p = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
+                Tile t = new Tile()
+                {
+                    X = (long)p.X,
+                    Y = (long)p.Y
+                };
+
+                if(!result.Contains(t))
+                {
+                    result.Add(t);
+                } else
+                {
+                    Console.WriteLine("no");
+                }
+            }
+
+            return result.ToList();
         }
     }
 }
