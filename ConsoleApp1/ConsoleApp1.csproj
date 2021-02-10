@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\osmintegrator\osmintegrator.csproj" />
+    <ProjectReference Include="..\osmintegrator\OsmIntegrator.csproj" />
   </ItemGroup>
 
 </Project>

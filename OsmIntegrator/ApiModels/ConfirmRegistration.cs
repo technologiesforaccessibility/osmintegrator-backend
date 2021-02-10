@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace osmintegrator.Models
+namespace OsmIntegrator.ApiModels
 {
     public class ConfirmRegistration
     {

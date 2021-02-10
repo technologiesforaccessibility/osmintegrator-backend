@@ -10,9 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using osmintegrator.Database;
-using osmintegrator.Interfaces;
-using osmintegrator.Services;
+using OsmIntegrator.Database;
+using OsmIntegrator.Database.DataInitialization;
+using OsmIntegrator.Interfaces;
+using OsmIntegrator.Services;
 
 namespace osmintegrator
 {
@@ -28,6 +29,7 @@ namespace osmintegrator
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
 

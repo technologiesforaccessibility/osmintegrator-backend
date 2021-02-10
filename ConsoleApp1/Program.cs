@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using osmintegrator.Database;
-using osmintegrator.Database.DataInitialization;
-using osmintegrator.Models;
+using OsmIntegrator.Database;
+using OsmIntegrator.Database.DataInitialization;
+using OsmIntegrator.ApiModels;
 using System;
 using System.IO;
 using System.Threading.Tasks;

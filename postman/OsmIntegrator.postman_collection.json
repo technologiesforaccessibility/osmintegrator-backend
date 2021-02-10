@@ -324,7 +324,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yLd1RRAtDjLHv5snRTH+mSxQQ8kZ7g602ta69KzM8WFxprxBWQkkBXRUTc+3N77Hjg56o35Enh/1ueRjPynvsNsl1DBlioxcV4Ohhfu/jnzRYNbybNNBXKqXtJi3CfqZgCEjS8+2lj8q7mUj2dK9Xbe0yRECJZacmhXI40CnDA2QgVuTDTBPHKGTjUiua5XaQq4ncd+7vWQpry2fgBKGHBRyxY8bCkt1auuQ0O1pS83g==\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yna5E9xdBj4ozJATfr0Ae9iTeAZzN2AbkHLdYozn3kiErGNvpqpEHZZHzAn4xAFZzme590wfSUM91OkxwcrYaZ1dau9Tn65GKglzmsyCvNTjgmcNTWLwHxXNq//zwzUCEhtqMZYZLZRNMpeR2TJr1MVGfthRVjnorkAB6/IAYmysAzX/fuAyletGENtHpEdjM6DMq/VANBVW2bcmsJIo+JcSebzd8t0XWdtLkjxV3rvA==\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/ConfirmRegistration",
@@ -338,6 +338,68 @@
 							]
 						},
 						"description": "Account/ResetPassword"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stops",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/GetAll",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"GetAll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tiles",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiZTAzNjc2MjAtZTMwOC00MDQ2LWE2ZTYtNTY0MWQ1MGRkMjYyIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiJmMjdjNTM0Zi1lMzA2LTRjOTMtYWUyYi1mNjY1ZjllOTdkNjYiLCJyZWZyZXNoX3Rva2VuIjoiaXBaMm9Xb2kvaTNLaDQzRXVtOXg3VlQ4VlI2V0RQbVBYMkhpTlFjbElFTT0iLCJleHAiOjE2MTM2MDExODgsImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.FZICa33ZBlNmsNjmk9U6VWurzRyi4BAixR_xCAzdpZk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile"
+							]
+						}
 					},
 					"response": []
 				}

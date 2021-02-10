@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using osmintegrator.Interfaces;
-using osmintegrator.Models;
+using OsmIntegrator.Interfaces;
+using OsmIntegrator.ApiModels;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +18,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace osmintegrator.Controllers
+namespace OsmIntegrator.Controllers
 {
     [EnableCors("AllowOrigin")]
     [Authorize]
@@ -44,19 +44,6 @@ namespace osmintegrator.Controllers
             _signInManager = signInManager;
             _emailService = emailService;
             _configuration = configuration;
-        }
-
-        [HttpGet]
-        public async Task<string> Protected()
-        {
-            return await Task.Run(() => { return "Protected area"; });
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<string> NoProtected()
-        {
-            return await Task.Run(() => { return "No protected area"; });
         }
 
         [HttpPost]
