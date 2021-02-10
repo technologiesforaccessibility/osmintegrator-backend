@@ -12,11 +12,9 @@ namespace OsmIntegrator.Database
     {
         private IConfiguration _configuration;
 
-        public  DbSet<GtfsStop> GtfsStops { get; set; }
+        public DbSet<Stop> Stops { get; set; }
 
-        public DbSet<OsmStop> OsmStops { get; set; }
-
-        public DbSet<OsmTag> OsmTags { get; set; }
+        public DbSet<Tag> Tags { get; set; }
 
         public DbSet<LoginData> LoginDatas { get; set; }
 
@@ -42,15 +40,17 @@ namespace OsmIntegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            List<GtfsStop> gtfsStops = _dataInitializer.GetGtfsStopsList();
-            modelBuilder.Entity<GtfsStop>().HasData(gtfsStops);
+            List<Stop> gtfsStops = _dataInitializer.GetGtfsStopsList();
 
-            (List<OsmStop> Stops, List<OsmTag> Tags) = _dataInitializer.GetOsmStopsList();
+            (List<Stop> Stops, List<Tag> Tags) = _dataInitializer.GetOsmStopsList();
 
-            List<Tile> tiles = _dataInitializer.GetTiles(gtfsStops, Stops);
+            gtfsStops.AddRange(Stops);
 
-            modelBuilder.Entity<OsmStop>().HasData(Stops);
-            modelBuilder.Entity<OsmTag>().HasData(Tags);
+            List<Tile> tiles = _dataInitializer.GetTiles(gtfsStops);
+
+            modelBuilder.Entity<Stop>().HasData(gtfsStops);
+            modelBuilder.Entity<Tag>().HasData(Tags);
+            modelBuilder.Entity<Tile>().HasData(tiles);
 
             base.OnModelCreating(modelBuilder);
         }

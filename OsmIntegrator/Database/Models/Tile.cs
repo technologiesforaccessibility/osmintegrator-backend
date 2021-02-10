@@ -25,6 +25,8 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public double Lon { get; set; }
 
+        public List<Stop> Stops { get; set; }
+
         public override bool Equals(object obj)
         {
             return obj is Tile tile &&

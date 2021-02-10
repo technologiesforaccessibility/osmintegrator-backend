@@ -20,25 +20,27 @@ namespace OsmIntegrator.Database.DataInitialization
             _zoomLevel = int.Parse(configuration["ZoomLevel"]);
         }
 
-        public List<GtfsStop> GetGtfsStopsList()
+        public List<Stop> GetGtfsStopsList()
         {
             List<string[]> csvStopList = CsvParser.Parse("Files/GtfsStops.txt");
-            List<GtfsStop> ztmStopList = csvStopList.Select((x, index) => new GtfsStop()
+            List<Stop> ztmStopList = csvStopList.Select((x, index) => new Stop()
             {
                 Id = Guid.NewGuid(),
                 StopId = long.Parse(x[0]),
                 Number = x[1],
                 Name = x[2],
                 Lat = double.Parse(x[4], CultureInfo.InvariantCulture.NumberFormat),
-                Lon = double.Parse(x[5], CultureInfo.InvariantCulture.NumberFormat)
+                Lon = double.Parse(x[5], CultureInfo.InvariantCulture.NumberFormat),
+                StopType = StopType.Gtfs,
+                ProviderType = ProviderType.Ztm
             }).ToList();
             return ztmStopList;
         }
 
-        public (List<OsmStop> Stops, List<OsmTag> Tags) GetOsmStopsList()
+        public (List<Stop> Stops, List<Models.Tag> Tags) GetOsmStopsList()
         {
-            List<OsmStop> result = new List<OsmStop>();
-            List<OsmTag> tags = new List<OsmTag>();
+            List<Stop> result = new List<Stop>();
+            List<Models.Tag> tags = new List<Models.Tag>();
 
             XmlSerializer serializer =
                 new XmlSerializer(typeof(Osm));
@@ -49,17 +51,19 @@ namespace OsmIntegrator.Database.DataInitialization
 
                 foreach (Node node in osmRoot.Node)
                 {
-                    OsmStop stop = new OsmStop
+                    Stop stop = new Stop
                     {
                         Id = Guid.NewGuid(),
                         StopId = long.Parse(node.Id),
                         Lat = double.Parse(node.Lat, CultureInfo.InvariantCulture),
                         Lon = double.Parse(node.Lon, CultureInfo.InvariantCulture),
+                        StopType = StopType.Osm,
+                        ProviderType = ProviderType.Ztm
                     };
 
-                    List<OsmTag> tempTags = new List<OsmTag>();
+                    List<Models.Tag> tempTags = new List<Models.Tag>();
 
-                    node.Tag.ForEach(x => tempTags.Add(new OsmTag()
+                    node.Tag.ForEach(x => tempTags.Add(new Models.Tag()
                     {
                         Id = Guid.NewGuid(),
                         OsmStopId = stop.Id,
@@ -79,26 +83,32 @@ namespace OsmIntegrator.Database.DataInitialization
             return (result, tags);
         }
 
-        public List<Tile> GetTiles(List<GtfsStop> gtfsStops, List<OsmStop> osmStops)
+        public List<Tile> GetTiles(List<Stop> stops)
         {
             HashSet<Tile> result = new HashSet<Tile>();
 
-            foreach(GtfsStop stop in gtfsStops)
+            foreach(Stop stop in stops)
             {
-                Point p = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
+                Point tileCoordinates = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
+                Point gpsCoordinates = TilesHelper.TileToWorldPos(tileCoordinates.X, tileCoordinates.Y, _zoomLevel);
                 Tile t = new Tile()
                 {
-                    X = (long)p.X,
-                    Y = (long)p.Y
+                    Id = Guid.NewGuid(),
+                    X = (long)tileCoordinates.X,
+                    Y = (long)tileCoordinates.Y,
+                    Lon = gpsCoordinates.X,
+                    Lat = gpsCoordinates.Y
                 };
 
-                if(!result.Contains(t))
+                Tile desiredTile;
+                if(result.TryGetValue(t, out desiredTile))
                 {
-                    result.Add(t);
+                    stop.TileId = desiredTile.Id;
                 } else
                 {
-                    Console.WriteLine("no");
-                }
+                    stop.TileId = t.Id;
+                    result.Add(t);
+                }    
             }
 
             return result.ToList();

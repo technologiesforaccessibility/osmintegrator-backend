@@ -6,17 +6,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OsmIntegrator.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
-    public class StopController : ControllerBase
+    [Route("api/[controller]")]
+    [Authorize]
+    public class TileController : ControllerBase
     {
         private readonly ILogger<StopController> _logger;
         private readonly ApplicationDbContext _dbContext;
 
-        public StopController(
+        public TileController(
             ILogger<StopController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext
@@ -31,7 +33,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var result = await _dbContext.Stops.ToListAsync();
+                var result = await _dbContext.Tiles.ToListAsync();
                 return Ok(result);
 
             } catch(Exception ex)

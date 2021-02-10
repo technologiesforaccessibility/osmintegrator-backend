@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class OsmStop
+    public class Stop
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -24,6 +24,18 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public double Lon { get; set; }
 
-        public List<OsmTag> Tags {get;set;}
+        public string Number { get; set; }
+
+        public List<Tag> Tags { get; set; }
+
+        [Required]
+        public StopType StopType { get; set; }
+
+        [Required]
+        public ProviderType ProviderType { get; set; }
+
+        public Guid TileId { get; set; }
+
+        public Tile Tile { get; set; }
     }
 }

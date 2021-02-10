@@ -7,26 +7,20 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class GtfsStop
+    public class Tag
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
 
         [Required]
-        public long StopId { get; set; }
+        public string Key { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        public string Value { get; set; }
 
-        [Required]
-        public string Number { get; set; }
+        public Guid OsmStopId { get; set; }
 
-        [Required]
-        public double Lat { get; set; }
-
-        [Required]
-        public double Lon { get; set; }
-        
+        public Stop OsmStop { get; set; }
     }
 }
