@@ -90,7 +90,8 @@ namespace OsmIntegrator.Database.DataInitialization
             foreach(Stop stop in stops)
             {
                 Point tileCoordinates = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
-                Point gpsCoordinates = TilesHelper.TileToWorldPos(tileCoordinates.X, tileCoordinates.Y, _zoomLevel);
+                Point gpsCoordinates = TilesHelper.TileToWorldPos(
+                    (long)tileCoordinates.X, (long)tileCoordinates.Y, _zoomLevel);
                 Tile t = new Tile()
                 {
                     Id = Guid.NewGuid(),

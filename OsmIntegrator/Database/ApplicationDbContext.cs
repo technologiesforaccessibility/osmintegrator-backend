@@ -40,15 +40,15 @@ namespace OsmIntegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            List<Stop> gtfsStops = _dataInitializer.GetGtfsStopsList();
+            List<Stop> allStops = _dataInitializer.GetGtfsStopsList();
 
             (List<Stop> Stops, List<Tag> Tags) = _dataInitializer.GetOsmStopsList();
 
-            gtfsStops.AddRange(Stops);
+            allStops.AddRange(Stops);
 
-            List<Tile> tiles = _dataInitializer.GetTiles(gtfsStops);
+            List<Tile> tiles = _dataInitializer.GetTiles(allStops);
 
-            modelBuilder.Entity<Stop>().HasData(gtfsStops);
+            modelBuilder.Entity<Stop>().HasData(allStops);
             modelBuilder.Entity<Tag>().HasData(Tags);
             modelBuilder.Entity<Tile>().HasData(tiles);
 
