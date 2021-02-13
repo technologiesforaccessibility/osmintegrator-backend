@@ -5,29 +5,39 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Tools
 {
-	public class Point
+	public class Point<T>
     {
-		public double X { get; set; }
-		public double Y { get; set; }
+		public T X { get; set; }
+		public T Y { get; set; }
+
+		public override bool Equals(object obj)
+        {
+            return obj is Point<T> element &&
+                   X.Equals(element.X) &&
+                   Y.Equals(element.Y);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(X, Y);
+        }
     }
 
     public class TilesHelper
     {
-		public static Point WorldToTilePos(double lon, double lat, int zoom)
+		public static Point<long> WorldToTilePos(double lon, double lat, int zoom)
 		{
-			Point result = new Point();
-			result.X = (double)((lon + 180.0) / 360.0 * (1 << zoom));
-			result.Y = (double)((1.0 - Math.Log(Math.Tan(lat * Math.PI / 180.0) +
+			Point<long> result = new Point<long>();
+			result.X = (long)((lon + 180.0) / 360.0 * (1 << zoom));
+			result.Y = (long)((1.0 - Math.Log(Math.Tan(lat * Math.PI / 180.0) +
 				1.0 / Math.Cos(lat * Math.PI / 180.0)) / Math.PI) / 2.0 * (1 << zoom));
-
 			return result;
 		}
 
-		public static Point TileToWorldPos(double x, double y, int zoom)
+		public static Point<double> TileToWorldPos(long x, long y, int zoom)
 		{
-			Point result = new Point();
+			Point<double> result = new Point<double>();
 			double n = Math.PI - ((2.0 * Math.PI * y) / Math.Pow(2.0, zoom));
-
 			result.X = (double)((x / Math.Pow(2.0, zoom) * 360.0) - 180.0);
 			result.Y = (double)(180.0 / Math.PI * Math.Atan(Math.Sinh(n)));
 
