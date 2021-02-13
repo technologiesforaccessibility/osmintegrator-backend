@@ -324,7 +324,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yna5E9xdBj4ozJATfr0Ae9iTeAZzN2AbkHLdYozn3kiErGNvpqpEHZZHzAn4xAFZzme590wfSUM91OkxwcrYaZ1dau9Tn65GKglzmsyCvNTjgmcNTWLwHxXNq//zwzUCEhtqMZYZLZRNMpeR2TJr1MVGfthRVjnorkAB6/IAYmysAzX/fuAyletGENtHpEdjM6DMq/VANBVW2bcmsJIo+JcSebzd8t0XWdtLkjxV3rvA==\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0nL34RvYehkfjiigwKpFOPY2JkDOrsi0jP/0ATV2cZb1BRffoYILeY9Y2cJ7ft/zkF1erglPfr4DJGAnqj6oKTVKMvvtClPIOW/O7XC9NgV3TWVxinOnVUQu3sW0U5agasEhRf7blVsiBylxQtm/hjcbexRWE9SKFZEq4KuR9gWlgJsgcZiWb8JBwBB75m7miPujmLeQZ2xzw38JVZDyf1xe/5UbzSEeRLQr4/vrbp+yw==\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/ConfirmRegistration",
@@ -372,6 +372,39 @@
 			"item": [
 				{
 					"name": "GetAll",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiNzQzNDY0YjctYjY2MS00NDA4LWI0NGYtMDFlNDNmYzE5ODA1IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIwOWI0YWQ0NC03ODUzLTQ0NjctODNjNS05MmY4M2YwN2I5MDIiLCJyZWZyZXNoX3Rva2VuIjoia0dRbUtpdmsraHVqeStkeGxoTUk4cnVtTjJ2K1dFa0ozQjdiWU5TaXIvYz0iLCJleHAiOjE2MTM2ODA0NzksImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.KT1LxCyUDseG7AEk5tEA52VcEUKkDLbji7v3OFDI_Ow",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById",
 					"request": {
 						"auth": {
 							"type": "bearer",
