@@ -96,6 +96,16 @@ namespace OsmIntegrator.Database.DataInitialization
                 {
                     Tile existingTile = result[tileXY];
                     stop.TileId = existingTile.Id;
+
+                    if (stop.StopType == StopType.Gtfs)
+                    {
+                        existingTile.GtfsStopsCount++;
+                    }
+                    else
+                    {
+                        existingTile.OsmStopsCount++;
+                    }
+
                     continue;
                 }
 
@@ -107,10 +117,19 @@ namespace OsmIntegrator.Database.DataInitialization
                     tileXY.X + 1, tileXY.Y + 1, _zoomLevel
                 );
 
-                Tile newTile = new Tile(tileXY.X, tileXY.Y, 
+                Tile newTile = new Tile(tileXY.X, tileXY.Y,
                     leftUpperCorner.X, rightBottomCorner.X,
-                    rightBottomCorner.Y, leftUpperCorner.Y, 
+                    rightBottomCorner.Y, leftUpperCorner.Y,
                     _overlapFactor);
+
+                if (stop.StopType == StopType.Gtfs)
+                {
+                    newTile.GtfsStopsCount++;
+                }
+                else
+                {
+                    newTile.OsmStopsCount++;
+                }
 
                 stop.TileId = newTile.Id;
                 result.Add(tileXY, newTile);

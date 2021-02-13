@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
 
 namespace OsmIntegrator.Controllers
 {
@@ -33,7 +34,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var result = await _dbContext.Tiles.ToListAsync();
+                var result = await _dbContext.Tiles.Where(x => x.GtfsStopsCount > 0).ToListAsync();
                 return Ok(result);
 
             } catch(Exception ex)

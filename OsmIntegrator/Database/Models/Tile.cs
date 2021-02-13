@@ -41,7 +41,11 @@ namespace OsmIntegrator.Database.Models
         public double OverlapMinLat { get; set; }
 
         [Required]
-        public double OverlapMaxLon { get; set; }
+        public double OverlapMaxLon { get; set; } = 0;
+
+        public int OsmStopsCount { get; set; } = 0;
+
+        public int GtfsStopsCount { get; set; }
 
         public List<Stop> Stops { get; set; }
 
