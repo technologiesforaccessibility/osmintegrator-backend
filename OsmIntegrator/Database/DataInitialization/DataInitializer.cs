@@ -12,12 +12,13 @@ namespace OsmIntegrator.Database.DataInitialization
 {
     public class DataInitializer
     {
-
+        private readonly double _overlapFactor;
         private readonly int _zoomLevel;
 
         public DataInitializer(IConfiguration configuration)
         {
             _zoomLevel = int.Parse(configuration["ZoomLevel"]);
+            _overlapFactor = double.Parse(configuration["OverlapFactor"]);
         }
 
         public List<Stop> GetGtfsStopsList()
@@ -85,34 +86,37 @@ namespace OsmIntegrator.Database.DataInitialization
 
         public List<Tile> GetTiles(List<Stop> stops)
         {
-            HashSet<Tile> result = new HashSet<Tile>();
+            Dictionary<Point<long>, Tile> result = new Dictionary<Point<long>, Tile>();
 
-            foreach(Stop stop in stops)
+            foreach (Stop stop in stops)
             {
-                Point tileCoordinates = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
-                Point gpsCoordinates = TilesHelper.TileToWorldPos(
-                    (long)tileCoordinates.X, (long)tileCoordinates.Y, _zoomLevel);
-                Tile t = new Tile()
-                {
-                    Id = Guid.NewGuid(),
-                    X = (long)tileCoordinates.X,
-                    Y = (long)tileCoordinates.Y,
-                    Lon = gpsCoordinates.X,
-                    Lat = gpsCoordinates.Y
-                };
+                Point<long> tileXY = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
 
-                Tile desiredTile;
-                if(result.TryGetValue(t, out desiredTile))
+                if (result.ContainsKey(tileXY))
                 {
-                    stop.TileId = desiredTile.Id;
-                } else
-                {
-                    stop.TileId = t.Id;
-                    result.Add(t);
-                }    
+                    Tile existingTile = result[tileXY];
+                    stop.TileId = existingTile.Id;
+                    continue;
+                }
+
+                Point<double> leftUpperCorner = TilesHelper.TileToWorldPos(
+                    tileXY.X, tileXY.Y, _zoomLevel
+                );
+
+                Point<double> rightBottomCorner = TilesHelper.TileToWorldPos(
+                    tileXY.X + 1, tileXY.Y + 1, _zoomLevel
+                );
+
+                Tile newTile = new Tile(tileXY.X, tileXY.Y, 
+                    leftUpperCorner.X, rightBottomCorner.X,
+                    rightBottomCorner.Y, leftUpperCorner.Y, 
+                    _overlapFactor);
+
+                stop.TileId = newTile.Id;
+                result.Add(tileXY, newTile);
             }
 
-            return result.ToList();
+            return result.Values.ToList();
         }
     }
 }

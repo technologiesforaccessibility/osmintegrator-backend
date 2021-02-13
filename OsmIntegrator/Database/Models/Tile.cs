@@ -20,23 +20,55 @@ namespace OsmIntegrator.Database.Models
         public long Y { get; set; }
 
         [Required]
-        public double Lat { get; set; }
+        public double MaxLat { get; set; }
 
         [Required]
-        public double Lon { get; set; }
+        public double MinLon { get; set; }
+
+        [Required]
+        public double MinLat { get; set; }
+
+        [Required]
+        public double MaxLon { get; set; }
+
+        [Required]
+        public double OverlapMaxLat { get; set; }
+
+        [Required]
+        public double OverlapMinLon { get; set; }
+
+        [Required]
+        public double OverlapMinLat { get; set; }
+
+        [Required]
+        public double OverlapMaxLon { get; set; }
 
         public List<Stop> Stops { get; set; }
 
-        public override bool Equals(object obj)
+        public Tile()
         {
-            return obj is Tile tile &&
-                   X == tile.X &&
-                   Y == tile.Y;
+
         }
 
-        public override int GetHashCode()
+        public Tile(long x, long y,
+            double minLon, double maxLon, double minLat, double maxLat, double overlapFactor)
         {
-            return HashCode.Combine(X, Y);
+            double width = maxLon - minLon;
+            double height = maxLat - minLat;
+            double lonOverlap = width * overlapFactor;
+            double latOverlap = height * overlapFactor;
+
+            Id = Guid.NewGuid();
+            X = x;
+            Y = y;
+            MinLon = minLon;
+            MaxLat = maxLat;
+            MaxLon = maxLon;
+            MinLat = minLat;
+            OverlapMinLon = MinLon - lonOverlap;
+            OverlapMaxLon = MaxLon + lonOverlap;
+            OverlapMinLat = minLat - latOverlap;
+            OverlapMaxLat = maxLat + latOverlap;
         }
     }
 }
