@@ -65,6 +65,8 @@ namespace OsmIntegrator.Controllers
                     x.Lon > result.OverlapMinLon && x.Lon <= result.OverlapMaxLon &&
                     x.Lat > result.OverlapMinLat && x.Lon <= result.OverlapMaxLat).ToListAsync();
 
+                stops.ForEach(x => x.Tile = null);
+
                 result.Stops = stops;
 
                 return Ok(result);
