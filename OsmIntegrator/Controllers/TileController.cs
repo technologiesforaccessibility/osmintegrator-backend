@@ -8,6 +8,7 @@ using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Controllers
 {
@@ -63,7 +64,18 @@ namespace OsmIntegrator.Controllers
 
                 var stops = await _dbContext.Stops.Where(x =>
                     x.Lon > result.OverlapMinLon && x.Lon <= result.OverlapMaxLon &&
-                    x.Lat > result.OverlapMinLat && x.Lon <= result.OverlapMaxLat).ToListAsync();
+                    x.Lat > result.OverlapMinLat && x.Lat <= result.OverlapMaxLat).ToListAsync();
+
+                foreach (Stop stop in stops)
+                {
+                    if (stop.Lon > result.MinLon && stop.Lon <= result.MaxLon &&
+                        stop.Lat > result.MinLat && stop.Lat <= result.MaxLat)
+                    {
+                        stop.OutsideSelectedTile = false;
+                        continue;
+                    }
+                    stop.OutsideSelectedTile = true;
+                }
 
                 stops.ForEach(x => x.Tile = null);
 

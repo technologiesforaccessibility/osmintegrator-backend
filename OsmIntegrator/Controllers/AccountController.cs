@@ -203,14 +203,33 @@ namespace OsmIntegrator.Controllers
                         error.Message = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
                         return BadRequest(error);
                     }
+
+                    if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
+                    {
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        await _userManager.ConfirmEmailAsync(user, token);
+                        return Ok("User registered. No email confirmation required.");
+                    }
                 }
 
-                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
+                    _emailService.Send(model.Email, "Confirm account registration", "Click to confirm account registratino:" + urlToResetPassword);
+                }
+                catch (Exception e)
+                {
+                    await _userManager.DeleteAsync(user);
+                    _logger.LogWarning(e, "Unable to send email with confirmation token.");
+                    return BadRequest(new Error()
+                    {
+                        Message = "Registration problem",
+                        Description = "Unable to send email with confirmation token."
+                    });
+                }
 
-                string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
-                _emailService.Send(model.Email, "Confirm account registration", "Click to confirm account registratino:" + urlToResetPassword);
-
-                return Ok();
+                return Ok("Confirmation email sent.");
             }
             catch (Exception ex)
             {
