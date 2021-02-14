@@ -46,6 +46,12 @@ namespace OsmIntegrator.Controllers
             _configuration = configuration;
         }
 
+        [HttpGet]
+        public async Task<string> Protected()
+        {
+            return await Task.Run(() => { return "Protected area"; });
+        }
+
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginData model)
