@@ -37,5 +37,7 @@ namespace OsmIntegrator.Database.Models
         public Guid TileId { get; set; }
 
         public Tile Tile { get; set; }
+
+        public bool OutsideSelectedTile { get; set; } = false;
     }
 }

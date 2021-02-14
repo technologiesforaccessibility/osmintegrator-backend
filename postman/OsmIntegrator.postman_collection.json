@@ -15,7 +15,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);"
 								],
 								"type": "text/javascript"
 							}
@@ -324,7 +325,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0nL34RvYehkfjiigwKpFOPY2JkDOrsi0jP/0ATV2cZb1BRffoYILeY9Y2cJ7ft/zkF1erglPfr4DJGAnqj6oKTVKMvvtClPIOW/O7XC9NgV3TWVxinOnVUQu3sW0U5agasEhRf7blVsiBylxQtm/hjcbexRWE9SKFZEq4KuR9gWlgJsgcZiWb8JBwBB75m7miPujmLeQZ2xzw38JVZDyf1xe/5UbzSEeRLQr4/vrbp+yw==\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0mUCX6eosQwg8LRh7T65hzc1ItOKVpGNGeQHnhgCm+ULQlvBRFd7SSH/PdigKgWdZ+4DYpbduuC3hIVtZ+ti2WCe0KQPyzbiQPjbNw59Sqv8KrQhRkwAsYMn8r3Dxo0URbSh4rDCMKAfVNknz29HLGkdJKDC/JkHGsif5Cu48zfPCKFOswYgkevwDhjODicDg8OC63Wqh4EWv7e4lK7MKS93SLM35H5DjTztu47LpZBaw==\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/ConfirmRegistration",
@@ -349,6 +350,21 @@
 				{
 					"name": "GetAll",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -372,13 +388,25 @@
 			"item": [
 				{
 					"name": "GetAll",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"firstTileId\", data[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiNzQzNDY0YjctYjY2MS00NDA4LWI0NGYtMDFlNDNmYzE5ODA1IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIwOWI0YWQ0NC03ODUzLTQ0NjctODNjNS05MmY4M2YwN2I5MDIiLCJyZWZyZXNoX3Rva2VuIjoia0dRbUtpdmsraHVqeStkeGxoTUk4cnVtTjJ2K1dFa0ozQjdiWU5TaXIvYz0iLCJleHAiOjE2MTM2ODA0NzksImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.KT1LxCyUDseG7AEk5tEA52VcEUKkDLbji7v3OFDI_Ow",
+									"value": "{{token}}",
 									"type": "string"
 								},
 								{
@@ -411,7 +439,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiZTAzNjc2MjAtZTMwOC00MDQ2LWE2ZTYtNTY0MWQ1MGRkMjYyIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiJmMjdjNTM0Zi1lMzA2LTRjOTMtYWUyYi1mNjY1ZjllOTdkNjYiLCJyZWZyZXNoX3Rva2VuIjoiaXBaMm9Xb2kvaTNLaDQzRXVtOXg3VlQ4VlI2V0RQbVBYMkhpTlFjbElFTT0iLCJleHAiOjE2MTM2MDExODgsImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.FZICa33ZBlNmsNjmk9U6VWurzRyi4BAixR_xCAzdpZk",
+									"value": "{{token}}",
 									"type": "string"
 								},
 								{
@@ -424,13 +452,48 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile",
+							"raw": "{{host}}/api/Tile/cd67a467-6c15-4036-b793-b8f8accceefd",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Tile"
+								"Tile",
+								"cd67a467-6c15-4036-b793-b8f8accceefd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetById FirstTile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"{{firstTileId}}"
 							]
 						}
 					},
