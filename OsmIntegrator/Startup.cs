@@ -14,6 +14,8 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Services;
+using OsmIntegrator.Roles;
+using Microsoft.AspNetCore.Authorization;
 
 namespace osmintegrator
 {
@@ -32,7 +34,6 @@ namespace osmintegrator
             services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
-
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
@@ -50,7 +51,8 @@ namespace osmintegrator
             });
 
             // ===== Add Identity ========
-            services.AddIdentity<IdentityUser, IdentityRole>(options => {
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
@@ -58,6 +60,7 @@ namespace osmintegrator
                 options.Password.RequireLowercase = false;
                 options.SignIn.RequireConfirmedEmail = true;
             })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -74,6 +77,7 @@ namespace osmintegrator
                 {
                     cfg.RequireHttpsMetadata = false;
                     cfg.SaveToken = true;
+
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidIssuer = Configuration["JwtIssuer"],
@@ -83,6 +87,12 @@ namespace osmintegrator
                     };
                 });
 
+            services.AddAuthorization(options =>
+            {
+                options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+            });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -94,7 +104,7 @@ namespace osmintegrator
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, 
+        public void Configure(IApplicationBuilder app,
             IWebHostEnvironment env,
             ApplicationDbContext dbContext)
         {
