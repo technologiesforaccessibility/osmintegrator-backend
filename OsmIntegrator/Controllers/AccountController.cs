@@ -17,11 +17,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using OsmIntegrator.Roles;
 
 namespace OsmIntegrator.Controllers
 {
     [EnableCors("AllowOrigin")]
-    [Authorize]
     [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
@@ -30,13 +30,15 @@ namespace OsmIntegrator.Controllers
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountController> _logger;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IEmailService emailService,
             IConfiguration configuration,
-            ILogger<AccountController> logger
+            ILogger<AccountController> logger,
+            RoleManager<IdentityRole> roleManager
             )
         {
             _logger = logger;
@@ -44,6 +46,7 @@ namespace OsmIntegrator.Controllers
             _signInManager = signInManager;
             _emailService = emailService;
             _configuration = configuration;
+            _roleManager = roleManager;
         }
 
         [HttpGet]
@@ -75,8 +78,10 @@ namespace OsmIntegrator.Controllers
 
                 if (result.Succeeded)
                 {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                    TokenData tokenData = GenerateJwtToken(model.Email, appUser);
+                    var appUser = await _userManager.FindByEmailAsync(model.Email);
+                    List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
+
+                    TokenData tokenData = GenerateJwtToken(model.Email, appUser, userRoles);
                     return Ok(tokenData);
                 }
 
@@ -109,7 +114,8 @@ namespace OsmIntegrator.Controllers
                 else
                 {
                     var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == username);
-                    TokenData tokenData = GenerateJwtToken(username, appUser);
+                    List<string> roles = (List<string>)await _userManager.GetRolesAsync(appUser);
+                    TokenData tokenData = GenerateJwtToken(username, appUser, roles);
                     return Ok(tokenData);
                 }
 
@@ -169,6 +175,7 @@ namespace OsmIntegrator.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterData model)
         {
+            IdentityUser user = null;
             try
             {
                 model.Email = model.Email.ToLower().Trim();
@@ -182,7 +189,7 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(error);
                 }
 
-                IdentityUser user = new IdentityUser
+                user = new IdentityUser
                 {
                     UserName = model.Username,
                     Email = model.Email,
@@ -201,13 +208,30 @@ namespace OsmIntegrator.Controllers
                 }
                 else
                 {
-                    IdentityResult result = await _userManager.CreateAsync(user, model.Password);
+                    IdentityResult userAddedResult = await _userManager.CreateAsync(user, model.Password);
 
-                    if (!result.Succeeded)
+                    if (!userAddedResult.Succeeded)
                     {
                         Error error = new UnknownError();
-                        error.Message = result.Errors.FirstOrDefault().Code + " " + result.Errors.FirstOrDefault().Description;
+                        error.Message = userAddedResult.Errors.FirstOrDefault().Code + " " + userAddedResult.Errors.FirstOrDefault().Description;
+                        RemoveUser(user);
                         return BadRequest(error);
+                    }
+
+                    if (!await _roleManager.RoleExistsAsync(UserRoles.USER))
+                    {
+                        var role = new IdentityRole();
+                        role.Name = UserRoles.USER;
+                        await _roleManager.CreateAsync(role);
+                        IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.USER);
+
+                        if (!roleAddedResult.Succeeded)
+                        {
+                            Error error = new UnknownError();
+                            error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
+                            RemoveUser(user);
+                            return BadRequest(error);
+                        }
                     }
 
                     if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
@@ -226,19 +250,21 @@ namespace OsmIntegrator.Controllers
                 }
                 catch (Exception e)
                 {
-                    await _userManager.DeleteAsync(user);
                     _logger.LogWarning(e, "Unable to send email with confirmation token.");
                     return BadRequest(new Error()
                     {
                         Message = "Registration problem",
                         Description = "Unable to send email with confirmation token."
                     });
+                    throw;
                 }
 
                 return Ok("Confirmation email sent.");
             }
             catch (Exception ex)
             {
+
+                RemoveUser(user);
                 _logger.LogWarning(ex, $"Unknown problem with {nameof(Register)} method.");
 
                 Error error = new UnknownError();
@@ -247,7 +273,22 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        private TokenData GenerateJwtToken(string userName, IdentityUser user)
+        private async void RemoveUser(IdentityUser user)
+        {
+            if (user != null)
+            {
+                try
+                {
+                    await _userManager.DeleteAsync(user);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, $"Unable to delete user {JsonSerializer.Serialize(user)}.");
+                }
+            }
+        }
+
+        private TokenData GenerateJwtToken(string userName, IdentityUser user, List<string> roles)
         {
             string newRefreshToken = GenerateRefreshToken();
 
@@ -258,6 +299,8 @@ namespace OsmIntegrator.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim("refresh_token", newRefreshToken)
             };
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token");
+            claimsIdentity.AddClaims(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             ApplyClaimsForContextUser(claims);
 
@@ -268,7 +311,7 @@ namespace OsmIntegrator.Controllers
             var token = new JwtSecurityToken(
                 _configuration["JwtIssuer"],
                 _configuration["JwtIssuer"],
-                claims,
+                claims: claimsIdentity.Claims,
                 expires: expires,
                 signingCredentials: creds
             );

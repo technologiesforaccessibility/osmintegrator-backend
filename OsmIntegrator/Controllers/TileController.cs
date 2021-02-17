@@ -12,9 +12,9 @@ using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Controllers
 {
+
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class TileController : ControllerBase
     {
         private readonly ILogger<StopController> _logger;

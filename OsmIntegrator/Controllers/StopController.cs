@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OsmIntegrator.Controllers
 {
