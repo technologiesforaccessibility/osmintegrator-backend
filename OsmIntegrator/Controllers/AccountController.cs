@@ -139,6 +139,12 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
+                if (!ModelState.IsValid)
+                {
+                    var serializableModelState = new SerializableError(ModelState);
+                    return BadRequest(new ValidationError() { Message = JsonSerializer.Serialize(serializableModelState) });
+                }
+
                 var principal = await Task.Run(() => { return GetPrincipalFromExpiredToken(refreshTokenData.Token); });
 
                 var username = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
@@ -439,6 +445,80 @@ namespace OsmIntegrator.Controllers
                 _logger.LogWarning(ex, $"Unknown problem with {nameof(ForgotPassword)} method.");
                 Error error = new UnknownError() { Message = ex.Message };
                 return BadRequest(error);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserInformation()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                
+                if(user == null)
+                {
+                    return BadRequest("Unable to find current user instance");
+                }
+
+                return Ok(new UserInformation()
+                {
+                    UserName = user.UserName,
+                    Email = user.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(GetUserInformation)} method.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmail model)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(model.OldEmail);
+                var result = await _userManager.ChangeEmailAsync(user, model.NewEmail, model.Token);
+                if (result.Succeeded)
+                {
+                    return Ok("Email updated successfully!");
+                }
+
+                string errorMessage = string.Empty;
+                foreach (var identityError in result.Errors)
+                {
+                    errorMessage += identityError.Description;
+                }
+
+                return BadRequest(new Error() { Description = "Email confirmation failed:", Message = errorMessage });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(ConfirmEmail)} method.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeEmail([FromBody] ResetEmail model)
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
+
+                string urlToResetPassword =
+                    _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
+
+                _emailService.Send(model.Email, "Confirm email change", "Click to confirm new email:" + urlToResetPassword);
+                return Ok("Confirmation email sent.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown problem with {nameof(ChangeEmail)} method.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
 

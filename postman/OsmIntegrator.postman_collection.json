@@ -93,7 +93,7 @@
 					"response": []
 				},
 				{
-					"name": "Protected",
+					"name": "IsTokenValid",
 					"event": [
 						{
 							"listen": "test",
@@ -116,11 +116,6 @@
 									"key": "token",
 									"value": "{{token}}",
 									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
 								}
 							]
 						},
@@ -140,14 +135,14 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{host}}/api/Account/Protected",
+							"raw": "{{host}}/api/Account/IsTokenValid",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Account",
-								"Protected"
+								"IsTokenValid"
 							]
 						},
 						"description": "Account/Protected"
@@ -341,6 +336,165 @@
 						"description": "Account/ResetPassword"
 					},
 					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"token\", \"\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Logout",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangeEmail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"kontakt@rozwiazaniadlaniewidomych.org\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ChangeEmail",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ChangeEmail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"newEmail\": \"kontakt@rozwiazaniadlaniewidomych.org\",\n    \"oldEmail\": \"luktar@gmail.com\",\n    \"token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0nwpx/H8aaqm1KfRpTydvtKwRJ//IIzTA/ZFwQrZeHdwLMGwuVjsjVcJ1rwj45IlhkPvTI5v/7xrA+iAN+ndyZlAB6DQSf4NpbW64z4ND/ef28m+71aZwJ76BPI9cQ+tWHqBqGi5KEIlKr25UfB5VagQDE649bG+w+4+I86Djbitfh6Fw1J79p59sJlO/TltUSob2jmTyG5CZOV6pjtRkMdXZMpju+vEiYy9Wb0FbUnj533CFTmFQCE0eEroWlWPXRfePcDS3UNl/xu5bQClmOs\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ConfirmEmail",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ConfirmEmail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserInformation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Account/GetUserInformation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"GetUserInformation"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -368,14 +522,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Stop/GetAll",
+							"raw": "{{host}}/api/Stop/Get",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Stop",
-								"GetAll"
+								"Get"
 							]
 						}
 					},
@@ -500,6 +654,200 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Permissions",
+			"item": [
+				{
+					"name": "GetRoles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"Roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddAdminRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/AddAdminRole",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"AddAdminRole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OnlyAdmin",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/OnlyAdmin",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"OnlyAdmin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AdminAndUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/AdminAndUser",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"AdminAndUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OnlyUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/OnlyUser",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"OnlyUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Swagger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/swagger/v1/swagger.json",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"swagger",
+						"v1",
+						"swagger.json"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
