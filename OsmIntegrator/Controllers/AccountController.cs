@@ -50,9 +50,46 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        public async Task<string> Protected()
+        public IActionResult IsTokenValid()
         {
-            return await Task.Run(() => { return "Protected area"; });
+            try
+            {
+                return Ok("Ok");
+            }
+            catch (Exception e)
+            {
+                UnknownError error = new UnknownError()
+                {
+                    Description = e.Message
+                };
+                _logger.LogWarning(e, $"Unknown problem with {nameof(IsTokenValid)} method.");
+                return BadRequest(error);
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Logout(string returnUrl = null)
+        {
+            try
+            {
+                await _signInManager.SignOutAsync();
+
+                if (returnUrl != null)
+                {
+                    return LocalRedirect(returnUrl);
+                }
+                return Ok("Ok");
+            }
+            catch (Exception e)
+            {
+                UnknownError error = new UnknownError()
+                {
+                    Description = e.Message
+                };
+                _logger.LogWarning(e, $"Unknown problem with {nameof(Logout)} method.");
+                return BadRequest(error);
+            }
         }
 
         [HttpPost]

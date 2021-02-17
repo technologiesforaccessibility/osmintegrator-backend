@@ -103,7 +103,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                return Ok();
+                return await Task.Run(() => { return Ok("ok"); });
             }
             catch (Exception ex)
             {
@@ -123,7 +123,7 @@ namespace OsmIntegrator.Controllers
             try
             {
 
-                return Ok();
+                return await Task.Run(() => { return Ok("ok"); });
             }
             catch (Exception ex)
             {
@@ -142,7 +142,7 @@ namespace OsmIntegrator.Controllers
             try
             {
 
-                return Ok();
+                return await Task.Run(() => { return Ok("ok"); });
             }
             catch (Exception ex)
             {
