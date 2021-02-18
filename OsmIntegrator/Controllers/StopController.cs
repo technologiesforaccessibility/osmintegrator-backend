@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
 using Microsoft.AspNetCore.Authorization;
+using OsmIntegrator.ApiModels.Errors;
 
 namespace OsmIntegrator.Controllers
 {
@@ -38,7 +39,7 @@ namespace OsmIntegrator.Controllers
             } catch(Exception ex)
             {
                 _logger.LogWarning(ex, "Unknown error while performing ");
-                return BadRequest(new UnknownError() { Description = ex.Message });
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
     }

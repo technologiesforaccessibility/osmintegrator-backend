@@ -9,6 +9,7 @@ using OsmIntegrator.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.ApiModels.Errors;
 
 namespace OsmIntegrator.Controllers
 {
@@ -42,7 +43,7 @@ namespace OsmIntegrator.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, $"Unknown error while performing {nameof(Get)} method.");
-                return BadRequest(new UnknownError() { Description = ex.Message });
+                return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
 

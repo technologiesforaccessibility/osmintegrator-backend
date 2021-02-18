@@ -12,6 +12,7 @@ using OsmIntegrator.Roles;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using OsmIntegrator.ApiModels.Errors;
 
 namespace OsmIntegrator.Controllers
 {
