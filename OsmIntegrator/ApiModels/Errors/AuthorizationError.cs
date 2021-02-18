@@ -9,7 +9,7 @@ namespace OsmIntegrator.ApiModels.Errors
     {
         public AuthorizationError()
         {
-            Description = "Authorization error";
+            Title = "Authorization error";
         }
     }
 }

@@ -9,7 +9,7 @@ namespace OsmIntegrator.ApiModels.Errors
     {
         public UnknownError()
         {
-            Description = "Unknown error";
+            Title = "Unknown error";
         }
     }
 }

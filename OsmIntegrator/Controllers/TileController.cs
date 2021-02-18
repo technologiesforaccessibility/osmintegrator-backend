@@ -58,7 +58,7 @@ namespace OsmIntegrator.Controllers
                 if (result == null)
                 {
                     Error error = new Error();
-                    error.Description = $"Unable to find tile with id {id}.";
+                    error.Title = $"Unable to find tile with id {id}.";
                     error.Message = "General error";
                     return BadRequest(error);
                 }
@@ -87,7 +87,7 @@ namespace OsmIntegrator.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, $"Unknown error while performing {nameof(Get)} method with parameter {id}.");
-                return BadRequest(new UnknownError() { Description = ex.Message });
+                return BadRequest(new UnknownError() { Title = ex.Message });
             }
         }
     }

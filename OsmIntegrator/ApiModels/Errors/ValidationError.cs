@@ -9,7 +9,7 @@ namespace OsmIntegrator.ApiModels.Errors
     {
         public ValidationError()
         {
-            Description = "Validation problem";
+            Title = "Validation problem";
         }
     }
 }

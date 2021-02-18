@@ -62,7 +62,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = e.Message
+                    Title = e.Message
                 };
                 _logger.LogWarning(e, $"Unknown problem with {nameof(IsTokenValid)} method.");
                 return BadRequest(error);
@@ -87,7 +87,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = e.Message
+                    Title = e.Message
                 };
                 _logger.LogWarning(e, $"Unknown problem with {nameof(Logout)} method.");
                 return BadRequest(error);
@@ -205,7 +205,7 @@ namespace OsmIntegrator.Controllers
                         errorMessage += identityError.Description;
                     }
 
-                    return BadRequest(new Error() { Description = "Reset password failed", Message = errorMessage });
+                    return BadRequest(new Error() { Title = "Reset password failed", Message = errorMessage });
                 }
                 return Ok();
             }
@@ -299,7 +299,7 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(new Error()
                     {
                         Message = "Registration problem",
-                        Description = "Unable to send email with confirmation token."
+                        Title = "Unable to send email with confirmation token."
                     });
                     throw;
                 }
@@ -494,7 +494,7 @@ namespace OsmIntegrator.Controllers
                     errorMessage += identityError.Description;
                 }
 
-                return BadRequest(new Error() { Description = "Email confirmation failed:", Message = errorMessage });
+                return BadRequest(new Error() { Title = "Email confirmation failed:", Message = errorMessage });
             }
             catch (Exception ex)
             {
@@ -551,7 +551,7 @@ namespace OsmIntegrator.Controllers
                                 errorMessage += identityError.Description;
                             }
 
-                            return BadRequest(new Error() { Description = "Reset password failed", Message = errorMessage });
+                            return BadRequest(new Error() { Title = "Reset password failed", Message = errorMessage });
                         }
                     }
                     else

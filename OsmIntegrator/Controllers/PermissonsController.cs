@@ -58,7 +58,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -92,7 +92,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -110,7 +110,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -130,7 +130,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -149,7 +149,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
