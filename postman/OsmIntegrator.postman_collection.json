@@ -93,7 +93,7 @@
 					"response": []
 				},
 				{
-					"name": "Register 2",
+					"name": "Register another account",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -524,14 +524,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Stop/Get",
+							"raw": "{{host}}/api/Stop",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Stop",
-								"Get"
+								"Stop"
 							]
 						}
 					},
