@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -36,6 +38,9 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.USER)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<User>> Get()
         {
             try
@@ -63,11 +68,14 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<User>> Get(string id)
         {
             try
             {
-                if(string.IsNullOrEmpty(id))
+                if (string.IsNullOrEmpty(id))
                 {
                     return BadRequest(new ValidationError()
                     {
@@ -77,7 +85,7 @@ namespace OsmIntegrator.Controllers
 
                 var user = await _userManager.FindByIdAsync(id);
 
-                if(user == null)
+                if (user == null)
                 {
                     return BadRequest(new ValidationError()
                     {

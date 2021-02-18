@@ -11,6 +11,8 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.ApiModels.Errors;
 using System.Collections.Generic;
 using AutoMapper;
+using System.Net.Mime;
+using Microsoft.AspNetCore.Http;
 
 namespace OsmIntegrator.Controllers
 {
@@ -19,13 +21,13 @@ namespace OsmIntegrator.Controllers
     [Route("api/[controller]")]
     public class TileController : ControllerBase
     {
-        private readonly ILogger<StopController> _logger;
+        private readonly ILogger<TileController> _logger;
         private readonly ApplicationDbContext _dbContext;
 
         private readonly IMapper _mapper;
 
         public TileController(
-            ILogger<StopController> logger,
+            ILogger<TileController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext,
             IMapper mapper
@@ -37,6 +39,9 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<Tile>>> Get()
         {
             try
@@ -53,6 +58,9 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Tile>> Get(string id)
         {
             try
