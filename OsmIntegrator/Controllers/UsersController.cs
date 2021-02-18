@@ -11,6 +11,8 @@ using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Roles;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Net.Mime;
 
 namespace OsmIntegrator.Controllers
 {
@@ -42,6 +44,9 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<User>>> Get()
         {
             try
@@ -64,7 +69,7 @@ namespace OsmIntegrator.Controllers
 
                 List<User> result = new List<User>();
 
-                foreach(var user in users)
+                foreach (var user in users)
                 {
                     result.Add(new ApiModels.User()
                     {

@@ -13,6 +13,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using OsmIntegrator.ApiModels.Errors;
+using System.Net.Mime;
+using System.Collections.Generic;
 
 namespace OsmIntegrator.Controllers
 {
@@ -46,7 +48,10 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Roles()
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<List<string>>> Roles()
         {
             try
             {
@@ -65,6 +70,8 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddAdminRole()
         {
             try
@@ -97,6 +104,8 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.ADMIN)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OnlyAdmin()
         {
             try
@@ -116,6 +125,8 @@ namespace OsmIntegrator.Controllers
         [HttpGet]
         [Authorize(Roles = UserRoles.ADMIN)]
         [Authorize(Roles = UserRoles.USER)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AdminAndUser()
         {
             try
@@ -135,6 +146,8 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.USER)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OnlyUser()
         {
             try
