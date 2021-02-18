@@ -19,6 +19,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using OsmIntegrator.Roles;
 using OsmIntegrator.ApiModels.Errors;
+using OsmIntegrator.ApiModels.Auth;
 
 namespace OsmIntegrator.Controllers
 {

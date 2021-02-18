@@ -16,8 +16,6 @@ namespace OsmIntegrator.Database
 
         public DbSet<Tag> Tags { get; set; }
 
-        public DbSet<LoginData> LoginDatas { get; set; }
-
         public DbSet<Tile> Tiles { get; set; }
 
         private DataInitializer _dataInitializer { get; set; }
