@@ -12,7 +12,7 @@ using OsmIntegrator.ApiModels.Errors;
 namespace OsmIntegrator.Controllers
 {
     [ApiController]
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     public class StopController : ControllerBase
     {
         private readonly ILogger<StopController> _logger;

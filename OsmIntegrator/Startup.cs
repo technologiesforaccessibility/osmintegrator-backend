@@ -16,6 +16,9 @@ using OsmIntegrator.Interfaces;
 using OsmIntegrator.Services;
 using OsmIntegrator.Roles;
 using Microsoft.AspNetCore.Authorization;
+using OsmIntegrator.Tools;
+using OsmIntegrator.AutoMapper;
+using AutoMapper;
 
 namespace osmintegrator
 {
@@ -106,8 +109,13 @@ namespace osmintegrator
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "osmintegrator", Version = "v1" });
             });
-
+            services.AddAutoMapper(
+                typeof(TileProfile),
+                typeof(StopProfile),
+                typeof(TagProfile));
             services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IValidationHelper, ValidationHelper>();
+            services.AddSingleton<ITokenHelper, TokenHelper>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

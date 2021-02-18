@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class Tag
+    [Table("Tags")]
+    public class DbTag
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -21,6 +22,6 @@ namespace OsmIntegrator.Database.Models
 
         public Guid OsmStopId { get; set; }
 
-        public Stop OsmStop { get; set; }
+        public DbStop OsmStop { get; set; }
     }
 }

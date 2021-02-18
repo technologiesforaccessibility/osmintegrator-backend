@@ -21,10 +21,10 @@ namespace OsmIntegrator.Database.DataInitialization
             _overlapFactor = double.Parse(configuration["OverlapFactor"]);
         }
 
-        public List<Stop> GetGtfsStopsList()
+        public List<DbStop> GetGtfsStopsList()
         {
             List<string[]> csvStopList = CsvParser.Parse("Files/GtfsStops.txt");
-            List<Stop> ztmStopList = csvStopList.Select((x, index) => new Stop()
+            List<DbStop> ztmStopList = csvStopList.Select((x, index) => new DbStop()
             {
                 Id = Guid.NewGuid(),
                 StopId = long.Parse(x[0]),
@@ -38,10 +38,10 @@ namespace OsmIntegrator.Database.DataInitialization
             return ztmStopList;
         }
 
-        public (List<Stop> Stops, List<Models.Tag> Tags) GetOsmStopsList()
+        public (List<DbStop> Stops, List<Models.DbTag> Tags) GetOsmStopsList()
         {
-            List<Stop> result = new List<Stop>();
-            List<Models.Tag> tags = new List<Models.Tag>();
+            List<DbStop> result = new List<DbStop>();
+            List<Models.DbTag> tags = new List<Models.DbTag>();
 
             XmlSerializer serializer =
                 new XmlSerializer(typeof(Osm));
@@ -52,7 +52,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
                 foreach (Node node in osmRoot.Node)
                 {
-                    Stop stop = new Stop
+                    DbStop stop = new DbStop
                     {
                         Id = Guid.NewGuid(),
                         StopId = long.Parse(node.Id),
@@ -62,9 +62,9 @@ namespace OsmIntegrator.Database.DataInitialization
                         ProviderType = ProviderType.Ztm
                     };
 
-                    List<Models.Tag> tempTags = new List<Models.Tag>();
+                    List<Models.DbTag> tempTags = new List<Models.DbTag>();
 
-                    node.Tag.ForEach(x => tempTags.Add(new Models.Tag()
+                    node.Tag.ForEach(x => tempTags.Add(new Models.DbTag()
                     {
                         Id = Guid.NewGuid(),
                         OsmStopId = stop.Id,
@@ -84,17 +84,17 @@ namespace OsmIntegrator.Database.DataInitialization
             return (result, tags);
         }
 
-        public List<Tile> GetTiles(List<Stop> stops)
+        public List<DbTile> GetTiles(List<DbStop> stops)
         {
-            Dictionary<Point<long>, Tile> result = new Dictionary<Point<long>, Tile>();
+            Dictionary<Point<long>, DbTile> result = new Dictionary<Point<long>, DbTile>();
 
-            foreach (Stop stop in stops)
+            foreach (DbStop stop in stops)
             {
                 Point<long> tileXY = TilesHelper.WorldToTilePos(stop.Lon, stop.Lat, _zoomLevel);
 
                 if (result.ContainsKey(tileXY))
                 {
-                    Tile existingTile = result[tileXY];
+                    DbTile existingTile = result[tileXY];
                     stop.TileId = existingTile.Id;
 
                     if (stop.StopType == StopType.Gtfs)
@@ -117,7 +117,7 @@ namespace OsmIntegrator.Database.DataInitialization
                     tileXY.X + 1, tileXY.Y + 1, _zoomLevel
                 );
 
-                Tile newTile = new Tile(tileXY.X, tileXY.Y,
+                DbTile newTile = new DbTile(tileXY.X, tileXY.Y,
                     leftUpperCorner.X, rightBottomCorner.X,
                     rightBottomCorner.Y, leftUpperCorner.Y,
                     _overlapFactor);

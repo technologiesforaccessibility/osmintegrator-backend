@@ -71,20 +71,17 @@ namespace OsmIntegrator.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                if (!await _roleManager.RoleExistsAsync(UserRoles.ADMIN))
-                    {
-                        var role = new IdentityRole();
-                        role.Name = UserRoles.ADMIN;
-                        await _roleManager.CreateAsync(role);
-                        IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.ADMIN);
+                var role = new IdentityRole();
+                role.Name = UserRoles.ADMIN;
+                await _roleManager.CreateAsync(role);
+                IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.ADMIN);
 
-                        if (!roleAddedResult.Succeeded)
-                        {
-                            Error error = new UnknownError();
-                            error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
-                            return BadRequest(error);
-                        }
-                    }
+                if (!roleAddedResult.Succeeded)
+                {
+                    Error error = new UnknownError();
+                    error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
+                    return BadRequest(error);
+                }
 
                 return Ok();
             }

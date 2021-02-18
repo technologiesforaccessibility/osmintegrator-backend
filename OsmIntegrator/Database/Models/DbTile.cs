@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class Tile
+    [Table("Tiles")]
+    public class DbTile
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -47,14 +48,14 @@ namespace OsmIntegrator.Database.Models
 
         public int GtfsStopsCount { get; set; }
 
-        public List<Stop> Stops { get; set; }
+        public List<DbStop> Stops { get; set; }
 
-        public Tile()
+        public DbTile()
         {
 
         }
 
-        public Tile(long x, long y,
+        public DbTile(long x, long y,
             double minLon, double maxLon, double minLat, double maxLat, double overlapFactor)
         {
             double width = maxLon - minLon;
