@@ -12,6 +12,7 @@ using OsmIntegrator.Roles;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using OsmIntegrator.ApiModels.Errors;
 
 namespace OsmIntegrator.Controllers
 {
@@ -57,7 +58,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -70,20 +71,17 @@ namespace OsmIntegrator.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                if (!await _roleManager.RoleExistsAsync(UserRoles.ADMIN))
-                    {
-                        var role = new IdentityRole();
-                        role.Name = UserRoles.ADMIN;
-                        await _roleManager.CreateAsync(role);
-                        IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.ADMIN);
+                var role = new IdentityRole();
+                role.Name = UserRoles.ADMIN;
+                await _roleManager.CreateAsync(role);
+                IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.ADMIN);
 
-                        if (!roleAddedResult.Succeeded)
-                        {
-                            Error error = new UnknownError();
-                            error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
-                            return BadRequest(error);
-                        }
-                    }
+                if (!roleAddedResult.Succeeded)
+                {
+                    Error error = new UnknownError();
+                    error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
+                    return BadRequest(error);
+                }
 
                 return Ok();
             }
@@ -91,7 +89,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -109,7 +107,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -129,7 +127,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }
@@ -148,7 +146,7 @@ namespace OsmIntegrator.Controllers
             {
                 UnknownError error = new UnknownError()
                 {
-                    Description = ex.Message
+                    Title = ex.Message
                 };
                 return BadRequest(error);
             }

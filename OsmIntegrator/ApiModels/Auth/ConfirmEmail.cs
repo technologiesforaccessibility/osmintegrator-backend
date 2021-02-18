@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Auth
 {
     public class ConfirmEmail
     {

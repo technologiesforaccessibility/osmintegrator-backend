@@ -5,6 +5,7 @@ using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.ApiModels;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace OsmIntegrator.Database
 {
@@ -12,13 +13,11 @@ namespace OsmIntegrator.Database
     {
         private IConfiguration _configuration;
 
-        public DbSet<Stop> Stops { get; set; }
+        public DbSet<DbStop> Stops { get; set; }
 
-        public DbSet<Tag> Tags { get; set; }
+        public DbSet<DbTag> Tags { get; set; }
 
-        public DbSet<LoginData> LoginDatas { get; set; }
-
-        public DbSet<Tile> Tiles { get; set; }
+        public DbSet<DbTile> Tiles { get; set; }
 
         private DataInitializer _dataInitializer { get; set; }
 
@@ -40,17 +39,30 @@ namespace OsmIntegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            List<Stop> allStops = _dataInitializer.GetGtfsStopsList();
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.USER, NormalizedName = OsmIntegrator.Roles.UserRoles.USER.ToUpper()});
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.EDITOR, NormalizedName = OsmIntegrator.Roles.UserRoles.EDITOR.ToUpper()});
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.SUPERVISOR, NormalizedName = OsmIntegrator.Roles.UserRoles.SUPERVISOR.ToUpper()});
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.COORDINATOR, NormalizedName = OsmIntegrator.Roles.UserRoles.COORDINATOR.ToUpper()});
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.UPLOADER, NormalizedName = OsmIntegrator.Roles.UserRoles.UPLOADER.ToUpper()});
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole { 
+                Name = OsmIntegrator.Roles.UserRoles.ADMIN, NormalizedName = OsmIntegrator.Roles.UserRoles.ADMIN.ToUpper()});
+            
+            List<DbStop> allStops = _dataInitializer.GetGtfsStopsList();
 
-            (List<Stop> Stops, List<Tag> Tags) = _dataInitializer.GetOsmStopsList();
+            (List<DbStop> Stops, List<DbTag> Tags) = _dataInitializer.GetOsmStopsList();
 
             allStops.AddRange(Stops);
 
-            List<Tile> tiles = _dataInitializer.GetTiles(allStops);
+            List<DbTile> tiles = _dataInitializer.GetTiles(allStops);
 
-            modelBuilder.Entity<Stop>().HasData(allStops);
-            modelBuilder.Entity<Tag>().HasData(Tags);
-            modelBuilder.Entity<Tile>().HasData(tiles);
+            modelBuilder.Entity<DbStop>().HasData(allStops);
+            modelBuilder.Entity<DbTag>().HasData(Tags);
+            modelBuilder.Entity<DbTile>().HasData(tiles);
 
             base.OnModelCreating(modelBuilder);
         }

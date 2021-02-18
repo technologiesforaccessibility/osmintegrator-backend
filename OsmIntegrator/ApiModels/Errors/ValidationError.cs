@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Errors
 {
     public class ValidationError : Error
     {
         public ValidationError()
         {
-            Description = "Validation problem";
+            Title = "Validation problem";
         }
     }
 }

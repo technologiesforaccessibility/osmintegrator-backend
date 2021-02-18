@@ -1,12 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Auth
 {
-    public class UserInformation
+    public class ResetEmail
     {
-        [Required]
-        public string UserName { get; set; }
-
         [Required]
         [EmailAddress]
         public string Email { get; set; }

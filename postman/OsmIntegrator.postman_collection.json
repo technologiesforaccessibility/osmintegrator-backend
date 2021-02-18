@@ -93,6 +93,42 @@
 					"response": []
 				},
 				{
+					"name": "Register 2",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Username\": \"kontakt\",\r\n\t\"Email\": \"kontakt@rozwiazaniadlaniewidomych.org\",\r\n\t\"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Register"
+							]
+						},
+						"description": "Account/Register"
+					},
+					"response": []
+				},
+				{
 					"name": "IsTokenValid",
 					"event": [
 						{
@@ -461,40 +497,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "GetUserInformation",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Account/GetUserInformation",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Account",
-								"GetUserInformation"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		},
@@ -823,6 +825,116 @@
 								"api",
 								"Permissions",
 								"OnlyUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GetUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/User",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"User"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser ById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/User/479186c5-3c57-48af-95d1-066e2ac6e99c",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"User",
+								"479186c5-3c57-48af-95d1-066e2ac6e99c"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "GetUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Users",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Users"
 							]
 						}
 					},
