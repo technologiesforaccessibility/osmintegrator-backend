@@ -7,6 +7,9 @@ using OsmIntegrator.Tools;
 using System.IO;
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Roles;
+using Microsoft.EntityFrameworkCore;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
@@ -19,6 +22,48 @@ namespace OsmIntegrator.Database.DataInitialization
         {
             _zoomLevel = int.Parse(configuration["ZoomLevel"]);
             _overlapFactor = double.Parse(configuration["OverlapFactor"]);
+        }
+
+        public void AddRole(ModelBuilder modelBuilder, string id, string name)
+        {
+            modelBuilder.Entity<IdentityRole>().HasData(new IdentityRole
+            {
+                Id = id,
+                Name = name,
+                NormalizedName = name.ToUpper()
+            });
+        }
+
+        public void AddUser(
+            ModelBuilder modelBuilder,
+            string id,
+            string email,
+            List<string> roleIds = null)
+        {
+            var hasher = new PasswordHasher<IdentityUser>();
+            string name = email.Split("@")[0];
+            modelBuilder.Entity<IdentityUser>().HasData(new IdentityUser
+            {
+                Id = id,
+                UserName = name,
+                NormalizedUserName = name.ToUpper(),
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                EmailConfirmed = true,
+                PasswordHash = hasher.HashPassword(null, $"{name}12345"),
+                SecurityStamp = string.Empty
+            });
+
+            if (roleIds == null) return;
+
+            foreach (string roleId in roleIds)
+            {
+                modelBuilder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string>
+                {
+                    RoleId = roleId,
+                    UserId = id
+                });
+            }
         }
 
         public List<DbStop> GetGtfsStopsList()
