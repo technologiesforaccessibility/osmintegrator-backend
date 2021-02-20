@@ -50,7 +50,7 @@ namespace OsmIntegrator.Database.DataInitialization
                 Email = email,
                 NormalizedEmail = email.ToUpper(),
                 EmailConfirmed = true,
-                PasswordHash = hasher.HashPassword(null, $"{name}12345"),
+                PasswordHash = hasher.HashPassword(null, $"12345678"),
                 SecurityStamp = string.Empty
             });
 

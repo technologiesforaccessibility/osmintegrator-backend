@@ -279,18 +279,6 @@ namespace OsmIntegrator.Controllers
                         return BadRequest(error);
                     }
 
-
-                    IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.USER);
-
-                    if (!roleAddedResult.Succeeded)
-                    {
-                        Error error = new UnknownError();
-                        error.Message = roleAddedResult.Errors.FirstOrDefault().Code + " " + roleAddedResult.Errors.FirstOrDefault().Description;
-                        RemoveUser(user);
-                        return BadRequest(error);
-                    }
-
-
                     if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
                     {
                         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
