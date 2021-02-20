@@ -57,6 +57,198 @@
 					"response": []
 				},
 				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"admin@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Editor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"editor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Supervisor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Coordinator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"coordinator1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
 					"name": "Register",
 					"request": {
 						"auth": {
@@ -934,6 +1126,86 @@
 							"path": [
 								"api",
 								"Users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": \"ed694889-5518-47d2-86e5-a71052361673\",\n        \"userName\": \"uploader2\",\n        \"roles\": {\n            \"Editor\": true,\n            \"Supervisor\": true\n        }\n    },\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": {\n            \"Editor\": false,\n            \"Supervisor\": false\n        }\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Roles"
 							]
 						}
 					},
