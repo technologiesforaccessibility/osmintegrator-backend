@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Cors;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Controllers
 {
@@ -27,17 +28,17 @@ namespace OsmIntegrator.Controllers
     {
         private readonly ILogger<UserController> _logger;
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
         private readonly IMapper _mapper;
 
         public UsersController(
             ILogger<UserController> logger,
             IMapper mapper,
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager
         )
         {
             _logger = logger;
@@ -77,7 +78,7 @@ namespace OsmIntegrator.Controllers
                         UserName = user.User.UserName,
                         Email = user.User.Email,
                         Roles = user.Roles,
-                        Id = Guid.Parse(user.User.Id)
+                        Id = user.User.Id
                     });
                 }
 

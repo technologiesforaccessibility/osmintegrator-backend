@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
+using OsmIntegrator.Database.Models;
 using OsmIntegrator.Roles;
 
 namespace OsmIntegrator.Controllers
@@ -26,14 +27,14 @@ namespace OsmIntegrator.Controllers
     {
         private readonly ILogger<UserController> _logger;
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IMapper _mapper;
 
         public UserController(
             ILogger<UserController> logger,
             IMapper mapper,
-            UserManager<IdentityUser> userManager
+            UserManager<ApplicationUser> userManager
         )
         {
             _logger = logger;

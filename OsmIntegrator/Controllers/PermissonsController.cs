@@ -15,6 +15,10 @@ using System.Linq;
 using OsmIntegrator.ApiModels.Errors;
 using System.Net.Mime;
 using System.Collections.Generic;
+using OsmIntegrator.Database.Models;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using OsmIntegrator.Database;
 
 namespace OsmIntegrator.Controllers
 {
@@ -25,21 +29,26 @@ namespace OsmIntegrator.Controllers
     [Route("api/[controller]/[action]")]
     public class PermissionsController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountController> _logger;
+        private readonly ApplicationDbContext _dbContext;
 
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+
+        private readonly IMapper _mapper;
 
         public PermissionsController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
             IConfiguration configuration,
             ILogger<AccountController> logger,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<ApplicationRole> roleManager,
+            IMapper mapper,
+            ApplicationDbContext dbContext
             )
         {
             _logger = logger;
@@ -48,6 +57,8 @@ namespace OsmIntegrator.Controllers
             _emailService = emailService;
             _configuration = configuration;
             _roleManager = roleManager;
+            _mapper = mapper;
+            _dbContext = dbContext;
         }
 
         [HttpGet]
@@ -76,7 +87,7 @@ namespace OsmIntegrator.Controllers
             {
                 var user = await _userManager.GetUserAsync(User);
 
-                var role = new IdentityRole();
+                var role = new ApplicationRole();
                 role.Name = UserRoles.ADMIN;
                 await _roleManager.CreateAsync(role);
                 IdentityResult roleAddedResult = await _userManager.AddToRoleAsync(user, UserRoles.ADMIN);

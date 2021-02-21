@@ -11,13 +11,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.ApiModels.Errors;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Tools
 {
     public interface ITokenHelper
     {
         TokenData GenerateJwtToken(string userName, 
-            IdentityUser user, List<string> roles, SignInManager<IdentityUser> signInManager);
+            ApplicationUser user, List<string> roles, SignInManager<ApplicationUser> signInManager);
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
     }
 
@@ -31,7 +32,7 @@ namespace OsmIntegrator.Tools
         }
 
         public TokenData GenerateJwtToken(string userName, 
-            IdentityUser user, List<string> roles, SignInManager<IdentityUser> signInManager)
+            ApplicationUser user, List<string> roles, SignInManager<ApplicationUser> signInManager)
         {
             string newRefreshToken = GenerateRefreshToken();
 
@@ -39,7 +40,7 @@ namespace OsmIntegrator.Tools
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("refresh_token", newRefreshToken)
             };
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token");
@@ -95,7 +96,7 @@ namespace OsmIntegrator.Tools
             return principal;
         }
 
-        private void ApplyClaimsForContextUser(List<Claim> claims, SignInManager<IdentityUser> signInManager)
+        private void ApplyClaimsForContextUser(List<Claim> claims, SignInManager<ApplicationUser> signInManager)
         {
             var identity = new ClaimsIdentity(claims);
             signInManager.Context.User = new ClaimsPrincipal(identity);
