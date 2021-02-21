@@ -9,7 +9,7 @@ namespace OsmIntegrator.AutoMapper
         public TileProfile()
         {
             AllowNullCollections = true;
-            CreateMap<DbTile, Tile>().ReverseMap();
+            CreateMap<DbTile, Tile>().ForMember(x => x.UsersCount, o => o.MapFrom(x => x.Users.Count));
         }
     }
 }

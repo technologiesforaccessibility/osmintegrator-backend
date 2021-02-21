@@ -60,9 +60,12 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                List<DbTile> result = await _dbContext.Tiles.Where(
+                List<DbTile> tiles = await _dbContext.Tiles.Include(x => x.Users).Where(
                         x => x.GtfsStopsCount > 0).ToListAsync();
-                return Ok(_mapper.Map<List<Tile>>(result));
+
+                List<Tile> result = _mapper.Map<List<Tile>>(tiles);
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -234,6 +237,15 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
+                Guid tileId;
+                if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
+                {
+                    return BadRequest(new ValidationError
+                    {
+                        Message = "Unable to validate tile id."
+                    });
+                }
+
                 return Ok();
             }
             catch (Exception ex)
