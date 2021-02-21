@@ -17,6 +17,8 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.AspNetCore.Authorization;
+using OsmIntegrator.Extensions;
+using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Controllers
 {
@@ -35,19 +37,22 @@ namespace OsmIntegrator.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IMapper _mapper;
+        private readonly IValidationHelper _validationHelper;
 
         public TileController(
             ILogger<TileController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext,
             IMapper mapper,
-            UserManager<ApplicationUser> userManager
+            UserManager<ApplicationUser> userManager,
+            IValidationHelper validationHelper
         )
         {
             _logger = logger;
             _dbContext = dbContext;
             _mapper = mapper;
             _userManager = userManager;
+            _validationHelper = validationHelper;
         }
 
         [HttpGet]
@@ -67,12 +72,20 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         public async Task<ActionResult<Tile>> GetStops(string id)
         {
             try
             {
-                Guid guidId = Guid.Parse(id);
-                var result = await _dbContext.Tiles.SingleOrDefaultAsync(x => x.Id == guidId);
+                Guid tileId;
+                if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
+                {
+                    return BadRequest(new ValidationError
+                    {
+                        Message = "Unable to validate tile id."
+                    });
+                }
+                var result = await _dbContext.Tiles.SingleOrDefaultAsync(x => x.Id == tileId);
 
                 if (result == null)
                 {
@@ -114,35 +127,48 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
+                Guid tileId;
+                if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
+                {
+                    return BadRequest(new ValidationError
+                    {
+                        Message = "Unable to validate tile id."
+                    });
+                }
+
+                // Get all users with roles and remove current one
+                List<ApplicationUser> allUsers = await _userManager.Users.Include(x => x.UserRoles).
+                    ThenInclude(x => x.Role).ToListAsync();
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
                 allUsers.RemoveAll(x => x.Id.Equals(currentUser.Id));
 
+                // Remove other users than editors
                 List<ApplicationUser> editors = new List<ApplicationUser>();
-                foreach(ApplicationUser user in allUsers)
+                foreach (ApplicationUser user in allUsers)
                 {
-                    IList<string> roles = await _userManager.GetRolesAsync(user);
-                    if(roles.Contains(UserRoles.EDITOR)) editors.Add(user);
+                    IList<string> roles = user.GetRoles();
+                    if (roles.Contains(UserRoles.EDITOR)) editors.Add(user);
                 }
 
+                // Get current tile by id
                 DbTile currentTile =
                     await _dbContext.Tiles.Include(
-                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id == tileId);
 
                 TileWithUsers result = new TileWithUsers
                 {
-                    Id = Guid.Parse(id),
+                    Id = tileId,
                     Users = new List<TileUser>()
                 };
 
                 foreach (ApplicationUser user in editors)
                 {
-                    TileUser tileUser = new TileUser { Id = user.Id };
+                    TileUser tileUser = new TileUser { Id = user.Id, UserName = user.UserName };
                     result.Users.Add(tileUser);
                     tileUser.IsAssigned = currentTile.Users.Any(x => x.Id == user.Id);
                 }
 
-                return Ok();
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -151,16 +177,54 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpPost("{id}")]
-        public async Task<ActionResult<Tile>> UpdateUsers(string id)
+        [HttpPost()]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        public async Task<ActionResult<Tile>> UpdateUsers([FromBody] TileWithUsers tileWithUsers)
         {
             try
             {
-                return Ok();
+                var validationResult = _validationHelper.Validate(ModelState);
+                if (validationResult != null) return BadRequest(validationResult);
+
+                // Get current tile by id
+                DbTile currentTile =
+                    await _dbContext.Tiles.Include(
+                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id == tileWithUsers.Id);
+
+                foreach (TileUser user in tileWithUsers.Users)
+                {
+                    ApplicationUser foundUser = currentTile.Users.FirstOrDefault(x => x.Id == user.Id);
+                    if (user.IsAssigned && foundUser == null)
+                    {
+                        ApplicationUser toAddUser =
+                            await _userManager.Users.SingleOrDefaultAsync(x => x.Id == user.Id);
+
+                        if (toAddUser != null)
+                        {
+                            currentTile.Users.Add(toAddUser);
+                        }
+                        else
+                        {
+                            return BadRequest(new Error
+                            {
+                                Title = "Missing user",
+                                Message = $"There is no user with id: {user.Id} and user name: {user.UserName}."
+                            });
+                        }
+                    }
+                    else if (!user.IsAssigned && foundUser != null)
+                    {
+                        currentTile.Users.Remove(foundUser);
+                    }
+                }
+
+                _dbContext.SaveChanges();
+
+                return Ok("Users successfully assigned or removed from tile.");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetUsers)} method with parameter {id}.");
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(UpdateUsers)} method.");
                 return BadRequest(new UnknownError() { Title = ex.Message });
             }
         }

@@ -43,7 +43,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = UserRoles.USER)]
         public async Task<ActionResult<User>> Get()
         {
             try

@@ -24,7 +24,7 @@ namespace OsmIntegrator.Controllers
 {
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
     public class PermissionsController : Controller
@@ -112,6 +112,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = UserRoles.ADMIN)]
         public async Task<IActionResult> OnlyAdmin()
         {
             try

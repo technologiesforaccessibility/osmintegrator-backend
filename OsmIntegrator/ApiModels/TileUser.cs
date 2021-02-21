@@ -9,6 +9,9 @@ namespace OsmIntegrator.ApiModels
         public Guid Id { get; set; }
 
         [Required]
+        public string UserName {get; set; }
+
+        [Required]
         public bool IsAssigned{ get; set; }
     }
 }

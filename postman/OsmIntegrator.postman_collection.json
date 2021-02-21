@@ -734,7 +734,7 @@
 			"name": "Tiles",
 			"item": [
 				{
-					"name": "GetAll",
+					"name": "GetAllTiles",
 					"event": [
 						{
 							"listen": "test",
@@ -766,20 +766,21 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile",
+							"raw": "{{host}}/api/Tile/GetAllTiles",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Tile"
+								"Tile",
+								"GetAllTiles"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "GetById",
+					"name": "GetStops",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -799,21 +800,22 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/cd67a467-6c15-4036-b793-b8f8accceefd",
+							"raw": "{{host}}/api/Tile/GetStops/",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"cd67a467-6c15-4036-b793-b8f8accceefd"
+								"GetStops",
+								""
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "GetById FirstTile",
+					"name": "GetStops FirstTile",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -833,14 +835,93 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/{{firstTileId}}",
+							"raw": "{{host}}/api/Tile/GetStops/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
+								"GetStops",
 								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetUsers",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"726f252d-6233-46a6-9a0a-558faaf81e88\",\n    \"users\": [\n        {\n            \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n            \"userName\": \"supervisor2\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\",\n            \"userName\": \"editor1\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"a658f1c1-e91f-4bde-afb2-58c50b0d170a\",\n            \"userName\": \"editor2\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\",\n            \"userName\": \"coordinator2\",\n            \"isAssigned\": false\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tile/UpdateUsers",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"UpdateUsers"
 							]
 						}
 					},
