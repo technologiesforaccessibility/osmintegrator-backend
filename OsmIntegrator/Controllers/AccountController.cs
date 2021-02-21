@@ -22,29 +22,33 @@ using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Controllers
 {
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
         private readonly ILogger<AccountController> _logger;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ITokenHelper _tokenHelper;
         private readonly IValidationHelper _validationHelper;
 
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEmailService emailService,
             IConfiguration configuration,
             ILogger<AccountController> logger,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             IValidationHelper validationHelper,
             ITokenHelper tokenHelper
             )
@@ -60,8 +64,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult IsTokenValid()
         {
             try
@@ -81,8 +83,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
             try
@@ -109,9 +109,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TokenData>> Login([FromBody] LoginData model)
         {
             try
@@ -119,7 +116,7 @@ namespace OsmIntegrator.Controllers
                 var validationResult = _validationHelper.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                IdentityUser userEmail = await _userManager.FindByEmailAsync(model.Email);
+                ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
 
                 if (userEmail == null)
                 {
@@ -151,9 +148,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-                [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TokenData>> Refresh([FromBody] TokenData refreshTokenData)
         {
             try
@@ -192,8 +186,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ConfirmRegistration([FromBody] ConfirmRegistration model)
         {
             try
@@ -237,11 +229,9 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterData model)
         {
-            IdentityUser user = null;
+            ApplicationUser user = null;
             try
             {
                 model.Email = model.Email.ToLower().Trim();
@@ -250,7 +240,7 @@ namespace OsmIntegrator.Controllers
                 var validationResult = _validationHelper.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                user = new IdentityUser
+                user = new ApplicationUser
                 {
                     UserName = model.Username,
                     Email = model.Email,
@@ -319,7 +309,7 @@ namespace OsmIntegrator.Controllers
         }
 
 
-        private async void RemoveUser(IdentityUser user)
+        private async void RemoveUser(ApplicationUser user)
         {
             if (user != null)
             {
@@ -337,8 +327,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
         {
             try
@@ -376,8 +364,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmail model)
         {
             try
@@ -412,8 +398,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpPost]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ChangeEmail([FromBody] ResetEmail model)
         {
             try
@@ -442,8 +426,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Consumes(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
         {
             try

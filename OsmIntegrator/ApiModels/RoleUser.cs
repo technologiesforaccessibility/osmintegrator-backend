@@ -7,7 +7,7 @@ namespace OsmIntegrator.ApiModels
     public class RoleUser
     {
         [Required]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string UserName { get; set; }

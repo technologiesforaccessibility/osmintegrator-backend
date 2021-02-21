@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Authorization;
 using OsmIntegrator.Tools;
 using OsmIntegrator.AutoMapper;
 using AutoMapper;
+using OsmIntegrator.Database.Models;
 
 namespace osmintegrator
 {
@@ -44,7 +45,7 @@ namespace osmintegrator
                     options.JsonSerializerOptions.IgnoreNullValues = true;
                 });
 
-            // ===== Allow-Orgin ========
+            // ===== Allow-Origin ========
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options
@@ -54,7 +55,7 @@ namespace osmintegrator
             });
 
             // ===== Add Identity ========
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
                 options.Password.RequireDigit = false;
                 options.Password.RequiredLength = 8;
@@ -63,7 +64,7 @@ namespace osmintegrator
                 options.Password.RequireLowercase = false;
                 options.SignIn.RequireConfirmedEmail = true;
             })
-                .AddRoles<IdentityRole>()
+                .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -112,7 +113,9 @@ namespace osmintegrator
             services.AddAutoMapper(
                 typeof(TileProfile),
                 typeof(StopProfile),
-                typeof(TagProfile));
+                typeof(TagProfile),
+                typeof(ApplicationUserProfile),
+                typeof(ApplicationUserRoleProfile));
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IValidationHelper, ValidationHelper>();
             services.AddSingleton<ITokenHelper, TokenHelper>();

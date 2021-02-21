@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Tools;
 using System.Transactions;
+using Microsoft.AspNetCore.Cors;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Controllers
 {
@@ -24,14 +26,18 @@ namespace OsmIntegrator.Controllers
     /// https://github.com/technologiesforaccessibility/osmintegrator-wiki/wiki/Permissions-and-Roles
     /// </summary>
     [ApiController]
+    [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
     public class RolesController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
 
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
 
         private readonly IValidationHelper _validationHelper;
 
@@ -40,8 +46,8 @@ namespace OsmIntegrator.Controllers
         public RolesController(
             ILogger<UserController> logger,
             IMapper mapper,
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
             IValidationHelper validationHelper
         )
         {
@@ -54,9 +60,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<User>>> Get()
         {
             try
@@ -66,12 +69,12 @@ namespace OsmIntegrator.Controllers
                 List<string> currentUserRoles = (List<string>)await _userManager.GetRolesAsync(currentUser);
 
                 // Get all users and remove current one
-                List<IdentityUser> allUsers = await _userManager.Users.ToListAsync();
-                IdentityUser userToRemove = allUsers.First(x => x.Email == currentUser.Email);
+                List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
+                ApplicationUser userToRemove = allUsers.First(x => x.Email == currentUser.Email);
                 allUsers.Remove(userToRemove);
 
                 // Get all roles
-                List<IdentityRole> allRoles = await _roleManager.Roles.ToListAsync();
+                List<ApplicationRole> allRoles = await _roleManager.Roles.ToListAsync();
 
                 // Assign roles to result users
                 List<RoleUser> usersWithRoles = await GetUsersWithRoles(allUsers, allRoles);
@@ -113,7 +116,7 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        private async Task<List<RoleUser>> GetUsersWithRoles(List<IdentityUser> allUsers, List<IdentityRole> allRoles)
+        private async Task<List<RoleUser>> GetUsersWithRoles(List<ApplicationUser> allUsers, List<ApplicationRole> allRoles)
         {
             List<RoleUser> usersWithRoles = new List<RoleUser>();
             allUsers.ForEach(x => usersWithRoles.Add(new RoleUser
@@ -125,8 +128,8 @@ namespace OsmIntegrator.Controllers
 
             foreach (var role in allRoles)
             {
-                List<IdentityUser> usersInRole =
-                    (List<IdentityUser>)await _userManager.GetUsersInRoleAsync(role.Name);
+                List<ApplicationUser> usersInRole =
+                    (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(role.Name);
 
                 foreach (RoleUser user in usersWithRoles)
                 {
@@ -145,9 +148,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody] List<RoleUser> users)
         {
             var validationResult = _validationHelper.Validate(ModelState);
@@ -253,7 +253,7 @@ namespace OsmIntegrator.Controllers
             List<string> errors = new List<string>();
             foreach (RoleUser user in users)
             {
-                IdentityUser identityUser = await _userManager.FindByIdAsync(user.Id);
+                ApplicationUser identityUser = await _userManager.FindByIdAsync(user.Id.ToString());
                 IList<string> identityRoles = await _userManager.GetRolesAsync(identityUser);
 
                 foreach (var rolePair in user.Roles)

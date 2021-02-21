@@ -4,12 +4,12 @@ using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper
 {
-    public class TileProfile : Profile
+    public class ApplicationUserRoleProfile : Profile
     {
-        public TileProfile()
+        public ApplicationUserRoleProfile()
         {
             AllowNullCollections = true;
-            CreateMap<DbTile, Tile>().ForMember(x => x.UsersCount, o => o.MapFrom(x => x.Users.Count));
+            CreateMap<ApplicationUserRole, string>().ConstructUsing(x => x.Role.Name);
         }
     }
 }

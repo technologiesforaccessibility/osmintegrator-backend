@@ -12,10 +12,15 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Cors;
 
 namespace OsmIntegrator.Controllers
 {
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
+    [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     public class StopController : ControllerBase
     {
@@ -37,9 +42,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<Stop>>> Get()
         {
             try
