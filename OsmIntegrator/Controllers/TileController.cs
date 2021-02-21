@@ -13,12 +13,17 @@ using System.Collections.Generic;
 using AutoMapper;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Cors;
 
 namespace OsmIntegrator.Controllers
 {
 
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
+    [EnableCors("AllowOrigin")]
     public class TileController : ControllerBase
     {
         private readonly ILogger<TileController> _logger;
@@ -39,10 +44,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<List<Tile>>> Get()
+        public async Task<ActionResult<List<Tile>>> GetAllTiles()
         {
             try
             {
@@ -52,16 +54,13 @@ namespace OsmIntegrator.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Unknown error while performing {nameof(Get)} method.");
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetAllTiles)} method.");
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
 
         [HttpGet("{id}")]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<Tile>> Get(string id)
+        public async Task<ActionResult<Tile>> GetStops(string id)
         {
             try
             {
@@ -99,7 +98,49 @@ namespace OsmIntegrator.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Unknown error while performing {nameof(Get)} method with parameter {id}.");
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetStops)} method with parameter {id}.");
+                return BadRequest(new UnknownError() { Title = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tile>> GetUsers(string id)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetUsers)} method with parameter {id}.");
+                return BadRequest(new UnknownError() { Title = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}")]
+        public async Task<ActionResult<Tile>> UpdateUsers(string id)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetUsers)} method with parameter {id}.");
+                return BadRequest(new UnknownError() { Title = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tile>> GetAssignedUsers(string id)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetUsers)} method with parameter {id}.");
                 return BadRequest(new UnknownError() { Title = ex.Message });
             }
         }

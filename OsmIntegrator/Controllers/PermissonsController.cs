@@ -18,6 +18,9 @@ using System.Collections.Generic;
 
 namespace OsmIntegrator.Controllers
 {
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
     public class PermissionsController : Controller
@@ -48,9 +51,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<string>>> Roles()
         {
             try
@@ -70,8 +70,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddAdminRole()
         {
             try
@@ -103,9 +101,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = UserRoles.ADMIN)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OnlyAdmin()
         {
             try
@@ -125,8 +120,6 @@ namespace OsmIntegrator.Controllers
         [HttpGet]
         [Authorize(Roles = UserRoles.ADMIN)]
         [Authorize(Roles = UserRoles.USER)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AdminAndUser()
         {
             try
@@ -146,8 +139,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.USER)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OnlyUser()
         {
             try

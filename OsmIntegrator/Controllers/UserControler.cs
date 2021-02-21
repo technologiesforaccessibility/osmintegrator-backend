@@ -4,6 +4,7 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,12 @@ using OsmIntegrator.Roles;
 namespace OsmIntegrator.Controllers
 {
 
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("AllowOrigin")]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -38,9 +43,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.USER)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<User>> Get()
         {
             try
@@ -68,9 +70,6 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<User>> Get(string id)
         {
             try

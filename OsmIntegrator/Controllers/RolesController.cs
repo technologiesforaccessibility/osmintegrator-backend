@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Tools;
 using System.Transactions;
+using Microsoft.AspNetCore.Cors;
 
 namespace OsmIntegrator.Controllers
 {
@@ -24,7 +25,11 @@ namespace OsmIntegrator.Controllers
     /// https://github.com/technologiesforaccessibility/osmintegrator-wiki/wiki/Permissions-and-Roles
     /// </summary>
     [ApiController]
+    [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
     public class RolesController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -54,9 +59,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<User>>> Get()
         {
             try
@@ -145,9 +147,6 @@ namespace OsmIntegrator.Controllers
         [HttpPost]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         [Consumes(MediaTypeNames.Application.Json)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromBody] List<RoleUser> users)
         {
             var validationResult = _validationHelper.Validate(ModelState);

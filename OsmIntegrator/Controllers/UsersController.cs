@@ -13,12 +13,16 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
+using Microsoft.AspNetCore.Cors;
 
 namespace OsmIntegrator.Controllers
 {
-
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("AllowOrigin")]
     public class UsersController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -44,9 +48,6 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<List<User>>> Get()
         {
             try
