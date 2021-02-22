@@ -21,7 +21,7 @@ namespace OsmIntegrator.Database.DataInitialization
         public DataInitializer(IConfiguration configuration)
         {
             _zoomLevel = int.Parse(configuration["ZoomLevel"]);
-            _overlapFactor = double.Parse(configuration["OverlapFactor"]);
+            _overlapFactor = double.Parse(configuration["OverlapFactor"], NumberFormatInfo.InvariantInfo);
         }
 
         public void AddRole(ModelBuilder modelBuilder, Guid id, string name)
