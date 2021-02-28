@@ -39,13 +39,16 @@ namespace OsmIntegrator.Controllers
         private readonly IMapper _mapper;
         private readonly IValidationHelper _validationHelper;
 
+        private readonly RoleManager<ApplicationRole> _roleManger;
+
         public TileController(
             ILogger<TileController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            IValidationHelper validationHelper
+            IValidationHelper validationHelper,
+            RoleManager<ApplicationRole> roleManager
         )
         {
             _logger = logger;
@@ -53,19 +56,31 @@ namespace OsmIntegrator.Controllers
             _mapper = mapper;
             _userManager = userManager;
             _validationHelper = validationHelper;
+            _roleManger = roleManager;
         }
 
         [HttpGet]
+        [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Tile>>> GetAllTiles()
         {
             try
             {
-                List<DbTile> tiles = await _dbContext.Tiles.Include(x => x.Users).Where(
-                        x => x.GtfsStopsCount > 0).ToListAsync();
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                IList<string> roles = await _userManager.GetRolesAsync(user);
 
-                List<Tile> result = _mapper.Map<List<Tile>>(tiles);
+                List<DbTile> tiles;
+                if (roles.Contains(UserRoles.ADMIN) || roles.Contains(UserRoles.SUPERVISOR))
+                {
+                    tiles =
+                        await _dbContext.Tiles.Include(x => x.Users).Where(
+                            x => x.GtfsStopsCount > 0).ToListAsync();
+                    return Ok(_mapper.Map<List<Tile>>(tiles));
+                }
 
-                return Ok(result);
+                tiles = await _dbContext.Tiles.Include(x => x.Users).Where(x => x.GtfsStopsCount > 0).
+                    Where(x => x.Users.Any(x => x.Id == user.Id)).ToListAsync();
+
+                return Ok(_mapper.Map<List<Tile>>(tiles));
             }
             catch (Exception ex)
             {
@@ -75,11 +90,12 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        public async Task<ActionResult<Tile>> GetStops(string id)
+        [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
+        public async Task<ActionResult<Stop>> GetStops(string id)
         {
             try
             {
+                // Validate tile id
                 Guid tileId;
                 if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
                 {
@@ -88,9 +104,11 @@ namespace OsmIntegrator.Controllers
                         Message = "Unable to validate tile id."
                     });
                 }
-                var result = await _dbContext.Tiles.SingleOrDefaultAsync(x => x.Id == tileId);
 
-                if (result == null)
+                // Check if tile exists
+                var tile =
+                    await _dbContext.Tiles.Include(x => x.Users).SingleOrDefaultAsync(x => x.Id == tileId);
+                if (tile == null)
                 {
                     Error error = new Error();
                     error.Title = $"Unable to find tile with id {id}.";
@@ -98,14 +116,30 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(error);
                 }
 
+                // Get current user roles
+                ApplicationUser user = await _userManager.GetUserAsync(User);
+                IList<string> roles = await _userManager.GetRolesAsync(user);
+
+                // Check if user is assigned to a tile?
+                // When user is SUPERVISOR or ADMIN this validation is not required.
+                if (!roles.Contains(UserRoles.SUPERVISOR) && !roles.Contains(UserRoles.ADMIN) &&
+                    roles.Contains(UserRoles.EDITOR) && !tile.Users.Any(x => x.Id == user.Id))
+                {
+                    return BadRequest(new ValidationError
+                    {
+                        Message = "Current user is not able to edit this tile."
+                    });
+                }
+
+                // Get all stops in selected tile + stops around that tile
                 var stops = await _dbContext.Stops.Where(x =>
-                    x.Lon > result.OverlapMinLon && x.Lon <= result.OverlapMaxLon &&
-                    x.Lat > result.OverlapMinLat && x.Lat <= result.OverlapMaxLat).ToListAsync();
+                    x.Lon > tile.OverlapMinLon && x.Lon <= tile.OverlapMaxLon &&
+                    x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat).ToListAsync();
 
                 foreach (DbStop stop in stops)
                 {
-                    if (stop.Lon > result.MinLon && stop.Lon <= result.MaxLon &&
-                        stop.Lat > result.MinLat && stop.Lat <= result.MaxLat)
+                    if (stop.Lon > tile.MinLon && stop.Lon <= tile.MaxLon &&
+                        stop.Lat > tile.MinLat && stop.Lat <= tile.MaxLat)
                     {
                         stop.OutsideSelectedTile = false;
                         continue;
@@ -113,9 +147,10 @@ namespace OsmIntegrator.Controllers
                     stop.OutsideSelectedTile = true;
                 }
 
-                result.Stops = stops;
-
-                return Ok(_mapper.Map<Tile>(result));
+                tile.Stops = stops;
+                tile.Stops.ForEach(x => x.Tile = null);
+                List<Stop> result = _mapper.Map<List<Stop>>(tile.Stops);
+                return Ok(result);
             }
             catch (Exception ex)
             {
