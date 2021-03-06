@@ -31,14 +31,14 @@ namespace OsmIntegrator.Tools
             _configuration = configuration;
         }
 
-        public TokenData GenerateJwtToken(string userName, 
+        public TokenData GenerateJwtToken(string userId, 
             ApplicationUser user, List<string> roles, SignInManager<ApplicationUser> signInManager)
         {
             string newRefreshToken = GenerateRefreshToken();
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userName),
+                new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("refresh_token", newRefreshToken)

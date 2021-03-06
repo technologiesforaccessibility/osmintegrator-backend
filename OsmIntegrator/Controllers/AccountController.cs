@@ -130,7 +130,7 @@ namespace OsmIntegrator.Controllers
                     var appUser = await _userManager.FindByEmailAsync(model.Email);
                     List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
 
-                    TokenData tokenData = _tokenHelper.GenerateJwtToken(model.Email, appUser, userRoles, _signInManager);
+                    TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, userRoles, _signInManager);
                     return Ok(tokenData);
                 }
 
@@ -160,7 +160,7 @@ namespace OsmIntegrator.Controllers
                     return _tokenHelper.GetPrincipalFromExpiredToken(refreshTokenData.Token);
                 });
 
-                var username = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
+                var userId = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
                 var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refresh_token").Value;
 
                 if (savedRefreshToken != refreshTokenData.RefreshToken)
@@ -169,9 +169,10 @@ namespace OsmIntegrator.Controllers
                 }
                 else
                 {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.UserName == username);
+                    var appUser = _userManager.Users.SingleOrDefault(r => r.Id == Guid.Parse(userId));
+
                     List<string> roles = (List<string>)await _userManager.GetRolesAsync(appUser);
-                    TokenData tokenData = _tokenHelper.GenerateJwtToken(username, appUser, roles, _signInManager);
+                    TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, roles, _signInManager);
                     return Ok(tokenData);
                 }
 
