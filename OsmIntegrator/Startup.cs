@@ -14,11 +14,9 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Services;
-using OsmIntegrator.Roles;
 using Microsoft.AspNetCore.Authorization;
 using OsmIntegrator.Tools;
 using OsmIntegrator.AutoMapper;
-using AutoMapper;
 using OsmIntegrator.Database.Models;
 
 namespace osmintegrator
@@ -114,8 +112,7 @@ namespace osmintegrator
                 typeof(TileProfile),
                 typeof(StopProfile),
                 typeof(TagProfile),
-                typeof(ApplicationUserProfile),
-                typeof(ApplicationUserRoleProfile));
+                typeof(ApplicationUserProfile));
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IValidationHelper, ValidationHelper>();
             services.AddSingleton<ITokenHelper, TokenHelper>();

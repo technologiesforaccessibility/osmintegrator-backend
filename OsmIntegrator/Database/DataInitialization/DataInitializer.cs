@@ -24,10 +24,9 @@ namespace OsmIntegrator.Database.DataInitialization
             _overlapFactor = double.Parse(configuration["OverlapFactor"]);
         }
 
-        public void AddRole(ModelBuilder modelBuilder, Guid id, string name)
+        public void AddRole(DbSet<ApplicationRole> roles, Guid id, string name)
         {
-            modelBuilder.Entity<ApplicationRole>().HasData(new ApplicationRole
-            {
+            roles.Add(new ApplicationRole() {
                 Id = id,
                 Name = name,
                 NormalizedName = name.ToUpper()
@@ -35,14 +34,15 @@ namespace OsmIntegrator.Database.DataInitialization
         }
 
         public void AddUser(
-            ModelBuilder modelBuilder,
+            DbSet<ApplicationUser> users,
+            DbSet<IdentityUserRole<Guid>> userRoles,
             Guid id,
             string email,
             List<Guid> roleIds = null)
         {
             var hasher = new PasswordHasher<ApplicationUser>();
             string name = email.Split("@")[0];
-            modelBuilder.Entity<ApplicationUser>().HasData(new ApplicationUser
+            users.Add(new ApplicationUser
             {
                 Id = id,
                 UserName = name,
@@ -58,7 +58,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
             foreach (Guid roleId in roleIds)
             {
-                modelBuilder.Entity<ApplicationUserRole>().HasData(new ApplicationUserRole
+                userRoles.Add(new IdentityUserRole<Guid>
                 {
                     RoleId = roleId,
                     UserId = id

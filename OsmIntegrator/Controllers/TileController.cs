@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.AspNetCore.Authorization;
-using OsmIntegrator.Extensions;
 using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Controllers
@@ -61,7 +60,7 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
-        public async Task<ActionResult<List<Tile>>> GetAllTiles()
+        public async Task<ActionResult<List<Tile>>> GetTiles()
         {
             try
             {
@@ -84,7 +83,7 @@ namespace OsmIntegrator.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetAllTiles)} method.");
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(GetTiles)} method.");
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
@@ -174,17 +173,18 @@ namespace OsmIntegrator.Controllers
                     });
                 }
 
-                // Get all users with roles and remove current one
-                List<ApplicationUser> allUsers = await _userManager.Users.Include(x => x.UserRoles).
-                    ThenInclude(x => x.Role).ToListAsync();
+                List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
+                
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
                 allUsers.RemoveAll(x => x.Id.Equals(currentUser.Id));
 
                 // Remove other users than editors
                 List<ApplicationUser> editors = new List<ApplicationUser>();
                 foreach (ApplicationUser user in allUsers)
-                {
-                    IList<string> roles = user.GetRoles();
+                { 
+                    IList<string> roles = await _userManager.GetRolesAsync(user);
+                    // add roles to user
+                    user.Roles  = roles;
                     if (roles.Contains(UserRoles.EDITOR)) editors.Add(user);
                 }
 

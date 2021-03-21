@@ -16,7 +16,8 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"token\", data.token);"
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -64,7 +65,8 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"token\", data.token);"
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -112,7 +114,8 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"token\", data.token);"
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -160,7 +163,8 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"token\", data.token);"
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -208,7 +212,8 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"token\", data.token);"
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -384,7 +389,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
 								],
 								"type": "text/javascript"
 							}
@@ -407,7 +414,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\t\"refreshToken\": \"wggpU/rUu7ZTfq9J1N+HDPvRtSPX+DZBW4bSmE9HIJk=\",\r\n\t\"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJsdWt0YXJAZ21haWwuY29tIiwianRpIjoiYWMzYWZmZjktMzYwZi00NTRkLWExMTQtMDI1MWM3OTM3YjRjIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiI3NWQyOWVjNS1jMjUwLTQ0NjEtODE5Zi05YTc0YzA2OGU5ZmUiLCJyZWZyZXNoX3Rva2VuIjoid2dncFUvclV1N1pUZnE5SjFOK0hEUHZSdFNQWCtEWkJXNGJTbUU5SElKaz0iLCJleHAiOjE2MTEwODU4OTIsImlzcyI6Im9zbWludGVncmF0b3IiLCJhdWQiOiJvc21pbnRlZ3JhdG9yIn0.oHHoHbY4oRnLycOCt4c9Jd8lKehtXTvV-XmwHZHKJrg\"\r\n}"
+							"raw": "{\r\n\t\"refreshToken\": \"{{refreshToken}}\",\r\n\t\"token\": \"{{token}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Refresh",
@@ -734,7 +746,7 @@
 			"name": "Tiles",
 			"item": [
 				{
-					"name": "GetAllTiles",
+					"name": "GetTiles",
 					"event": [
 						{
 							"listen": "test",
@@ -766,14 +778,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetAllTiles",
+							"raw": "{{host}}/api/Tile/GetTiles",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"GetAllTiles"
+								"GetTiles"
 							]
 						}
 					},
@@ -800,7 +812,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/",
+							"raw": "{{host}}/api/Tile/GetStops/049bb142-7fa8-4f3b-93ff-a264982b83f1",
 							"host": [
 								"{{host}}"
 							],
@@ -808,7 +820,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								""
+								"049bb142-7fa8-4f3b-93ff-a264982b83f1"
 							]
 						}
 					},
@@ -870,6 +882,41 @@
 						"method": "GET",
 						"header": [],
 						"url": {
+							"raw": "{{host}}/api/Tile/GetUsers/06e354e9-e52c-4bf2-811d-98c24dcfaff8",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetUsers",
+								"06e354e9-e52c-4bf2-811d-98c24dcfaff8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsers FirstTile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
 							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
 							"host": [
 								"{{host}}"
@@ -906,7 +953,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"726f252d-6233-46a6-9a0a-558faaf81e88\",\n    \"users\": [\n        {\n            \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n            \"userName\": \"supervisor2\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\",\n            \"userName\": \"editor1\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"a658f1c1-e91f-4bde-afb2-58c50b0d170a\",\n            \"userName\": \"editor2\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\",\n            \"userName\": \"coordinator2\",\n            \"isAssigned\": false\n        }\n    ]\n}",
+							"raw": "{\n    \"id\": \"06e354e9-e52c-4bf2-811d-98c24dcfaff8\",\n    \"users\": [\n        {\n            \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n            \"userName\": \"supervisor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\",\n            \"userName\": \"editor1\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"a658f1c1-e91f-4bde-afb2-58c50b0d170a\",\n            \"userName\": \"editor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\",\n            \"userName\": \"coordinator2\",\n            \"isAssigned\": false\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1161,14 +1208,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/User/479186c5-3c57-48af-95d1-066e2ac6e99c",
+							"raw": "{{host}}/api/User/ed694889-5518-47d2-86e5-a71052361673",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"User",
-								"479186c5-3c57-48af-95d1-066e2ac6e99c"
+								"ed694889-5518-47d2-86e5-a71052361673"
 							]
 						}
 					},
@@ -1268,11 +1315,11 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"id\": \"ed694889-5518-47d2-86e5-a71052361673\",\n        \"userName\": \"uploader2\",\n        \"roles\": {\n            \"Editor\": true,\n            \"Supervisor\": true\n        }\n    },\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": {\n            \"Editor\": false,\n            \"Supervisor\": false\n        }\n    }\n]",
+							"raw": "[\n    {\n        \"id\": \"ed694889-5518-47d2-86e5-a71052361673\",\n        \"userName\": \"uploader2\",\n        \"roles\": {\n            \"Editor\": false\n        }\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
