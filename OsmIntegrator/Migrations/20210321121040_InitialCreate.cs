@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace OsmIntegrator.Migrations
+namespace osmintegrator.Migrations
 {
-    public partial class CreateDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,7 @@ namespace OsmIntegrator.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
@@ -26,7 +26,7 @@ namespace OsmIntegrator.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -48,15 +48,26 @@ namespace OsmIntegrator.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "LoginDatas",
+                name: "Tiles",
                 columns: table => new
                 {
-                    UserName = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    X = table.Column<long>(type: "bigint", nullable: false),
+                    Y = table.Column<long>(type: "bigint", nullable: false),
+                    MaxLat = table.Column<double>(type: "double precision", nullable: false),
+                    MinLon = table.Column<double>(type: "double precision", nullable: false),
+                    MinLat = table.Column<double>(type: "double precision", nullable: false),
+                    MaxLon = table.Column<double>(type: "double precision", nullable: false),
+                    OverlapMaxLat = table.Column<double>(type: "double precision", nullable: false),
+                    OverlapMinLon = table.Column<double>(type: "double precision", nullable: false),
+                    OverlapMinLat = table.Column<double>(type: "double precision", nullable: false),
+                    OverlapMaxLon = table.Column<double>(type: "double precision", nullable: false),
+                    OsmStopsCount = table.Column<int>(type: "integer", nullable: false),
+                    GtfsStopsCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_LoginDatas", x => x.UserName);
+                    table.PrimaryKey("PK_Tiles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -65,7 +76,7 @@ namespace OsmIntegrator.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -86,7 +97,7 @@ namespace OsmIntegrator.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -108,7 +119,7 @@ namespace OsmIntegrator.Migrations
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -125,8 +136,8 @@ namespace OsmIntegrator.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    RoleId = table.Column<string>(type: "text", nullable: false)
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -149,7 +160,7 @@ namespace OsmIntegrator.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
@@ -164,6 +175,81 @@ namespace OsmIntegrator.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationUserDbTile",
+                columns: table => new
+                {
+                    TilesId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationUserDbTile", x => new { x.TilesId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserDbTile_AspNetUsers_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUserDbTile_Tiles_TilesId",
+                        column: x => x.TilesId,
+                        principalTable: "Tiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Stops",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    StopId = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true),
+                    Lat = table.Column<double>(type: "double precision", nullable: false),
+                    Lon = table.Column<double>(type: "double precision", nullable: false),
+                    Number = table.Column<string>(type: "text", nullable: true),
+                    StopType = table.Column<int>(type: "integer", nullable: false),
+                    ProviderType = table.Column<int>(type: "integer", nullable: false),
+                    TileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OutsideSelectedTile = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Stops", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Stops_Tiles_TileId",
+                        column: x => x.TileId,
+                        principalTable: "Tiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tags",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Key = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false),
+                    OsmStopId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Tags_Stops_OsmStopId",
+                        column: x => x.OsmStopId,
+                        principalTable: "Stops",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUserDbTile_UsersId",
+                table: "ApplicationUserDbTile",
+                column: "UsersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -201,10 +287,23 @@ namespace OsmIntegrator.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Stops_TileId",
+                table: "Stops",
+                column: "TileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tags_OsmStopId",
+                table: "Tags",
+                column: "OsmStopId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ApplicationUserDbTile");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -221,13 +320,19 @@ namespace OsmIntegrator.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "LoginDatas");
+                name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Stops");
+
+            migrationBuilder.DropTable(
+                name: "Tiles");
         }
     }
 }

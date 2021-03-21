@@ -145,7 +145,7 @@ namespace OsmIntegrator.Controllers
             return usersWithRoles;
         }
 
-        [HttpPost]
+        [HttpPut]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> Update([FromBody] List<RoleUser> users)

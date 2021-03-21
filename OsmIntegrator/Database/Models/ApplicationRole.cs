@@ -6,6 +6,6 @@ namespace OsmIntegrator.Database.Models
 {
     public class ApplicationRole : IdentityRole<Guid>
     {
-        public ICollection<ApplicationUserRole> UserRoles { get; set; }
+
     }
 }
