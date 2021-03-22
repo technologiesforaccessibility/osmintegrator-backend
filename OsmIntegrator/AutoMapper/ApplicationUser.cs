@@ -9,9 +9,7 @@ namespace OsmIntegrator.AutoMapper
         public ApplicationUserProfile()
         {
             AllowNullCollections = true;
-            CreateMap<ApplicationUser, User>().ForMember(dest =>
-                dest.Roles,
-                opt => opt.MapFrom(src => src.UserRoles));
+            CreateMap<ApplicationUser, User>().ReverseMap();
         }
     }
 }

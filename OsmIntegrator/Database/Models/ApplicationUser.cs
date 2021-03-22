@@ -9,6 +9,7 @@ namespace OsmIntegrator.Database.Models
     {
         public List<DbTile> Tiles { get; set; }
 
-        public List<ApplicationUserRole> UserRoles { get; set; }
+        [NotMapped]
+        public IList<string> Roles { get; set; }
     }
 }
