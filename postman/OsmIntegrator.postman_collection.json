@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b24b00a1-e41c-4194-8a96-3a1b9b6a919c",
+		"_postman_id": "e664861a-dab5-4ae2-8088-f139ff10abb6",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1334,6 +1334,68 @@
 							"path": [
 								"api",
 								"Roles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "GetList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetListById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"e6678132-04d2-4341-b4d2-3118a8e56dec"
 							]
 						}
 					},
