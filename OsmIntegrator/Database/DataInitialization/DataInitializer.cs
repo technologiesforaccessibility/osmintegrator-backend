@@ -86,7 +86,7 @@ namespace OsmIntegrator.Database.DataInitialization
         public (List<DbStop> Stops, List<Models.DbTag> Tags) GetOsmStopsList()
         {
             List<DbStop> result = new List<DbStop>();
-            List<Models.DbTag> tags = new List<Models.DbTag>();
+            List<DbTag> tags = new List<DbTag>();
 
             XmlSerializer serializer =
                 new XmlSerializer(typeof(Osm));
@@ -110,18 +110,20 @@ namespace OsmIntegrator.Database.DataInitialization
                     List<Models.DbTag> tempTags = new List<Models.DbTag>();
 
                     node.Tag.ForEach(x => tempTags.Add(new Models.DbTag()
+                    //node.Tag.ForEach(x => tags.Add(new Models.DbTag()
                     {
                         Id = Guid.NewGuid(),
                         OsmStopId = stop.Id,
                         Key = x.K,
                         Value = x.V
                     }));
-
                     tags.AddRange(tempTags);
+
 
                     var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "name");
                     stop.Name = nameTag?.Value;
                     result.Add(stop);
+
                 }
 
             }

@@ -104,6 +104,7 @@ namespace osmintegrator
 
                         db.Stops.AddRange(allStops);
                         db.Tiles.AddRange(tiles);
+                        db.Tags.AddRange(Tags);
                         db.SaveChanges();
                         transaction.Commit();
                     }
