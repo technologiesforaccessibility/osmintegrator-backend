@@ -14,6 +14,10 @@ using AutoMapper;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Cors;
 using System.Linq;
+using OsmIntegrator.Roles;
+using OsmIntegrator.Database.Models;
+using System.Transactions;
+using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Controllers
 {
@@ -29,26 +33,29 @@ namespace OsmIntegrator.Controllers
         private readonly ApplicationDbContext _dbContext;
 
         private readonly IMapper _mapper;
+        private readonly IValidationHelper _validationHelper;
 
         public TagController(
             ILogger<TagController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext,
-            IMapper mapper
+            IMapper mapper,
+            IValidationHelper validationHelper
         )
         {
             _logger = logger;
             _dbContext = dbContext;
             _mapper = mapper;
+            _validationHelper = validationHelper;
         }
-
-        [HttpGet]
-        public async Task<ActionResult<List<Tag>>> GetList()
+ 
+       [HttpGet]
+        public async Task<ActionResult<List<ApiModels.Tag>>> GetList()
         {
             try
             {
                 var result = await _dbContext.Tags.ToListAsync();
-                return Ok(_mapper.Map<List<Tag>>(result));
+                return Ok(_mapper.Map<List<ApiModels.Tag>>(result));
             }
             catch (Exception ex)
             {
@@ -57,19 +64,109 @@ namespace OsmIntegrator.Controllers
             }
         }
 
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<List<Tag>>> GetList(Guid id)
+        //{
+        //    try
+        //    {
+        //        var result = await _dbContext.Tags.Where(x => x.OsmStopId == id).ToListAsync();
+        //        return Ok(_mapper.Map<List<Tag>>(result));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogWarning(ex, "Unknown error while performing ");
+        //        return BadRequest(new UnknownError() { Message = ex.Message });
+        //    }
+        //}
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<List<Tag>>> GetList(Guid id)
+        public async Task<ActionResult<ApiModels.Tag>> GetItem(Guid id)
         {
             try
             {
-                var result = await _dbContext.Tags.Where(x => x.OsmStopId == id).ToListAsync();
-                return Ok(_mapper.Map<List<Tag>>(result));
+                var result = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+                return Ok(_mapper.Map<ApiModels.Tag>(result));
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Unknown error while performing ");
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
+        }
+
+        [HttpPut]
+        //[Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        [Consumes(MediaTypeNames.Application.Json)]
+        //public async Task<IActionResult> Update([FromBody] Tag tag)
+        public async Task<IActionResult> Update([FromBody] ApiModels.Tag tag)
+        {
+            //var validationResult = _validationHelper.Validate(ModelState);
+            //if (validationResult != null) return BadRequest(validationResult);
+
+            try
+            {
+                Error error = await ValidateItem(tag);
+                if (error != null)
+                {
+                    return BadRequest(error);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Unknown error while performing ");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+
+            try
+            {
+                DbTag dbTag = _mapper.Map<DbTag>(tag);
+                var result = _dbContext.Tags.Update(dbTag);
+                _dbContext.SaveChanges();
+                return Ok("Tag updated successfully!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Problem with Tag validation.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+
+
+           
+            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            //{
+            //    try
+            //    {
+            //        //List<string> errors = await UpdateRoles(users);
+            //        List<string> errors = new List<string>();
+            //        DbTag dbTag = _mapper.Map<DbTag>(tag);
+            //        var result = _dbContext.Tags.Update(dbTag);
+
+            //        if (errors.Count > 0)
+            //        {
+            //            scope.Dispose();
+            //            return BadRequest(new Error
+            //            {
+            //                Title = "Problem with adding/removing user roles.",
+            //                Message = string.Join($"{Environment.NewLine}", errors)
+            //            });
+            //        }
+            //        scope.Complete();
+            //        return Ok("User tag updated successfully!");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        scope.Dispose();
+            //        _logger.LogWarning(ex, $"Unknown problem with {nameof(Update)} method.");
+            //        return BadRequest(new UnknownError() { Message = ex.Message });
+            //    }
+            //}            
+        }
+
+        private async Task<Error> ValidateItem(ApiModels.Tag tag)
+        {
+            Error result = null;
+            return result;
+            ;
         }
     }
 }
