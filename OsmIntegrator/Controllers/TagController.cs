@@ -18,6 +18,7 @@ using OsmIntegrator.Roles;
 using OsmIntegrator.Database.Models;
 using System.Transactions;
 using OsmIntegrator.Tools;
+using Microsoft.AspNetCore.Identity;
 
 namespace OsmIntegrator.Controllers
 {
@@ -31,8 +32,9 @@ namespace OsmIntegrator.Controllers
     {
         private readonly ILogger<TagController> _logger;
         private readonly ApplicationDbContext _dbContext;
-
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IValidationHelper _validationHelper;
 
         public TagController(
@@ -40,12 +42,16 @@ namespace OsmIntegrator.Controllers
             IConfiguration configuration,
             ApplicationDbContext dbContext,
             IMapper mapper,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
             IValidationHelper validationHelper
         )
         {
             _logger = logger;
             _dbContext = dbContext;
             _mapper = mapper;
+            _userManager = userManager;
+            _roleManager = roleManager;
             _validationHelper = validationHelper;
         }
  
@@ -94,10 +100,47 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpPut]
-        //[Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        public async Task<ActionResult<ApiModels.Tag>> Delete(Guid id)
+        {
+            try
+            {
+                DbTag dbTag = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+                var result = _dbContext.Tags.Remove(dbTag);
+                await _dbContext.SaveChangesAsync();
+                return Ok("Tag deleted successfully!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Problem with Tag validation.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         [Consumes(MediaTypeNames.Application.Json)]
-        //public async Task<IActionResult> Update([FromBody] Tag tag)
+        public async Task<IActionResult> Add([FromBody] ApiModels.Tag tag)
+        {
+            try
+            {
+                DbTag dbTag = _mapper.Map<DbTag>(tag);
+                var result = await _dbContext.Tags.AddAsync(dbTag);
+                await _dbContext.SaveChangesAsync();
+                return Ok("Tag added successfully!");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Problem with Tag validation.");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
+
+
+        [HttpPut]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> Update([FromBody] ApiModels.Tag tag)
         {
             //var validationResult = _validationHelper.Validate(ModelState);
