@@ -1345,6 +1345,90 @@
 			"name": "Tags",
 			"item": [
 				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"0524dbf3-eb3b-44ad-ab05-47a796358175\",\n    \"key\": \"bus\",\n    \"value\": \"no\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\",\n    \"key\": \"bus\",\n    \"value\": \"noo\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GetList",
 					"request": {
 						"auth": {
@@ -1386,6 +1470,64 @@
 							]
 						},
 						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"e6678132-04d2-4341-b4d2-3118a8e56dec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetItem",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/0524dbf3-eb3b-44ad-ab05-47a796358175",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"0524dbf3-eb3b-44ad-ab05-47a796358175"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
 						"header": [],
 						"url": {
 							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
