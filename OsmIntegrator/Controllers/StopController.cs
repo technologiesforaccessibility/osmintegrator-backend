@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Cors;
+using OsmIntegrator.Roles;
 
 namespace OsmIntegrator.Controllers
 {
@@ -42,6 +43,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
+        [Authorize(UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Stop>>> Get()
         {
             try

@@ -70,6 +70,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + ", " + UserRoles.ADMIN)]
         public async Task<ActionResult<User>> Get(string id)
         {
             try
