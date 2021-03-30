@@ -1,0 +1,1568 @@
+{
+	"info": {
+		"_postman_id": "e664861a-dab5-4ae2-8088-f139ff10abb6",
+		"name": "OsmIntegrator",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"admin@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Editor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"editor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Supervisor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Coordinator",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"coordinator1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Username\": \"luktar\",\r\n\t\"Email\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Register"
+							]
+						},
+						"description": "Account/Register"
+					},
+					"response": []
+				},
+				{
+					"name": "Register another account",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Username\": \"kontakt\",\r\n\t\"Email\": \"kontakt@rozwiazaniadlaniewidomych.org\",\r\n\t\"Password\": \"12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Register",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Register"
+							]
+						},
+						"description": "Account/Register"
+					},
+					"response": []
+				},
+				{
+					"name": "IsTokenValid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/IsTokenValid",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"IsTokenValid"
+							]
+						},
+						"description": "Account/Protected"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"refreshToken\": \"{{refreshToken}}\",\r\n\t\"token\": \"{{token}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Refresh",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Refresh"
+							]
+						},
+						"description": "Account/Refresh"
+					},
+					"response": []
+				},
+				{
+					"name": "ForgotPassword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ForgotPassword",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ForgotPassword"
+							]
+						},
+						"description": "Account/ForgotPassword"
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Password\": \"11112223\",\r\n    \"Token\": \"CfDJ8GSANckIyRdLplGat+8Eg8yo/IXH+NkTC9yB18AK/4llXUOO2KZI2DUijkFySoGiovIVyJagJYfVVauvdQ4dgLeBYPueQUR/WqtoWroh2mXAeu3jDE3c4VExwkeSv8Cpue8U/xetqkT8L03OW6SFQ9u4+RwR+vgLbFCi0rfraK8HqqDtUyYjOfMu9DHt8pCBJAJEgG4GateyndXRXHIspBIikvJHKkwJGMddzN7MYu83\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ResetPassword",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ResetPassword"
+							]
+						},
+						"description": "Account/ResetPassword"
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmRegistration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0mUCX6eosQwg8LRh7T65hzc1ItOKVpGNGeQHnhgCm+ULQlvBRFd7SSH/PdigKgWdZ+4DYpbduuC3hIVtZ+ti2WCe0KQPyzbiQPjbNw59Sqv8KrQhRkwAsYMn8r3Dxo0URbSh4rDCMKAfVNknz29HLGkdJKDC/JkHGsif5Cu48zfPCKFOswYgkevwDhjODicDg8OC63Wqh4EWv7e4lK7MKS93SLM35H5DjTztu47LpZBaw==\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ConfirmRegistration",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ConfirmRegistration"
+							]
+						},
+						"description": "Account/ResetPassword"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"token\", \"\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Logout",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Logout"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangeEmail",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"kontakt@rozwiazaniadlaniewidomych.org\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ChangeEmail",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ChangeEmail"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ConfirmEmail",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"newEmail\": \"kontakt@rozwiazaniadlaniewidomych.org\",\n    \"oldEmail\": \"luktar@gmail.com\",\n    \"token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0nwpx/H8aaqm1KfRpTydvtKwRJ//IIzTA/ZFwQrZeHdwLMGwuVjsjVcJ1rwj45IlhkPvTI5v/7xrA+iAN+ndyZlAB6DQSf4NpbW64z4ND/ef28m+71aZwJ76BPI9cQ+tWHqBqGi5KEIlKr25UfB5VagQDE649bG+w+4+I86Djbitfh6Fw1J79p59sJlO/TltUSob2jmTyG5CZOV6pjtRkMdXZMpju+vEiYy9Wb0FbUnj533CFTmFQCE0eEroWlWPXRfePcDS3UNl/xu5bQClmOs\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/ConfirmEmail",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"ConfirmEmail"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Stops",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tiles",
+			"item": [
+				{
+					"name": "GetTiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"firstTileId\", data[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetTiles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetTiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetStops",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetStops/049bb142-7fa8-4f3b-93ff-a264982b83f1",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetStops",
+								"049bb142-7fa8-4f3b-93ff-a264982b83f1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetStops FirstTile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetStops/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetStops",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetUsers/06e354e9-e52c-4bf2-811d-98c24dcfaff8",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetUsers",
+								"06e354e9-e52c-4bf2-811d-98c24dcfaff8"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUsers FirstTile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetUsers",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"06e354e9-e52c-4bf2-811d-98c24dcfaff8\",\n    \"users\": [\n        {\n            \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n            \"userName\": \"supervisor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\",\n            \"userName\": \"editor1\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"a658f1c1-e91f-4bde-afb2-58c50b0d170a\",\n            \"userName\": \"editor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\",\n            \"userName\": \"coordinator2\",\n            \"isAssigned\": false\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tile/UpdateUsers",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"UpdateUsers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Permissions",
+			"item": [
+				{
+					"name": "GetRoles",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"Roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddAdminRole",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/AddAdminRole",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"AddAdminRole"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OnlyAdmin",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/OnlyAdmin",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"OnlyAdmin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AdminAndUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/AdminAndUser",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"AdminAndUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "OnlyUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Permissions/OnlyUser",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Permissions",
+								"OnlyUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GetUser",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/User",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"User"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser ById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/User/ed694889-5518-47d2-86e5-a71052361673",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"User",
+								"ed694889-5518-47d2-86e5-a71052361673"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "GetUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Users",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"id\": \"ed694889-5518-47d2-86e5-a71052361673\",\n        \"userName\": \"uploader2\",\n        \"roles\": {\n            \"Editor\": false\n        }\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Roles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Roles"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"0524dbf3-eb3b-44ad-ab05-47a796358175\",\n    \"key\": \"bus\",\n    \"value\": \"no\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\",\n    \"key\": \"bus\",\n    \"value\": \"noo\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetList",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetListById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"e6678132-04d2-4341-b4d2-3118a8e56dec"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetItem",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/0524dbf3-eb3b-44ad-ab05-47a796358175",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"0524dbf3-eb3b-44ad-ab05-47a796358175"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tag",
+								"e6678132-04d2-4341-b4d2-3118a8e56dec"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Swagger",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/swagger/v1/swagger.json",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"swagger",
+						"v1",
+						"swagger.json"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

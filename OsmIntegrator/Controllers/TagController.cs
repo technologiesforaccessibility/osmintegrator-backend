@@ -70,28 +70,13 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<List<Tag>>> GetList(Guid id)
-        //{
-        //    try
-        //    {
-        //        var result = await _dbContext.Tags.Where(x => x.OsmStopId == id).ToListAsync();
-        //        return Ok(_mapper.Map<List<Tag>>(result));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogWarning(ex, "Unknown error while performing ");
-        //        return BadRequest(new UnknownError() { Message = ex.Message });
-        //    }
-        //}
-
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApiModels.Tag>> GetItem(Guid id)
+        public async Task<ActionResult<List<ApiModels.Tag>>> GetList(Guid id)
         {
             try
             {
-                var result = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
-                return Ok(_mapper.Map<ApiModels.Tag>(result));
+                var result = await _dbContext.Tags.Where(x => x.OsmStopId == id).ToListAsync();
+                return Ok(_mapper.Map<List<ApiModels.Tag>>(result));
             }
             catch (Exception ex)
             {
@@ -99,6 +84,21 @@ namespace OsmIntegrator.Controllers
                 return BadRequest(new UnknownError() { Message = ex.Message });
             }
         }
+
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<ApiModels.Tag>> GetItem(Guid id)
+        //{
+        //    try
+        //    {
+        //        var result = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+        //        return Ok(_mapper.Map<ApiModels.Tag>(result));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogWarning(ex, "Unknown error while performing ");
+        //        return BadRequest(new UnknownError() { Message = ex.Message });
+        //    }
+        //}
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
