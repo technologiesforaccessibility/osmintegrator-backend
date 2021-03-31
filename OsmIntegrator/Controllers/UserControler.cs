@@ -57,6 +57,7 @@ namespace OsmIntegrator.Controllers
 
                 return Ok(new User()
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     Roles = roles
@@ -102,6 +103,7 @@ namespace OsmIntegrator.Controllers
 
                 return Ok(new User()
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     Roles = roles

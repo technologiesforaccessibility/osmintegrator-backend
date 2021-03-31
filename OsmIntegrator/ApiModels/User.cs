@@ -6,7 +6,8 @@ namespace OsmIntegrator.ApiModels
 {
     public class User
     {
-        public Guid? Id { get; set; }
+        [Required]
+        public Guid Id { get; set; }
         public string UserName { get; set; }
 
         public string Email { get; set; }
