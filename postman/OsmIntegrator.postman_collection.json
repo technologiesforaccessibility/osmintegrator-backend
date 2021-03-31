@@ -812,7 +812,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/049bb142-7fa8-4f3b-93ff-a264982b83f1",
+							"raw": "{{host}}/api/Tile/GetStops/071d1170-5805-42cf-81b6-f67fde07fb1e",
 							"host": [
 								"{{host}}"
 							],
@@ -820,7 +820,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"049bb142-7fa8-4f3b-93ff-a264982b83f1"
+								"071d1170-5805-42cf-81b6-f67fde07fb1e"
 							]
 						}
 					},
@@ -882,7 +882,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetUsers/06e354e9-e52c-4bf2-811d-98c24dcfaff8",
+							"raw": "{{host}}/api/Tile/GetUsers/071d1170-5805-42cf-81b6-f67fde07fb1e",
 							"host": [
 								"{{host}}"
 							],
@@ -890,7 +890,7 @@
 								"api",
 								"Tile",
 								"GetUsers",
-								"06e354e9-e52c-4bf2-811d-98c24dcfaff8"
+								"071d1170-5805-42cf-81b6-f67fde07fb1e"
 							]
 						}
 					},
@@ -932,7 +932,7 @@
 					"response": []
 				},
 				{
-					"name": "UpdateUsers",
+					"name": "UpdateUser",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -949,11 +949,11 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"06e354e9-e52c-4bf2-811d-98c24dcfaff8\",\n    \"users\": [\n        {\n            \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n            \"userName\": \"supervisor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\",\n            \"userName\": \"editor1\",\n            \"isAssigned\": true\n        },\n        {\n            \"id\": \"a658f1c1-e91f-4bde-afb2-58c50b0d170a\",\n            \"userName\": \"editor2\",\n            \"isAssigned\": false\n        },\n        {\n            \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\",\n            \"userName\": \"coordinator2\",\n            \"isAssigned\": false\n        }\n    ]\n}",
+							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -961,60 +961,22 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Tile/UpdateUsers",
+							"raw": "{{host}}/api/Tile/UpdateUser/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"UpdateUsers"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Permissions",
-			"item": [
-				{
-					"name": "GetRoles",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Permissions/Roles",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Permissions",
-								"Roles"
+								"UpdateUser",
+								"{{firstTileId}}"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "AddAdminRole",
+					"name": "RemoveUser",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1031,119 +993,27 @@
 								}
 							]
 						},
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Permissions/AddAdminRole",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Permissions",
-								"AddAdminRole"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "OnlyAdmin",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
-						"method": "GET",
-						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Permissions/OnlyAdmin",
+							"raw": "{{host}}/api/Tile/RemoveUser/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Permissions",
-								"OnlyAdmin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "AdminAndUser",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Permissions/AdminAndUser",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Permissions",
-								"AdminAndUser"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "OnlyUser",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Permissions/OnlyUser",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Permissions",
-								"OnlyUser"
+								"Tile",
+								"RemoveUser",
+								"{{firstTileId}}"
 							]
 						}
 					},
@@ -1319,7 +1189,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"id\": \"ed694889-5518-47d2-86e5-a71052361673\",\n        \"userName\": \"uploader2\",\n        \"roles\": {\n            \"Editor\": false\n        }\n    }\n]",
+							"raw": "[\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": {\n            \"Editor\": true\n        }\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
