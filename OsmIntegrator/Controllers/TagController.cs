@@ -70,8 +70,8 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<List<ApiModels.Tag>>> GetList(Guid id)
+        [HttpGet("GetListForStop/{id}")]
+        public async Task<ActionResult<List<ApiModels.Tag>>> GetListForStop(Guid id)
         {
             try
             {
@@ -85,20 +85,20 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<ApiModels.Tag>> GetItem(Guid id)
-        //{
-        //    try
-        //    {
-        //        var result = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
-        //        return Ok(_mapper.Map<ApiModels.Tag>(result));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogWarning(ex, "Unknown error while performing ");
-        //        return BadRequest(new UnknownError() { Message = ex.Message });
-        //    }
-        //}
+        [HttpGet("GetItem/{id}")]
+        public async Task<ActionResult<ApiModels.Tag>> GetItem(Guid id)
+        {
+            try
+            {
+                var result = await _dbContext.Tags.FirstOrDefaultAsync(x => x.Id == id);
+                return Ok(_mapper.Map<ApiModels.Tag>(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Unknown error while performing ");
+                return BadRequest(new UnknownError() { Message = ex.Message });
+            }
+        }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
