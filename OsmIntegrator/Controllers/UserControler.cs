@@ -57,6 +57,7 @@ namespace OsmIntegrator.Controllers
 
                 return Ok(new User()
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     Roles = roles
@@ -70,6 +71,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + ", " + UserRoles.ADMIN)]
         public async Task<ActionResult<User>> Get(string id)
         {
             try
@@ -101,6 +103,7 @@ namespace OsmIntegrator.Controllers
 
                 return Ok(new User()
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
                     Roles = roles
