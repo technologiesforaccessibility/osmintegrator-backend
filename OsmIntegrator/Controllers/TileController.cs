@@ -226,7 +226,7 @@ namespace OsmIntegrator.Controllers
 
                 DbTile currentTile =
                     await _dbContext.Tiles.Include(
-                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id== Guid.Parse(id));
 
                 if (currentTile == null)
                 {
