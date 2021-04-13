@@ -25,5 +25,10 @@ namespace OsmIntegrator.Database.Models
 
         [Required]
         public bool Existing { get; set; }
+
+        public Guid TileId { get; set; }
+
+        [Required]
+        public DbTile Tile { get; set; }
     }
 }

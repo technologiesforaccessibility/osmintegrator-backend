@@ -7,12 +7,15 @@ namespace OsmIntegrator.ApiModels
     public class Connection
     {
         [Required]
-        public Guid GtfsId { get; set; }
+        public Guid GtfsStopId { get; set; }
 
         [Required]
-        public Guid OsmId { get; set; }
+        public Guid OsmStopId { get; set; }
 
         [Required]
         public bool Existing { get; set; }
+
+        [Required]
+        public Guid TileId { get; set; }
     }
 }
