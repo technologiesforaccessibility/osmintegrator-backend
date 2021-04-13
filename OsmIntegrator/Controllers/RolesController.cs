@@ -30,7 +30,7 @@ namespace OsmIntegrator.Controllers
     [Route("api/[controller]")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]    
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public class RolesController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -60,7 +60,7 @@ namespace OsmIntegrator.Controllers
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        public async Task<ActionResult<List<User>>> Get()
+        public async Task<ActionResult<List<RoleUser>>> Get()
         {
             try
             {
@@ -100,17 +100,17 @@ namespace OsmIntegrator.Controllers
 
             foreach (RoleUser user in usersWithRoles)
             {
-                user.Roles.Remove(UserRoles.UPLOADER);
-                user.Roles.Remove(UserRoles.COORDINATOR);
-                user.Roles.Remove(UserRoles.ADMIN);
+                user.Roles.RemoveAll(x => x.Name == UserRoles.UPLOADER);
+                user.Roles.RemoveAll(x => x.Name == UserRoles.COORDINATOR);
+                user.Roles.RemoveAll(x => x.Name == UserRoles.ADMIN);
 
                 if (!currentUserRoles.Contains(UserRoles.COORDINATOR))
                 {
-                    user.Roles.Remove(UserRoles.SUPERVISOR);
+                    user.Roles.RemoveAll(x => x.Name == UserRoles.SUPERVISOR);
 
                     if (!currentUserRoles.Contains(UserRoles.SUPERVISOR))
                     {
-                        user.Roles.Remove(UserRoles.EDITOR);
+                        user.Roles.RemoveAll(x => x.Name == UserRoles.EDITOR);
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace OsmIntegrator.Controllers
             {
                 Id = x.Id,
                 UserName = x.UserName,
-                Roles = new Dictionary<string, bool>()
+                Roles = new List<RolePair>()
             }));
 
             foreach (var role in allRoles)
@@ -135,10 +135,10 @@ namespace OsmIntegrator.Controllers
                 {
                     if (usersInRole.Any(x => x.Id.Equals(user.Id)))
                     {
-                        user.Roles.Add(role.Name, true);
+                        user.Roles.Add(new RolePair() { Name = role.Name, Value = true });
                         continue;
                     }
-                    user.Roles.Add(role.Name, false);
+                    user.Roles.Add(new RolePair() { Name = role.Name, Value = false });
                 }
             }
 
@@ -211,20 +211,20 @@ namespace OsmIntegrator.Controllers
 
             foreach (RoleUser user in roleUsers)
             {
-                if (user.Roles.ContainsKey(UserRoles.COORDINATOR))
+                if (user.Roles.Any(x => x.Name == UserRoles.COORDINATOR))
                     errors.Add($"Current user do not have permission to edit {UserRoles.COORDINATOR} role for user: {user.UserName}.");
-                if (user.Roles.ContainsKey(UserRoles.UPLOADER))
+                if (user.Roles.Any(x => x.Name == UserRoles.UPLOADER))
                     errors.Add($"Current user do not have permission to edit {UserRoles.UPLOADER} role for user: {user.UserName}.");
-                if (user.Roles.ContainsKey(UserRoles.ADMIN))
+                if (user.Roles.Any(x => x.Name == UserRoles.ADMIN))
                     errors.Add($"Current user do not have permission to edit {UserRoles.ADMIN} role for user: {user.UserName}.");
                 if (!currentUserRoles.Contains(UserRoles.COORDINATOR))
                 {
-                    if (user.Roles.ContainsKey(UserRoles.SUPERVISOR))
+                    if (user.Roles.Any(x => x.Name == UserRoles.SUPERVISOR))
                         errors.Add($"Current user do not have permission to edit {UserRoles.SUPERVISOR} role for user: {user.UserName}.");
 
                     if (!currentUserRoles.Contains(UserRoles.SUPERVISOR))
                     {
-                        if (user.Roles.ContainsKey(UserRoles.EDITOR))
+                        if (user.Roles.Any(x => x.Name == UserRoles.EDITOR))
                             errors.Add($"Current user do not have permission to edit {UserRoles.EDITOR} role for user: {user.UserName}.");
 
                     }
@@ -260,23 +260,23 @@ namespace OsmIntegrator.Controllers
                 {
                     if (rolePair.Value)
                     {
-                        if (!identityRoles.Contains(rolePair.Key))
+                        if (!identityRoles.Contains(rolePair.Name))
                         {
-                            IdentityResult result = await _userManager.AddToRoleAsync(identityUser, rolePair.Key);
+                            IdentityResult result = await _userManager.AddToRoleAsync(identityUser, rolePair.Name);
                             if (!result.Succeeded)
                             {
-                                errors.Add($"Unable to add role {rolePair.Key} to user {identityUser.UserName}.");
+                                errors.Add($"Unable to add role {rolePair.Name} to user {identityUser.UserName}.");
                             }
                         }
                     }
                     else
                     {
-                        if (identityRoles.Contains(rolePair.Key))
+                        if (identityRoles.Contains(rolePair.Name))
                         {
-                            IdentityResult result = await _userManager.RemoveFromRoleAsync(identityUser, rolePair.Key);
+                            IdentityResult result = await _userManager.RemoveFromRoleAsync(identityUser, rolePair.Name);
                             if (!result.Succeeded)
                             {
-                                errors.Add($"Unable to remove role {rolePair.Key} from user {identityUser.UserName}.");
+                                errors.Add($"Unable to remove role {rolePair.Name} from user {identityUser.UserName}.");
                             }
                         }
                     }
