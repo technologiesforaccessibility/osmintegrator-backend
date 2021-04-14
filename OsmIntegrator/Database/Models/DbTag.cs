@@ -20,8 +20,8 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public string Value { get; set; }
 
-        public Guid OsmStopId { get; set; }
+        public Guid StopId { get; set; }
 
-        public DbStop OsmStop { get; set; }
+        public DbStop Stop { get; set; }
     }
 }

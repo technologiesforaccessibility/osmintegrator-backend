@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
@@ -9,9 +10,10 @@ using OsmIntegrator.Database;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210410095308_Connections")]
+    partial class Connections
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,14 +240,9 @@ namespace osmintegrator.Migrations
                     b.Property<bool>("Existing")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TileId")
-                        .HasColumnType("uuid");
-
                     b.HasKey("OsmStopId", "GtfsStopId");
 
                     b.HasIndex("GtfsStopId");
-
-                    b.HasIndex("TileId");
 
                     b.ToTable("Connections");
                 });
@@ -441,17 +438,9 @@ namespace osmintegrator.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
-                        .WithMany("Connections")
-                        .HasForeignKey("TileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("GtfsStop");
 
                     b.Navigation("OsmStop");
-
-                    b.Navigation("Tile");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
@@ -485,8 +474,6 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
                 {
-                    b.Navigation("Connections");
-
                     b.Navigation("Stops");
                 });
 #pragma warning restore 612, 618

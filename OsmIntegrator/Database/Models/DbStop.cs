@@ -40,5 +40,7 @@ namespace OsmIntegrator.Database.Models
         public DbTile Tile { get; set; }
 
         public bool OutsideSelectedTile { get; set; } = false;
+
+        public List<DbConnection> Connections { get; set; }
     }
 }

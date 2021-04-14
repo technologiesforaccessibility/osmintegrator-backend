@@ -997,7 +997,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\"\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1189,7 +1189,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": {\n            \"Editor\": true\n        }\n    }\n]",
+							"raw": "[\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": [\n            {\n                \"name\": \"Editor\",\n                \"value\": true\n            }\n        ]\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1212,10 +1212,22 @@
 			]
 		},
 		{
-			"name": "Tags",
+			"name": "Connections",
 			"item": [
 				{
-					"name": "Update",
+					"name": "GetAll",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"firstTileId\", data[0].tileId);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1232,32 +1244,23 @@
 								}
 							]
 						},
-						"method": "PUT",
+						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"id\": \"0524dbf3-eb3b-44ad-ab05-47a796358175\",\n    \"key\": \"bus\",\n    \"value\": \"no\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{host}}/api/Tag",
+							"raw": "{{host}}/api/Connections",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Tag"
+								"Connections"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Add",
+					"name": "Get",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1274,140 +1277,17 @@
 								}
 							]
 						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"id\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\",\n    \"key\": \"bus\",\n    \"value\": \"noo\",\n    \"osmStopId\": \"e6678132-04d2-4341-b4d2-3118a8e56dec\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Tag",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tag"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "GetList",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tag",
+							"raw": "{{host}}/api/Connections/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
-								"Tag"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "GetListById",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tag",
-								"e6678132-04d2-4341-b4d2-3118a8e56dec"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "GetItem",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Tag/0524dbf3-eb3b-44ad-ab05-47a796358175",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tag",
-								"0524dbf3-eb3b-44ad-ab05-47a796358175"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Tag/e6678132-04d2-4341-b4d2-3118a8e56dec",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tag",
-								"e6678132-04d2-4341-b4d2-3118a8e56dec"
+								"Connections",
+								"{{firstTileId}}"
 							]
 						}
 					},

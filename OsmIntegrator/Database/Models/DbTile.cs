@@ -51,7 +51,9 @@ namespace OsmIntegrator.Database.Models
 
         public List<DbStop> Stops { get; set; }
 
-        public List<ApplicationUser> Users {get;set;}
+        public List<DbConnection> Connections { get; set; }
+
+        public List<ApplicationUser> Users { get; set; }
 
         public DbTile()
         {

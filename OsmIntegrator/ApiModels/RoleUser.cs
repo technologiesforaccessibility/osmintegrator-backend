@@ -13,6 +13,6 @@ namespace OsmIntegrator.ApiModels
         public string UserName { get; set; }
 
         [Required]
-        public Dictionary<string, bool> Roles { get; set; }
+        public List<RolePair> Roles { get; set; }
     }
 }
