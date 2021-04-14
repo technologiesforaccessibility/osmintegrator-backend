@@ -171,45 +171,13 @@ namespace OsmIntegrator.Controllers
             {
                 _logger.LogWarning(ex, $"Problem with Tag validation.");
                 return BadRequest(new UnknownError() { Message = ex.Message });
-            }
-
-
-           
-            //using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            //{
-            //    try
-            //    {
-            //        //List<string> errors = await UpdateRoles(users);
-            //        List<string> errors = new List<string>();
-            //        DbTag dbTag = _mapper.Map<DbTag>(tag);
-            //        var result = _dbContext.Tags.Update(dbTag);
-
-            //        if (errors.Count > 0)
-            //        {
-            //            scope.Dispose();
-            //            return BadRequest(new Error
-            //            {
-            //                Title = "Problem with adding/removing user roles.",
-            //                Message = string.Join($"{Environment.NewLine}", errors)
-            //            });
-            //        }
-            //        scope.Complete();
-            //        return Ok("User tag updated successfully!");
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        scope.Dispose();
-            //        _logger.LogWarning(ex, $"Unknown problem with {nameof(Update)} method.");
-            //        return BadRequest(new UnknownError() { Message = ex.Message });
-            //    }
-            //}            
+            }           
         }
 
         private async Task<Error> ValidateItem(ApiModels.Tag tag)
         {
             Error result = null;
             return result;
-            ;
         }
     }
 }
