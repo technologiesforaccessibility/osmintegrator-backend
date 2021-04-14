@@ -9,7 +9,8 @@ namespace OsmIntegrator.AutoMapper
         public TagProfile()
         {
             AllowNullCollections = true;
-            CreateMap<DbTag, Tag>().ReverseMap();
+            //CreateMap<DbTag, Tag>().ReverseMap();
+            CreateMap<Tag, DbTag>().ReverseMap();
         }
     }
 }
