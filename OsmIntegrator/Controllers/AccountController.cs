@@ -17,6 +17,7 @@ using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -34,7 +35,7 @@ namespace OsmIntegrator.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ITokenHelper _tokenHelper;
-        private readonly IValidationHelper _validationHelper;
+        private readonly IModelValidator _modelValidator;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -43,7 +44,7 @@ namespace OsmIntegrator.Controllers
             IConfiguration configuration,
             ILogger<AccountController> logger,
             RoleManager<ApplicationRole> roleManager,
-            IValidationHelper validationHelper,
+            IModelValidator validationHelper,
             ITokenHelper tokenHelper
             )
         {
@@ -53,7 +54,7 @@ namespace OsmIntegrator.Controllers
             _emailService = emailService;
             _configuration = configuration;
             _roleManager = roleManager;
-            _validationHelper = validationHelper;
+            _modelValidator = validationHelper;
             _tokenHelper = tokenHelper;
         }
 
@@ -107,7 +108,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
@@ -146,7 +147,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 var principal = await Task.Run(() =>
@@ -187,7 +188,7 @@ namespace OsmIntegrator.Controllers
             {
                 model.Email = model.Email.ToLower().Trim();
 
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 var user = await _userManager.FindByEmailAsync(model.Email);
@@ -232,7 +233,7 @@ namespace OsmIntegrator.Controllers
                 model.Email = model.Email.ToLower().Trim();
                 model.Username = model.Username.Trim();
 
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 user = new ApplicationUser
@@ -326,7 +327,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
                 var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -366,7 +367,7 @@ namespace OsmIntegrator.Controllers
                 model.NewEmail = model.NewEmail.ToLower().Trim();
                 model.OldEmail = model.OldEmail.ToLower().Trim();
 
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 var user = await _userManager.FindByEmailAsync(model.OldEmail);
@@ -399,7 +400,7 @@ namespace OsmIntegrator.Controllers
             {
                 model.Email = model.Email.ToLower().Trim();
 
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 var user = await _userManager.GetUserAsync(User);
@@ -425,7 +426,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var validationResult = _validationHelper.Validate(ModelState);
+                var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
                 var user = await _userManager.FindByEmailAsync(model.Email);

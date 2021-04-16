@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.AspNetCore.Authorization;
-using OsmIntegrator.Tools;
+using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -36,7 +36,7 @@ namespace OsmIntegrator.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IMapper _mapper;
-        private readonly IValidationHelper _validationHelper;
+        private readonly IModelValidator _validationHelper;
 
         private readonly RoleManager<ApplicationRole> _roleManger;
 
@@ -46,7 +46,7 @@ namespace OsmIntegrator.Controllers
             ApplicationDbContext dbContext,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            IValidationHelper validationHelper,
+            IModelValidator validationHelper,
             RoleManager<ApplicationRole> roleManager
         )
         {

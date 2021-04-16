@@ -24,11 +24,15 @@ namespace OsmIntegrator.Database.Models
         public DbStop GtfsStop { get; set; }
 
         [Required]
-        public bool Existing { get; set; }
+        public bool Imported { get; set; }
 
         public Guid TileId { get; set; }
 
         [Required]
         public DbTile Tile { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public ApplicationUser User { get; set; }
     }
 }
