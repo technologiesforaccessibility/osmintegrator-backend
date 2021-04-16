@@ -75,7 +75,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                var result = await _dbContext.Tags.Where(x => x.OsmStopId == id).ToListAsync();
+                var result = await _dbContext.Tags.Where(x => x.StopId == id).ToListAsync();
                 return Ok(_mapper.Map<List<ApiModels.Tag>>(result));
             }
             catch (Exception ex)
