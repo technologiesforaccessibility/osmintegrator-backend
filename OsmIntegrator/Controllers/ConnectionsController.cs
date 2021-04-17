@@ -96,32 +96,31 @@ namespace OsmIntegrator.Controllers
                     
                 }
 
-                DbTile tile = await _dbContext.Tiles
-                    .Include(x => x.Connections)
-                    .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                // DbTile tile = await _dbContext.Tiles
+                //     .Include(x => x.Connections)
+                //     .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
-                if (connectionAction.Type == ConnectionType.Added)
-                {
-                    DbConnection connection = tile.Connections
-                        .FirstOrDefault(x => x.OsmStopId == connectionAction.OsmStopId &&
-                         x.GtfsStopId == connectionAction.GtfsStopId);
-                    if (connection != null)
-                    {
-                        return BadRequest(new ValidationError() { Message = "Connection already exists" });
-                    }
-                    DbConnection newConnection = new DbConnection()
-                    {
-                        GtfsStopId = connectionAction.GtfsStopId,
-                        OsmStopId = connectionAction.OsmStopId,
-                        User = currentUser,
-                        Imported = false,
-                        Tile = tile
-                    };
-                }
-                else if (connectionAction.Type == ConnectionType.Removed)
-                {
+                // // if (connectionAction.Type == ConnectionOperationType.Added)
+                // // {
+                //     DbConnection connection = tile.Connections
+                //         .FirstOrDefault(x => x.OsmStopId == connectionAction.OsmStopId &&
+                //          x.GtfsStopId == connectionAction.GtfsStopId);
+                //     if (connection != null)
+                //     {
+                //         return BadRequest(new ValidationError() { Message = "Connection already exists" });
+                //     }
+                //     DbConnection newConnection = new DbConnection()
+                //     {
+                //         GtfsStopId = connectionAction.GtfsStopId,
+                //         OsmStopId = connectionAction.OsmStopId,
+                //         User = currentUser,
+                //         Imported = false
+                //     };
+                // }
+                // else if (connectionAction.Type == ConnectionOperationType.Removed)
+                // {
 
-                }
+                // }
 
                 return Ok();
             }
@@ -146,11 +145,10 @@ namespace OsmIntegrator.Controllers
                 Error error = await _tileValidator.Validate(_dbContext, id);
                 if (error != null) return BadRequest(error);
 
-                DbTile tile = await _dbContext.Tiles
-                    .Include(x => x.Connections)
-                    .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-                List<Connection> result = _mapper.Map<List<Connection>>(tile.Connections);
+                List<DbConnection> connections = await _dbContext.Connections.Include(x => x.OsmStop)
+                    .Where(x => x.OsmStop.TileId == Guid.Parse(id)).ToListAsync();
+                
+                List<Connection> result = _mapper.Map<List<Connection>>(connections);
 
                 return Ok(result);
             }

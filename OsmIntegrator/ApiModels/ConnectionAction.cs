@@ -11,8 +11,5 @@ namespace OsmIntegrator.ApiModels
 
         [Required]
         public Guid GtfsStopId { get; set; }
-
-        [Required]
-        public ConnectionType? Type { get; set; }
     }
 }

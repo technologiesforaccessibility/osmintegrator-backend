@@ -11,9 +11,6 @@ namespace OsmIntegrator.Database.Models
     [Table("Connections")]
     public class DbConnection
     {
-        // [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        // [Key]
-        // public Guid Id { get; set; }
         public Guid OsmStopId { get; set; }
 
         [Required]
@@ -26,12 +23,7 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public bool Imported { get; set; }
 
-        public Guid TileId { get; set; }
-
-        [Required]
-        public DbTile Tile { get; set; }
-
-        public Guid UserId { get; set; }
+        public Guid? UserId { get; set; }
 
         public ApplicationUser User { get; set; }
     }

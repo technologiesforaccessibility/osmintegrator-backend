@@ -1,6 +1,6 @@
 namespace OsmIntegrator.Enums
 {
-    public enum ConnectionType
+    public enum ConnectionOperationType
     {
         Added,
         Removed

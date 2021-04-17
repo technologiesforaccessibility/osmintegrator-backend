@@ -119,6 +119,7 @@ namespace osmintegrator
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IModelValidator, ModelValidator>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
+            services.AddSingleton<ITileValidator, TileValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
