@@ -19,6 +19,7 @@ using OsmIntegrator.Database.Models;
 using System.Transactions;
 using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -35,7 +36,7 @@ namespace OsmIntegrator.Controllers
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly IValidationHelper _validationHelper;
+        private readonly IModelValidator _modelValidator;
 
         public TagController(
             ILogger<TagController> logger,
@@ -44,7 +45,7 @@ namespace OsmIntegrator.Controllers
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IValidationHelper validationHelper
+            IModelValidator validationHelper
         )
         {
             _logger = logger;
@@ -52,7 +53,7 @@ namespace OsmIntegrator.Controllers
             _mapper = mapper;
             _userManager = userManager;
             _roleManager = roleManager;
-            _validationHelper = validationHelper;
+            _modelValidator = validationHelper;
         }
  
        [HttpGet]
