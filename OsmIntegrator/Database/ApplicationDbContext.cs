@@ -32,8 +32,8 @@ namespace OsmIntegrator.Database
             // https://stackoverflow.com/questions/49214748/many-to-many-self-referencing-relationship
             // Cascade delete was disabled: https://docs.microsoft.com/pl-pl/ef/core/saving/cascade-delete
             modelBuilder.Entity<DbConnection>()
-                .HasKey(t => new { t.OsmStopId, t.GtfsStopId, t.Imported });
-            
+                .HasKey(t => new { t.Id });
+
             modelBuilder.Entity<DbConnection>()
                 .HasOne(c => c.OsmStop)
                 .WithMany(o => o.Connections)

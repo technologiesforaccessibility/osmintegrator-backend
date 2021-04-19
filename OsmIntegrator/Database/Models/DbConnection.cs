@@ -1,16 +1,22 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
     [Table("Connections")]
     public class DbConnection
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public Guid Id { get; set; }
+
         public Guid OsmStopId { get; set; }
 
         [Required]
         public DbStop OsmStop { get; set; }
+
         public Guid GtfsStopId { get; set; }
 
         [Required]
@@ -19,10 +25,10 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public bool Imported { get; set; }
 
-        public bool Removed { get; set; }
-
         public Guid? UserId { get; set; }
 
         public ApplicationUser User { get; set; }
+
+        public ConnectionOperationType OperationType { get; set; }
     }
 }

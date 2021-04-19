@@ -52,24 +52,6 @@ namespace OsmIntegrator.Controllers
 
         /// <summary>
         /// Add/remove a connection for specific user.
-        /// 
-        /// Validation:
-        ///     1) connection is between two same objects
-        ///     2) one or both objects doesn't exist
-        ///     3) cannot make connection if one of the stop is already connected
-        /// 
-        /// There are following combinations:
-        /// I. Add
-        ///     1) add new connection
-        ///     2) add new connection in place of removed imported connection
-        ///     3) add new connection and this connection already exists
-        ///     4) add new connection in place of existing imported connection
-        /// 
-        /// II. Remove
-        ///     1) remove connection added by user
-        ///     2) remove connection which doesn't exist
-        ///     3) remove imported connection
-        ///     4) remove already removed imported connection
         /// </summary>
         /// <param name="id">Tile id</param>
         /// <param name="connectionAction">Add or remove connection action</param>
@@ -83,70 +65,64 @@ namespace OsmIntegrator.Controllers
                 Error validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
+                // Check if GTFS stop has already been connected to another stop.
                 DbStop gtfsStop = await _dbContext.Stops
                     .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
                 if (gtfsStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no GTFS stop with id {connectionAction.GtfsStopId}." });
                 }
+                DbConnection gtfsConnection = gtfsStop.Connections.LastOrDefault();
+                if (gtfsConnection != null && gtfsConnection.OperationType == ConnectionOperationType.Added)
+                {
+                    string message = $"The GTFS stop has already been connected with different stop. Stop id: {connectionAction.GtfsStopId}.";
+                    return BadRequest(new ValidationError() { Message = message });
+                }
 
+                // Check if OSM stop has already been connected to another stop.
                 DbStop osmStop = await _dbContext.Stops
                     .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
                 if (osmStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no OSM stop with id {connectionAction.OsmStopId}." });
                 }
+                DbConnection osmConnection = osmStop.Connections.LastOrDefault();
+                if (osmConnection != null && osmConnection.OperationType == ConnectionOperationType.Added)
+                {
+                    string message = $"The OSM stop has already been connected with different stop. Stop id: {connectionAction.OsmStopId}.";
+                    return BadRequest(new ValidationError() { Message = message });
+                }
+
+
+
+
+                // Check if connection already exists and has not been deleted.
+                DbConnection existingConnection = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                    x.GtfsStopId == connectionAction.GtfsStopId).LastOrDefaultAsync();
+                bool imported = false;
+                if (existingConnection != null)
+                {
+                    if (existingConnection.OperationType == ConnectionOperationType.Added)
+                    {
+                        string message = "The connection already exists." +
+                            $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
+                        return BadRequest(new ValidationError() { Message = message });
+                    }
+                    // Check wether last connection was imported
+                    imported = existingConnection.Imported;
+                }
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
-                List<DbConnection> existingConnections = await _dbContext.Connections
-                    .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
-                    x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
 
-                // There is an imported and added by user connection
-                if (existingConnections.Count == 2)
+                DbConnection newConnection = new DbConnection()
                 {
-                    return BadRequest(new ValidationError()
-                    {
-                        Message = $"Overwritten connection already exists between osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
-                    });
-                }
-                // There is connection added by user or imported connection
-                else if (existingConnections.Count == 1)
-                {
-                    DbConnection connection = existingConnections.First();
+                    OsmStop = osmStop,
+                    GtfsStop = gtfsStop,
+                    User = currentUser,
+                    Imported = imported,
+                    OperationType = ConnectionOperationType.Added
+                };
 
-                    // Imported connection wasn't removed by the user
-                    if (connection.Imported && !connection.Removed)
-                    {
-                        return BadRequest(new ValidationError()
-                        {
-                            Message = $"Cannot overwrite imported and not removed connection for osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
-                        });
-                    }
-                    // The connection has already been created by the user
-                    else if (!connection.Imported)
-                    {
-                        return BadRequest(new ValidationError()
-                        {
-                            Message = $"Connection already exists between osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
-                        });
-                    }
-
-                    connection.Removed = false;
-                }
-                else
-                {
-                    // No connection was established between osm and gtfs stop - neighter
-                    // imported nor created by the user.
-                    DbConnection newConnection = new DbConnection()
-                    {
-                        OsmStop = osmStop,
-                        GtfsStop = gtfsStop,
-                        User = currentUser,
-                        Imported = false,
-                        Removed = false
-                    };
-                }
                 return Ok();
             }
             catch (Exception e)
