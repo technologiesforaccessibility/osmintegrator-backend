@@ -106,7 +106,8 @@ namespace OsmIntegrator.Database.DataInitialization
                                     connections.Add(new DbConnection() {
                                         GtfsStop = gtfsStop,
                                         OsmStop = osmStop,
-                                        Imported = true
+                                        Imported = true,
+                                        Removed = false
                                     });
                                 }
                             }

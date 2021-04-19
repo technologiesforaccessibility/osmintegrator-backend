@@ -19,6 +19,8 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public bool Imported { get; set; }
 
+        public bool Removed { get; set; }
+
         public Guid? UserId { get; set; }
 
         public ApplicationUser User { get; set; }

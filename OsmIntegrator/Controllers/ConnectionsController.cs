@@ -74,59 +74,84 @@ namespace OsmIntegrator.Controllers
         /// <param name="id">Tile id</param>
         /// <param name="connectionAction">Add or remove connection action</param>
         /// <returns>Generic result or error.</returns>
-        [HttpPost("{id}")]
+        [HttpPut()]
         [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
-        public async Task<IActionResult> Add(string id, [FromBody] ConnectionAction connectionAction)
+        public async Task<IActionResult> Add([FromBody] ConnectionAction connectionAction)
         {
             try
             {
                 Error validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                Error error = await _tileValidator.Validate(_dbContext, id);
-                if (error != null) return BadRequest(error);
-
-                var currentUser = await _userManager.GetUserAsync(User);
-
-                DbConnection existingConnection = await _dbContext.Connections.FirstOrDefaultAsync(
-                    x => x.OsmStopId == connectionAction.OsmStopId && x.GtfsStopId == connectionAction.GtfsStopId
-                );
-                if(existingConnection == null)
+                DbStop gtfsStop = await _dbContext.Stops
+                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
+                if (gtfsStop == null)
                 {
-                    
+                    return BadRequest(new ValidationError() { Message = $"There is no GTFS stop with id {connectionAction.GtfsStopId}." });
                 }
 
-                // DbTile tile = await _dbContext.Tiles
-                //     .Include(x => x.Connections)
-                //     .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                DbStop osmStop = await _dbContext.Stops
+                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
+                if (osmStop == null)
+                {
+                    return BadRequest(new ValidationError() { Message = $"There is no OSM stop with id {connectionAction.OsmStopId}." });
+                }
 
-                // // if (connectionAction.Type == ConnectionOperationType.Added)
-                // // {
-                //     DbConnection connection = tile.Connections
-                //         .FirstOrDefault(x => x.OsmStopId == connectionAction.OsmStopId &&
-                //          x.GtfsStopId == connectionAction.GtfsStopId);
-                //     if (connection != null)
-                //     {
-                //         return BadRequest(new ValidationError() { Message = "Connection already exists" });
-                //     }
-                //     DbConnection newConnection = new DbConnection()
-                //     {
-                //         GtfsStopId = connectionAction.GtfsStopId,
-                //         OsmStopId = connectionAction.OsmStopId,
-                //         User = currentUser,
-                //         Imported = false
-                //     };
-                // }
-                // else if (connectionAction.Type == ConnectionOperationType.Removed)
-                // {
+                ApplicationUser currentUser = await _userManager.GetUserAsync(User);
+                List<DbConnection> existingConnections = await _dbContext.Connections
+                    .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                    x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
 
-                // }
+                // There is an imported and added by user connection
+                if (existingConnections.Count == 2)
+                {
+                    return BadRequest(new ValidationError()
+                    {
+                        Message = $"Overwritten connection already exists between osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
+                    });
+                }
+                // There is connection added by user or imported connection
+                else if (existingConnections.Count == 1)
+                {
+                    DbConnection connection = existingConnections.First();
 
+                    // Imported connection wasn't removed by the user
+                    if (connection.Imported && !connection.Removed)
+                    {
+                        return BadRequest(new ValidationError()
+                        {
+                            Message = $"Cannot overwrite imported and not removed connection for osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
+                        });
+                    }
+                    // The connection has already been created by the user
+                    else if (!connection.Imported)
+                    {
+                        return BadRequest(new ValidationError()
+                        {
+                            Message = $"Connection already exists between osm: {connectionAction.OsmStopId} and gtfs: {connectionAction.GtfsStopId} stop."
+                        });
+                    }
+
+                    connection.Removed = false;
+                }
+                else
+                {
+                    // No connection was established between osm and gtfs stop - neighter
+                    // imported nor created by the user.
+                    DbConnection newConnection = new DbConnection()
+                    {
+                        OsmStop = osmStop,
+                        GtfsStop = gtfsStop,
+                        User = currentUser,
+                        Imported = false,
+                        Removed = false
+                    };
+                }
                 return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Unknown error while performing request. Id: {id}.");
+                _logger.LogWarning(e, $"Unknown error while performing request.");
                 return BadRequest(new UnknownError() { Message = e.Message });
             }
         }
@@ -147,14 +172,14 @@ namespace OsmIntegrator.Controllers
 
                 List<DbConnection> connections = await _dbContext.Connections.Include(x => x.OsmStop)
                     .Where(x => x.OsmStop.TileId == Guid.Parse(id)).ToListAsync();
-                
+
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Unknown error while performing request. Id: {id}.");
+                _logger.LogWarning(e, $"Unknown error while performing request.");
                 return BadRequest(new UnknownError() { Message = e.Message });
             }
         }
