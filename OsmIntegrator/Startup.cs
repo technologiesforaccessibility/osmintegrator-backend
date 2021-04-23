@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authorization;
 using OsmIntegrator.Tools;
 using OsmIntegrator.AutoMapper;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Validators;
 
 namespace osmintegrator
 {
@@ -116,8 +117,9 @@ namespace osmintegrator
                 typeof(ConnectionProfile));
                 
             services.AddSingleton<IEmailService, EmailService>();
-            services.AddSingleton<IValidationHelper, ValidationHelper>();
+            services.AddSingleton<IModelValidator, ModelValidator>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
+            services.AddSingleton<ITileValidator, TileValidator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

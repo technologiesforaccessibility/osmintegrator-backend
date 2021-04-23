@@ -15,6 +15,9 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Validators;
+using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Controllers
 {
@@ -28,18 +31,161 @@ namespace OsmIntegrator.Controllers
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly ILogger<ConnectionsController> _logger;
-
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly ITileValidator _tileValidator;
+        private readonly IModelValidator _modelValidator;
 
         public ConnectionsController(ApplicationDbContext dbContext,
-            ILogger<ConnectionsController> logger, IMapper mapper)
+            ILogger<ConnectionsController> logger, IMapper mapper,
+            UserManager<ApplicationUser> userManager,
+            ITileValidator tileValidator,
+            IModelValidator modelValidator)
         {
             _dbContext = dbContext;
             _logger = logger;
             _mapper = mapper;
+            _userManager = userManager;
+            _tileValidator = tileValidator;
+            _modelValidator = modelValidator;
         }
 
-        
+        /// <summary>
+        /// Add/remove a connection for specific user.
+        /// </summary>
+        /// <param name="id">Tile id</param>
+        /// <param name="connectionAction">Add or remove connection action</param>
+        /// <returns>Generic result or error.</returns>
+        [HttpPut()]
+        [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
+        public async Task<IActionResult> Add([FromBody] ConnectionAction connectionAction)
+        {
+            try
+            {
+                Error validationResult = _modelValidator.Validate(ModelState);
+                if (validationResult != null) return BadRequest(validationResult);
+
+                // Check if connection already exists and has not been deleted.
+                List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                    x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
+                DbConnection existingConnection = existingConnections.LastOrDefault();
+                bool imported = false;
+                if (existingConnection != null)
+                {
+                    if (existingConnection.OperationType == ConnectionOperationType.Added)
+                    {
+                        string message = "The connection already exists." +
+                            $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
+                        return BadRequest(new ValidationError() { Message = message });
+                    }
+                    // Check wether last connection was imported
+                    imported = existingConnection.Imported;
+                }
+
+                // Check if GTFS stop has already been connected to another stop.
+                DbStop gtfsStop = await _dbContext.Stops
+                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
+                if (gtfsStop == null)
+                {
+                    return BadRequest(new ValidationError() { Message = $"There is no GTFS stop with id {connectionAction.GtfsStopId}." });
+                }
+                DbConnection gtfsConnection = gtfsStop.Connections.LastOrDefault();
+                if (gtfsConnection != null && gtfsConnection.OperationType == ConnectionOperationType.Added)
+                {
+                    string message = $"The GTFS stop has already been connected with different stop. Stop id: {connectionAction.GtfsStopId}.";
+                    return BadRequest(new ValidationError() { Message = message });
+                }
+
+                // Check if OSM stop has already been connected to another stop.
+                DbStop osmStop = await _dbContext.Stops
+                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
+                if (osmStop == null)
+                {
+                    return BadRequest(new ValidationError() { Message = $"There is no OSM stop with id {connectionAction.OsmStopId}." });
+                }
+                DbConnection osmConnection = osmStop.Connections.LastOrDefault();
+                if (osmConnection != null && osmConnection.OperationType == ConnectionOperationType.Added)
+                {
+                    string message = $"The OSM stop has already been connected with different stop. Stop id: {connectionAction.OsmStopId}.";
+                    return BadRequest(new ValidationError() { Message = message });
+                }
+
+                ApplicationUser currentUser = await _userManager.GetUserAsync(User);
+
+                DbConnection newConnection = new DbConnection()
+                {
+                    OsmStop = osmStop,
+                    GtfsStop = gtfsStop,
+                    User = currentUser,
+                    Imported = imported,
+                    OperationType = ConnectionOperationType.Added
+                };
+
+                _dbContext.Connections.Add(newConnection);
+                _dbContext.SaveChanges();
+
+                return Ok("Connection successfully added!");
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Unknown error while performing request.");
+                return BadRequest(new UnknownError() { Message = e.Message });
+            }
+        }
+
+        [HttpDelete()]
+        [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
+        public async Task<IActionResult> Remove([FromBody] ConnectionAction connectionAction)
+        {
+            try
+            {
+                Error validationResult = _modelValidator.Validate(ModelState);
+                if (validationResult != null) return BadRequest(validationResult);
+
+                List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                    x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
+                DbConnection existingConnection = existingConnections.LastOrDefault();
+                bool imported = false;
+                if (existingConnection != null)
+                {
+                    if (existingConnection.OperationType == ConnectionOperationType.Removed)
+                    {
+                        string message = "The connection have already been removed. " +
+                            $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
+                        return BadRequest(new ValidationError() { Message = message });
+                    }
+                    // Check wether last connection was imported
+                    imported = existingConnection.Imported;
+                } else if (existingConnection == null)
+                {
+                    string message = "Connot remove connection which doesn't exist. " +
+                            $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
+                        return BadRequest(new ValidationError() { Message = message });
+                }
+
+                ApplicationUser currentUser = await _userManager.GetUserAsync(User);
+
+                DbConnection newConnection = new DbConnection()
+                {
+                    OsmStopId = connectionAction.OsmStopId,
+                    GtfsStopId = connectionAction.GtfsStopId,
+                    User = currentUser,
+                    Imported = imported,
+                    OperationType = ConnectionOperationType.Removed
+                };
+
+                _dbContext.Connections.Add(newConnection);
+                _dbContext.SaveChanges();
+
+                return Ok("Connection successfully removed!");
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, $"Unknown error while performing request.");
+                return BadRequest(new UnknownError() { Message = e.Message });
+            }
+        }
+
 
         /// <summary>
         /// Get connection for tile id.
@@ -52,29 +198,19 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                if (string.IsNullOrEmpty(id))
-                {
-                    string message = $"Id cannot be null.";
-                    return BadRequest(new ValidationError() { Message = message });
-                }
+                Error error = await _tileValidator.Validate(_dbContext, id);
+                if (error != null) return BadRequest(error);
 
-                DbTile tile = await _dbContext.Tiles
-                    .Include(x => x.Connections)
-                    .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                List<DbConnection> connections = await _dbContext.Connections.Include(x => x.OsmStop)
+                    .Where(x => x.OsmStop.TileId == Guid.Parse(id)).ToListAsync();
 
-                if (tile == null)
-                {
-                    string message = $"No tile with id {id}.";
-                    return BadRequest(new ValidationError() { Message = message });
-                }
-
-                List<Connection> result = _mapper.Map<List<Connection>>(tile.Connections);
+                List<Connection> result = _mapper.Map<List<Connection>>(connections);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, $"Unknown error while performing request. Id: {id}.");
+                _logger.LogWarning(e, $"Unknown error while performing request.");
                 return BadRequest(new UnknownError() { Message = e.Message });
             }
         }
@@ -89,7 +225,11 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                List<DbConnection> connections = await _dbContext.Connections.ToListAsync();
+                List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
+                    "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
+                    "FROM \"Connections\" c " + 
+                    "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
+                ).ToListAsync();
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);
                 return Ok(result);
             }

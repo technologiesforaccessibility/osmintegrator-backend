@@ -103,12 +103,10 @@ namespace OsmIntegrator.Database.DataInitialization
                                 if(gtfsStop != null)
                                 {
                                     DbStop osmStop = tag.Stop;
-                                    DbTile tile = osmStop.Tile;
                                     connections.Add(new DbConnection() {
                                         GtfsStop = gtfsStop,
                                         OsmStop = osmStop,
-                                        Existing = true,
-                                        Tile = tile
+                                        Imported = true
                                     });
                                 }
                             }

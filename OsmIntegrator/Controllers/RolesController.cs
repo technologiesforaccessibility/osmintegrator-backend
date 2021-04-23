@@ -13,7 +13,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
-using OsmIntegrator.Tools;
+using OsmIntegrator.Validators;
 using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
@@ -39,7 +39,7 @@ namespace OsmIntegrator.Controllers
 
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        private readonly IValidationHelper _validationHelper;
+        private readonly IModelValidator _validationHelper;
 
         private readonly IMapper _mapper;
 
@@ -48,7 +48,7 @@ namespace OsmIntegrator.Controllers
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IValidationHelper validationHelper
+            IModelValidator validationHelper
         )
         {
             _logger = logger;

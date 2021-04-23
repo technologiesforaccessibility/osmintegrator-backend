@@ -4,14 +4,14 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using OsmIntegrator.ApiModels.Errors;
 
-namespace OsmIntegrator.Tools
+namespace OsmIntegrator.Validators
 {
-    public interface IValidationHelper
+    public interface IModelValidator
     {
         Error Validate(ModelStateDictionary modelState);
     }
 
-    public class ValidationHelper: IValidationHelper
+    public class ModelValidator: IModelValidator
     {
         public Error Validate(ModelStateDictionary modelState)
         {
