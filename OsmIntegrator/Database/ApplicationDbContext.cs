@@ -46,6 +46,12 @@ namespace OsmIntegrator.Database
                 .HasForeignKey(c => c.GtfsStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            modelBuilder.Entity<DbConnection>()
+                .Property(x => x.CreatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("NOW()")
+                .ValueGeneratedOnAdd();
+
             base.OnModelCreating(modelBuilder);
         }
 

@@ -10,8 +10,8 @@ using OsmIntegrator.Database;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210413052913_Connection_Tile")]
-    partial class Connection_Tile
+    [Migration("20210423064445_Connections")]
+    partial class Connections
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -231,23 +231,40 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
-                    b.Property<Guid>("OsmStopId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<Guid>("GtfsStopId")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("Existing")
+                    b.Property<bool>("Imported")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("TileId")
+                    b.Property<int>("OperationType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OsmStopId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("OsmStopId", "GtfsStopId");
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("GtfsStopId");
 
-                    b.HasIndex("TileId");
+                    b.HasIndex("OsmStopId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Connections");
                 });
@@ -443,17 +460,15 @@ namespace osmintegrator.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
-                        .WithMany("Connections")
-                        .HasForeignKey("TileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
 
                     b.Navigation("GtfsStop");
 
                     b.Navigation("OsmStop");
 
-                    b.Navigation("Tile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
@@ -487,8 +502,6 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
                 {
-                    b.Navigation("Connections");
-
                     b.Navigation("Stops");
                 });
 #pragma warning restore 612, 618

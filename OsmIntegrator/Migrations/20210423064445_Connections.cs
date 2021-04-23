@@ -25,13 +25,24 @@ namespace osmintegrator.Migrations
                 name: "Connections",
                 columns: table => new
                 {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OsmStopId = table.Column<Guid>(type: "uuid", nullable: false),
                     GtfsStopId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Existing = table.Column<bool>(type: "boolean", nullable: false)
+                    Imported = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    OperationType = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Connections", x => new { x.OsmStopId, x.GtfsStopId });
+                    table.PrimaryKey("PK_Connections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Connections_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Connections_Stops_GtfsStopId",
                         column: x => x.GtfsStopId,
@@ -48,6 +59,16 @@ namespace osmintegrator.Migrations
                 name: "IX_Connections_GtfsStopId",
                 table: "Connections",
                 column: "GtfsStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Connections_OsmStopId",
+                table: "Connections",
+                column: "OsmStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Connections_UserId",
+                table: "Connections",
+                column: "UserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tags_Stops_StopId",

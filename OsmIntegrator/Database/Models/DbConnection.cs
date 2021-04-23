@@ -30,5 +30,10 @@ namespace OsmIntegrator.Database.Models
         public ApplicationUser User { get; set; }
 
         public ConnectionOperationType OperationType { get; set; }
+
+        public DateTime? UpdatedAt { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; }
     }
 }

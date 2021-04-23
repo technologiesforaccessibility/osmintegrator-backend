@@ -233,6 +233,11 @@ namespace osmintegrator.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<Guid>("GtfsStopId")
                         .HasColumnType("uuid");
 
@@ -244,6 +249,9 @@ namespace osmintegrator.Migrations
 
                     b.Property<Guid>("OsmStopId")
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
