@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e664861a-dab5-4ae2-8088-f139ff10abb6",
+		"_postman_id": "6db4bf86-2006-4d9e-b77c-77fde0053b18",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1221,8 +1221,7 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"var data = pm.response.json();",
-									"pm.environment.set(\"firstTileId\", data[0].tileId);"
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -1260,7 +1259,7 @@
 					"response": []
 				},
 				{
-					"name": "Get",
+					"name": "Get First Tile",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1288,6 +1287,126 @@
 								"api",
 								"Connections",
 								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Connections/e044ac55-294a-47a5-98de-971696146968",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Connections",
+								"e044ac55-294a-47a5-98de-971696146968"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"OsmStopId\": \"c9773783-34f4-4865-a461-a1d3f08d0cac\",\n    \"GtfsStopId\": \"e2e7ec80-c504-43c5-8fcb-5668c7324a9b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Connections/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Connections",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"OsmStopId\": \"c9773783-34f4-4865-a461-a1d3f08d0cac\",\n    \"GtfsStopId\": \"e2e7ec80-c504-43c5-8fcb-5668c7324a9b\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Connections/",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Connections",
+								""
 							]
 						}
 					},
