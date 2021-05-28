@@ -43,7 +43,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet]
-        [Authorize(UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Stop>>> Get()
         {
             try
