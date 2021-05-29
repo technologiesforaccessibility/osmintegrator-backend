@@ -1348,7 +1348,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"OsmStopId\": \"c9773783-34f4-4865-a461-a1d3f08d0cac\",\n    \"GtfsStopId\": \"e2e7ec80-c504-43c5-8fcb-5668c7324a9b\"\n}",
+							"raw": "{\n    \"OsmStopId\": \"867d9034-6731-462a-8c78-9c5557f06a04\",\n    \"GtfsStopId\": \"cd9e1dbf-374a-4f9e-a422-b9ca9680d875\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1391,7 +1391,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"OsmStopId\": \"c9773783-34f4-4865-a461-a1d3f08d0cac\",\n    \"GtfsStopId\": \"e2e7ec80-c504-43c5-8fcb-5668c7324a9b\"\n}",
+							"raw": "{\n    \"OsmStopId\": \"867d9034-6731-462a-8c78-9c5557f06a04\",\n    \"GtfsStopId\": \"cd9e1dbf-374a-4f9e-a422-b9ca9680d875\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

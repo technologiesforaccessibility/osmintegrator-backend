@@ -156,11 +156,12 @@ namespace OsmIntegrator.Controllers
                     }
                     // Check wether last connection was imported
                     imported = existingConnection.Imported;
-                } else if (existingConnection == null)
+                }
+                else if (existingConnection == null)
                 {
                     string message = "Connot remove connection which doesn't exist. " +
                             $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
-                        return BadRequest(new ValidationError() { Message = message });
+                    return BadRequest(new ValidationError() { Message = message });
                 }
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
@@ -201,8 +202,17 @@ namespace OsmIntegrator.Controllers
                 Error error = await _tileValidator.Validate(_dbContext, id);
                 if (error != null) return BadRequest(error);
 
-                List<DbConnection> connections = await _dbContext.Connections.Include(x => x.OsmStop)
-                    .Where(x => x.OsmStop.TileId == Guid.Parse(id)).ToListAsync();
+                string query = 
+                    "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
+                    "FROM \"Connections\" c " +
+                    "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
+
+                List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
+                    query).Include(x => x.OsmStop).ToListAsync();
+
+                connections = connections.Where(
+                    x => x.OsmStop.TileId == Guid.Parse(id) && x.OperationType != ConnectionOperationType.Removed)
+                    .ToList();
 
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);
 
@@ -227,7 +237,7 @@ namespace OsmIntegrator.Controllers
             {
                 List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                    "FROM \"Connections\" c " + 
+                    "FROM \"Connections\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
                 ).ToListAsync();
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);
