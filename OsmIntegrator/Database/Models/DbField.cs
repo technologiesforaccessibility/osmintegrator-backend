@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
@@ -17,7 +18,7 @@ namespace OsmIntegrator.Database.Models
 
         public DbCategory Category { get; set; }
 
-        public DbDataType DataType { get; set; }
+        public FieldType FieldType { get; set; }
 
         public string Name { get; set; }
 

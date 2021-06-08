@@ -12,7 +12,7 @@ namespace OsmIntegrator.Database
         IdentityDbContext<
             ApplicationUser,
             ApplicationRole,
-            Guid>
+            long>
     {
         private IConfiguration _configuration;
 

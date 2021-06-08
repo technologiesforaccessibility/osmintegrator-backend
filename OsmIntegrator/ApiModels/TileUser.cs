@@ -6,7 +6,7 @@ namespace OsmIntegrator.ApiModels
     public class TileUser
     {
         [Required]
-        public Guid Id { get; set; }
+        public long Id { get; set; }
 
         [Required]
         public string UserName {get; set; }
