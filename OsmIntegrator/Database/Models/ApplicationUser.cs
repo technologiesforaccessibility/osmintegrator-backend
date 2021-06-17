@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class ApplicationUser : IdentityUser<Guid>
+    public class ApplicationUser : IdentityUser<long>
     {
         public List<DbTile> Tiles { get; set; }
 

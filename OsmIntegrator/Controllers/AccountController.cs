@@ -164,7 +164,7 @@ namespace OsmIntegrator.Controllers
                 }
                 else
                 {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.Id == Guid.Parse(userId));
+                    var appUser = _userManager.Users.SingleOrDefault(r => r.Id == long.Parse(userId));
 
                     List<string> roles = (List<string>)await _userManager.GetRolesAsync(appUser);
                     TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, roles, _signInManager);
