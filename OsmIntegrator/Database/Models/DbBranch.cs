@@ -9,16 +9,12 @@ using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("Fields")]
-    public class DbField
+    [Table("Branches")]
+    public class DbBranch
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public long Id { get; set; }
-
-        public DbCategory Category { get; set; }
-
-        public FieldType FieldType { get; set; }
 
         public string Name { get; set; }
     }

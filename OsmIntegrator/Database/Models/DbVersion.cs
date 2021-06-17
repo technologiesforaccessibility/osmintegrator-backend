@@ -17,11 +17,18 @@ namespace OsmIntegrator.Database.Models
 
         public string Description { get; set; }
 
+        [Required]
         public ApplicationUser User { get; set; }
 
         public DateTime? UpdatedAt { get; set; }
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [Required]
+        public long BranchId { get; set; }
+
+        [Required]
+        public DbBranch Branch { get; set; }
     }
 }

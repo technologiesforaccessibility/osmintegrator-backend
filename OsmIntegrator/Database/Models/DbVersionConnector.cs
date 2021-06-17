@@ -9,17 +9,19 @@ using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("Fields")]
-    public class DbField
+    [Table("VersionConnector")]
+    public class DbVersionConnector
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public long Id { get; set; }
+        [Required]
+        public long ParentId { get; set; }
 
-        public DbCategory Category { get; set; }
+        [Required]
+        public DbVersion Parent { get; set; }
 
-        public FieldType FieldType { get; set; }
+        [Required]
+        public long ChildId { get; set; }
 
-        public string Name { get; set; }
+        [Required]
+        public DbVersion Child { get; set; }
     }
 }

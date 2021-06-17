@@ -24,13 +24,32 @@ namespace OsmIntegrator.Database
 
         public DbSet<DbConnection> Connections { get; set; }
 
+        public DbSet<DbVersion> Versions { get; set; }
+
+        public DbSet<DbValue> Values { get; set; }
+
+        public DbSet<DbField> Fields { get; set; }
+
+        public DbSet<DbCategory> Categories { get; set; }
+
+        public DbSet<DbObject> Objects { get; set; }
+
+        public DbSet<DbObjectType> ObjectTypes { get; set; }
+
+        public DbSet<DbBranch> Branches { get; set; }
+
+        public DbSet<DbVersionConnector> VersionConnectors { get; set; }
+
         private DataInitializer _dataInitializer { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Relations
             // Self many-to-many implemented thanks to this solution: 
             // https://stackoverflow.com/questions/49214748/many-to-many-self-referencing-relationship
             // Cascade delete was disabled: https://docs.microsoft.com/pl-pl/ef/core/saving/cascade-delete
+
+            // Connections
             modelBuilder.Entity<DbConnection>()
                 .HasKey(t => new { t.Id });
 
@@ -46,6 +65,34 @@ namespace OsmIntegrator.Database
                 .HasForeignKey(c => c.GtfsStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
+            // Objects
+            modelBuilder.Entity<DbValue>()
+                .HasOne(v => v.Object)
+                .WithMany(o => o.Values)
+                .HasForeignKey(v => v.ObjectId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DbValue>()
+                .HasOne(v => v.RelatedObject)
+                .WithOne()
+                .HasForeignKey<DbValue>(v => v.RelatedObjectId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Version connectors
+            modelBuilder.Entity<DbVersionConnector>()
+                .HasOne(vc => vc.Parent)
+                .WithOne()
+                .HasForeignKey<DbVersionConnector>(vc => vc.ParentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DbVersionConnector>()
+                .HasOne(vc => vc.Child)
+                .WithOne()
+                .HasForeignKey<DbVersionConnector>(vc => vc.ChildId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            // Created at
             modelBuilder.Entity<DbConnection>()
                 .Property(x => x.CreatedAt)
                 .HasColumnType("timestamp without time zone")

@@ -15,21 +15,27 @@ namespace OsmIntegrator.Database.Models
         [Key]
         public long Id { get; set; }
 
+        public long ObjectId { get; set; }
+
         public DbObject Object { get; set; }
 
         public DbField Field { get; set; }
 
         public DbVersion Version { get; set; }
 
+        public long? RelatedObjectId { get; set; }
+
         public DbObject RelatedObject { get; set; }
 
-        public int? IntValue { get; set; }
+        public long? LongValue { get; set; }
 
         public double? DoubleValue { get; set; }
 
         public string StringValue { get; set; }
 
         public bool? BooleanValue { get; set; }
+
+        public string Tags { get; set; }
 
         public DateTime? DateTimeValue { get; set; }
     }

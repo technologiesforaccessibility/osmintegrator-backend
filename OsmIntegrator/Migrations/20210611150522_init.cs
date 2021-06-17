@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace osmintegrator.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,8 @@ namespace osmintegrator.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
@@ -26,7 +27,8 @@ namespace osmintegrator.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -45,6 +47,32 @@ namespace osmintegrator.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ObjectTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ObjectTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,7 +104,7 @@ namespace osmintegrator.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    RoleId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -97,7 +125,7 @@ namespace osmintegrator.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "text", nullable: true),
                     ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
@@ -119,7 +147,7 @@ namespace osmintegrator.Migrations
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     ProviderKey = table.Column<string>(type: "text", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,8 +164,8 @@ namespace osmintegrator.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    RoleId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -160,7 +188,7 @@ namespace osmintegrator.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     LoginProvider = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
@@ -177,11 +205,54 @@ namespace osmintegrator.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Versions",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Versions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Versions_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Fields",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    CategoryId = table.Column<int>(type: "integer", nullable: true),
+                    FieldType = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Fields", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Fields_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ApplicationUserDbTile",
                 columns: table => new
                 {
                     TilesId = table.Column<Guid>(type: "uuid", nullable: false),
-                    UsersId = table.Column<Guid>(type: "uuid", nullable: false)
+                    UsersId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -227,23 +298,118 @@ namespace osmintegrator.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Connections",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OsmStopId = table.Column<Guid>(type: "uuid", nullable: false),
+                    GtfsStopId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Imported = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    UserId1 = table.Column<long>(type: "bigint", nullable: true),
+                    OperationType = table.Column<int>(type: "integer", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Connections", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Connections_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Connections_Stops_GtfsStopId",
+                        column: x => x.GtfsStopId,
+                        principalTable: "Stops",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Connections_Stops_OsmStopId",
+                        column: x => x.OsmStopId,
+                        principalTable: "Stops",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tags",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Key = table.Column<string>(type: "text", nullable: false),
                     Value = table.Column<string>(type: "text", nullable: false),
-                    OsmStopId = table.Column<Guid>(type: "uuid", nullable: false)
+                    StopId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tags", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tags_Stops_OsmStopId",
-                        column: x => x.OsmStopId,
+                        name: "FK_Tags_Stops_StopId",
+                        column: x => x.StopId,
                         principalTable: "Stops",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Values",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ObjectId = table.Column<long>(type: "bigint", nullable: false),
+                    FieldId = table.Column<long>(type: "bigint", nullable: true),
+                    VersionId = table.Column<long>(type: "bigint", nullable: true),
+                    RelatedObjectId = table.Column<long>(type: "bigint", nullable: true),
+                    LongValue = table.Column<long>(type: "bigint", nullable: true),
+                    DoubleValue = table.Column<double>(type: "double precision", nullable: true),
+                    StringValue = table.Column<string>(type: "text", nullable: true),
+                    BooleanValue = table.Column<bool>(type: "boolean", nullable: true),
+                    Tags = table.Column<string>(type: "text", nullable: true),
+                    DateTimeValue = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Values", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Values_Fields_FieldId",
+                        column: x => x.FieldId,
+                        principalTable: "Fields",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Values_Versions_VersionId",
+                        column: x => x.VersionId,
+                        principalTable: "Versions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Objects",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ObjectTypeId = table.Column<int>(type: "integer", nullable: true),
+                    RelatedValueId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Objects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Objects_ObjectTypes_ObjectTypeId",
+                        column: x => x.ObjectTypeId,
+                        principalTable: "ObjectTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Objects_Values_RelatedValueId",
+                        column: x => x.RelatedValueId,
+                        principalTable: "Values",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -289,18 +455,104 @@ namespace osmintegrator.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Connections_GtfsStopId",
+                table: "Connections",
+                column: "GtfsStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Connections_OsmStopId",
+                table: "Connections",
+                column: "OsmStopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Connections_UserId1",
+                table: "Connections",
+                column: "UserId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Fields_CategoryId",
+                table: "Fields",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Objects_ObjectTypeId",
+                table: "Objects",
+                column: "ObjectTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Objects_RelatedValueId",
+                table: "Objects",
+                column: "RelatedValueId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Stops_TileId",
                 table: "Stops",
                 column: "TileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tags_OsmStopId",
+                name: "IX_Tags_StopId",
                 table: "Tags",
-                column: "OsmStopId");
+                column: "StopId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Values_FieldId",
+                table: "Values",
+                column: "FieldId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Values_ObjectId",
+                table: "Values",
+                column: "ObjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Values_RelatedObjectId",
+                table: "Values",
+                column: "RelatedObjectId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Values_VersionId",
+                table: "Values",
+                column: "VersionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Versions_UserId",
+                table: "Versions",
+                column: "UserId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Values_Objects_ObjectId",
+                table: "Values",
+                column: "ObjectId",
+                principalTable: "Objects",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Values_Objects_RelatedObjectId",
+                table: "Values",
+                column: "RelatedObjectId",
+                principalTable: "Objects",
+                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Versions_AspNetUsers_UserId",
+                table: "Versions");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Fields_Categories_CategoryId",
+                table: "Fields");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Objects_ObjectTypes_ObjectTypeId",
+                table: "Objects");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Objects_Values_RelatedValueId",
+                table: "Objects");
+
             migrationBuilder.DropTable(
                 name: "ApplicationUserDbTile");
 
@@ -320,19 +572,40 @@ namespace osmintegrator.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Connections");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Stops");
 
             migrationBuilder.DropTable(
                 name: "Tiles");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "ObjectTypes");
+
+            migrationBuilder.DropTable(
+                name: "Values");
+
+            migrationBuilder.DropTable(
+                name: "Fields");
+
+            migrationBuilder.DropTable(
+                name: "Objects");
+
+            migrationBuilder.DropTable(
+                name: "Versions");
         }
     }
 }

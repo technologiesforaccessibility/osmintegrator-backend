@@ -13,8 +13,9 @@ namespace OsmIntegrator.Database.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public int Id { get; set; }
-
+        public long Id { get; set; }
         public DbObjectType ObjectType { get; set; }
+
+        public List<DbValue> Values { get; set; }
     }
 }

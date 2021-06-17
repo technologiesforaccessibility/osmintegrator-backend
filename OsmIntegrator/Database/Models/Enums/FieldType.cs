@@ -9,7 +9,8 @@ namespace OsmIntegrator.Database.Models.Enums
     {
         String = 0,
         Double = 1,
-        Integer = 2,
-        Boolean = 3
+        Long = 2,
+        Boolean = 3,
+        Tags = 4
     }
 }

@@ -10,8 +10,8 @@ using OsmIntegrator.Database;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210423064445_Connections")]
-    partial class Connections
+    [Migration("20210611150522_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,8 +26,8 @@ namespace osmintegrator.Migrations
                     b.Property<Guid>("TilesId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UsersId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("TilesId", "UsersId");
 
@@ -36,7 +36,7 @@ namespace osmintegrator.Migrations
                     b.ToTable("ApplicationUserDbTile");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,8 +49,8 @@ namespace osmintegrator.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -59,7 +59,7 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,8 +72,8 @@ namespace osmintegrator.Migrations
                     b.Property<string>("ClaimValue")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -82,7 +82,7 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUserClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -93,8 +93,8 @@ namespace osmintegrator.Migrations
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -103,13 +103,13 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<long>", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -118,10 +118,10 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUserRoles");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text");
@@ -139,9 +139,10 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.ApplicationRole", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -166,9 +167,10 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.ApplicationUser", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("integer");
@@ -229,6 +231,21 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -258,15 +275,78 @@ namespace osmintegrator.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<long?>("UserId1")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GtfsStopId");
 
                     b.HasIndex("OsmStopId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Connections");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbField", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FieldType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("Fields");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbObject", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int?>("ObjectTypeId")
+                        .HasColumnType("integer");
+
+                    b.Property<long?>("RelatedValueId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ObjectTypeId");
+
+                    b.HasIndex("RelatedValueId");
+
+                    b.ToTable("Objects");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbObjectType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ObjectTypes");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
@@ -380,6 +460,83 @@ namespace osmintegrator.Migrations
                     b.ToTable("Tiles");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbValue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<bool?>("BooleanValue")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("DateTimeValue")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<double?>("DoubleValue")
+                        .HasColumnType("double precision");
+
+                    b.Property<long?>("FieldId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("LongValue")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ObjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("RelatedObjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("StringValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tags")
+                        .HasColumnType("text");
+
+                    b.Property<long?>("VersionId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FieldId");
+
+                    b.HasIndex("ObjectId");
+
+                    b.HasIndex("RelatedObjectId")
+                        .IsUnique();
+
+                    b.HasIndex("VersionId");
+
+                    b.ToTable("Values");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbVersion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Versions");
+                });
+
             modelBuilder.Entity("ApplicationUserDbTile", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.DbTile", null)
@@ -395,7 +552,7 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationRole", null)
                         .WithMany()
@@ -404,7 +561,7 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<long>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", null)
                         .WithMany()
@@ -413,7 +570,7 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<long>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", null)
                         .WithMany()
@@ -422,7 +579,7 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<long>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationRole", null)
                         .WithMany()
@@ -437,7 +594,7 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<long>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", null)
                         .WithMany()
@@ -462,13 +619,37 @@ namespace osmintegrator.Migrations
 
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("GtfsStop");
 
                     b.Navigation("OsmStop");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbField", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbObject", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbObjectType", "ObjectType")
+                        .WithMany()
+                        .HasForeignKey("ObjectTypeId");
+
+                    b.HasOne("OsmIntegrator.Database.Models.DbValue", "RelatedValue")
+                        .WithMany()
+                        .HasForeignKey("RelatedValueId");
+
+                    b.Navigation("ObjectType");
+
+                    b.Navigation("RelatedValue");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
@@ -491,6 +672,50 @@ namespace osmintegrator.Migrations
                         .IsRequired();
 
                     b.Navigation("Stop");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbValue", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbField", "Field")
+                        .WithMany()
+                        .HasForeignKey("FieldId");
+
+                    b.HasOne("OsmIntegrator.Database.Models.DbObject", "Object")
+                        .WithMany("Values")
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("OsmIntegrator.Database.Models.DbObject", "RelatedObject")
+                        .WithOne()
+                        .HasForeignKey("OsmIntegrator.Database.Models.DbValue", "RelatedObjectId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("OsmIntegrator.Database.Models.DbVersion", "Version")
+                        .WithMany()
+                        .HasForeignKey("VersionId");
+
+                    b.Navigation("Field");
+
+                    b.Navigation("Object");
+
+                    b.Navigation("RelatedObject");
+
+                    b.Navigation("Version");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbVersion", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbObject", b =>
+                {
+                    b.Navigation("Values");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
