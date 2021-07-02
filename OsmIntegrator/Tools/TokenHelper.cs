@@ -40,11 +40,11 @@ namespace OsmIntegrator.Tools
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("userId", user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("refreshToken", newRefreshToken)
             };
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token");
-            claimsIdentity.AddClaims(roles.Select(role => new Claim("roles", role)));
+            claimsIdentity.AddClaims(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             ApplyClaimsForContextUser(claims, signInManager);
 

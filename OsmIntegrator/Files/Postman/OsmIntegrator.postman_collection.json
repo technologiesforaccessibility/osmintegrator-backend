@@ -1415,6 +1415,87 @@
 			]
 		},
 		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "Get",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Notes/731ed4b3-6e5b-44db-ac5b-7ba6bd80ba37",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes",
+								"731ed4b3-6e5b-44db-ac5b-7ba6bd80ba37"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Swagger",
 			"request": {
 				"method": "GET",

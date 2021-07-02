@@ -156,7 +156,7 @@ namespace OsmIntegrator.Controllers
                 });
 
                 var userId = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
-                var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refresh_token").Value;
+                var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refreshToken").Value;
 
                 if (savedRefreshToken != refreshTokenData.RefreshToken)
                 {

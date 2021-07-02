@@ -89,6 +89,16 @@ namespace OsmIntegrator.Database.DataInitialization
                         db.Tiles.AddRange(tiles);
                         db.SaveChanges();
 
+                        DbTile tile = db.Tiles.First(x => x.X == 2264 && x.Y == 1384);
+                        DbNote note = new DbNote{
+                            Text = "Test note",
+                            Lat = tile.MinLat,
+                            Lon = tile.MinLon,
+                            UserId = editor1.Id
+                        };
+                        db.Notes.Add(note);
+                        db.SaveChanges();
+
                         List<DbTag> tags = db.Tags.Where(x => x.Key == "ref").ToList();
                         List<DbStop> stops = db.Stops.Where(x => x.StopType == StopType.Gtfs).ToList();
 

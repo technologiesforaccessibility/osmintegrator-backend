@@ -33,7 +33,7 @@ namespace OsmIntegrator.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public class RolesController : ControllerBase
     {
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<RolesController> _logger;
 
         private readonly UserManager<ApplicationUser> _userManager;
 
@@ -44,7 +44,7 @@ namespace OsmIntegrator.Controllers
         private readonly IMapper _mapper;
 
         public RolesController(
-            ILogger<UserController> logger,
+            ILogger<RolesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,

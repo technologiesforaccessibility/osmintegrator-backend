@@ -24,6 +24,8 @@ namespace OsmIntegrator.Database
 
         public DbSet<DbConnection> Connections { get; set; }
 
+        public DbSet<DbNote> Notes { get; set; }
+
         private DataInitializer _dataInitializer { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
