@@ -1,7 +1,4 @@
 using AutoMapper;
-using OsmIntegrator.ApiModels;
-using OsmIntegrator.Database.Models;
-
 namespace OsmIntegrator.AutoMapper
 {
     public class TagProfile : Profile
@@ -9,8 +6,7 @@ namespace OsmIntegrator.AutoMapper
         public TagProfile()
         {
             AllowNullCollections = true;
-            //CreateMap<DbTag, Tag>().ReverseMap();
-            CreateMap<Tag, DbTag>().ReverseMap();
+            CreateMap<OsmIntegrator.Database.Models.Tag, OsmIntegrator.ApiModels.Tag>().ReverseMap();
         }
     }
 }

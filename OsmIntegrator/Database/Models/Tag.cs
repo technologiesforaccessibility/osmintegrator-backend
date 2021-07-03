@@ -1,6 +1,4 @@
-using System;
-
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.Database.Models
 {
     public class Tag
     {

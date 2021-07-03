@@ -18,8 +18,6 @@ namespace OsmIntegrator.Database
 
         public DbSet<DbStop> Stops { get; set; }
 
-        public DbSet<DbTag> Tags { get; set; }
-
         public DbSet<DbTile> Tiles { get; set; }
 
         public DbSet<DbConnection> Connections { get; set; }
