@@ -76,13 +76,9 @@ namespace OsmIntegrator.Database.DataInitialization
                     ApplicationUser editor1 = users[0];
                     ApplicationUser editor2 = users[1];
 
-                    tiles[0].Users = new List<ApplicationUser> { editor1 };
-                    tiles[1].Users = new List<ApplicationUser> { editor1 };
-                    tiles[2].Users = new List<ApplicationUser> { editor1 };
+                    tiles[0].Users =tiles[1].Users = tiles[2].Users = new List<ApplicationUser> { editor1 };
 
-                    tiles[3].Users = new List<ApplicationUser> { editor2 };
-                    tiles[4].Users = new List<ApplicationUser> { editor2 };
-                    tiles[5].Users = new List<ApplicationUser> { editor2 };
+                    tiles[3].Users = tiles[4].Users = tiles[5].Users = new List<ApplicationUser> { editor2 };
 
                     db.Stops.AddRange(allStops);
                     db.Tiles.AddRange(tiles);
@@ -99,14 +95,14 @@ namespace OsmIntegrator.Database.DataInitialization
                     db.Notes.Add(note);
                     db.SaveChanges();
 
-                    List<DbConnection> connections = new List<DbConnection>();
+                    List<DbStopLink> connections = new List<DbStopLink>();
 
                     foreach (DbStop osmStop in osmStops)
                     {
                         DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == osmStop.Ref);
                         if (gtfsStop != null)
                         {
-                            connections.Add(new DbConnection()
+                            connections.Add(new DbStopLink()
                             {
                                 GtfsStop = gtfsStop,
                                 OsmStop = osmStop,
