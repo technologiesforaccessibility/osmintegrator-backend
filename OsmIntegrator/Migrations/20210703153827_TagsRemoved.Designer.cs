@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
@@ -11,9 +12,10 @@ using OsmIntegrator.Database.Models;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210703153827_TagsRemoved")]
+    partial class TagsRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,6 +231,46 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<Guid>("GtfsStopId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Imported")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("OperationType")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OsmStopId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GtfsStopId");
+
+                    b.HasIndex("OsmStopId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Connections");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbNote", b =>
                 {
                     b.Property<Guid>("Id")
@@ -299,46 +341,6 @@ namespace osmintegrator.Migrations
                     b.HasIndex("TileId");
 
                     b.ToTable("Stops");
-                });
-
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbStopLink", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<Guid>("GtfsStopId")
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Imported")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("OperationType")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("OsmStopId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GtfsStopId");
-
-                    b.HasIndex("OsmStopId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("StopLinks");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
@@ -454,6 +456,31 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbStop", "GtfsStop")
+                        .WithMany()
+                        .HasForeignKey("GtfsStopId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("OsmIntegrator.Database.Models.DbStop", "OsmStop")
+                        .WithMany("Connections")
+                        .HasForeignKey("OsmStopId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("GtfsStop");
+
+                    b.Navigation("OsmStop");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbNote", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
@@ -476,34 +503,9 @@ namespace osmintegrator.Migrations
                     b.Navigation("Tile");
                 });
 
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbStopLink", b =>
-                {
-                    b.HasOne("OsmIntegrator.Database.Models.DbStop", "GtfsStop")
-                        .WithMany()
-                        .HasForeignKey("GtfsStopId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("OsmIntegrator.Database.Models.DbStop", "OsmStop")
-                        .WithMany("StopLinks")
-                        .HasForeignKey("OsmStopId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("GtfsStop");
-
-                    b.Navigation("OsmStop");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStop", b =>
                 {
-                    b.Navigation("StopLinks");
+                    b.Navigation("Connections");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>

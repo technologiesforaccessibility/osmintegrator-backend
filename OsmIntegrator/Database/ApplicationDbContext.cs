@@ -18,11 +18,9 @@ namespace OsmIntegrator.Database
 
         public DbSet<DbStop> Stops { get; set; }
 
-        public DbSet<DbTag> Tags { get; set; }
-
         public DbSet<DbTile> Tiles { get; set; }
 
-        public DbSet<DbConnection> Connections { get; set; }
+        public DbSet<DbStopLink> Connections { get; set; }
 
         public DbSet<DbNote> Notes { get; set; }
 
@@ -33,22 +31,22 @@ namespace OsmIntegrator.Database
             // Self many-to-many implemented thanks to this solution: 
             // https://stackoverflow.com/questions/49214748/many-to-many-self-referencing-relationship
             // Cascade delete was disabled: https://docs.microsoft.com/pl-pl/ef/core/saving/cascade-delete
-            modelBuilder.Entity<DbConnection>()
+            modelBuilder.Entity<DbStopLink>()
                 .HasKey(t => new { t.Id });
 
-            modelBuilder.Entity<DbConnection>()
+            modelBuilder.Entity<DbStopLink>()
                 .HasOne(c => c.OsmStop)
-                .WithMany(o => o.Connections)
+                .WithMany(o => o.StopLinks)
                 .HasForeignKey(c => c.OsmStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<DbConnection>()
+            modelBuilder.Entity<DbStopLink>()
                 .HasOne(c => c.GtfsStop)
                 .WithMany()
                 .HasForeignKey(c => c.GtfsStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<DbConnection>()
+            modelBuilder.Entity<DbStopLink>()
                 .Property(x => x.CreatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasDefaultValueSql("NOW()")

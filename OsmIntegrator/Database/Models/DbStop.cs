@@ -27,7 +27,8 @@ namespace OsmIntegrator.Database.Models
 
         public string Number { get; set; }
 
-        public List<DbTag> Tags { get; set; }
+        [Column(TypeName = "jsonb")]
+        public List<Tag> Tags { get; set; }
 
         [Required]
         public StopType StopType { get; set; }
@@ -41,6 +42,8 @@ namespace OsmIntegrator.Database.Models
 
         public bool OutsideSelectedTile { get; set; } = false;
 
-        public List<DbConnection> Connections { get; set; }
+        public List<DbStopLink> StopLinks { get; set; }
+
+        public long Ref { get; set; }
     }
 }

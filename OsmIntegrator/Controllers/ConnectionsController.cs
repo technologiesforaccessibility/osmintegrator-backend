@@ -66,9 +66,9 @@ namespace OsmIntegrator.Controllers
                 if (validationResult != null) return BadRequest(validationResult);
 
                 // Check if connection already exists and has not been deleted.
-                List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                List<DbStopLink> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                     x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
-                DbConnection existingConnection = existingConnections.LastOrDefault();
+                DbStopLink existingConnection = existingConnections.LastOrDefault();
                 bool imported = false;
                 if (existingConnection != null)
                 {
@@ -84,12 +84,12 @@ namespace OsmIntegrator.Controllers
 
                 // Check if GTFS stop has already been connected to another stop.
                 DbStop gtfsStop = await _dbContext.Stops
-                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
+                    .Include(x => x.StopLinks).FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
                 if (gtfsStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no GTFS stop with id {connectionAction.GtfsStopId}." });
                 }
-                DbConnection gtfsConnection = gtfsStop.Connections.LastOrDefault();
+                DbStopLink gtfsConnection = gtfsStop.StopLinks.LastOrDefault();
                 if (gtfsConnection != null && gtfsConnection.OperationType == ConnectionOperationType.Added)
                 {
                     string message = $"The GTFS stop has already been connected with different stop. Stop id: {connectionAction.GtfsStopId}.";
@@ -98,12 +98,12 @@ namespace OsmIntegrator.Controllers
 
                 // Check if OSM stop has already been connected to another stop.
                 DbStop osmStop = await _dbContext.Stops
-                    .Include(x => x.Connections).FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
+                    .Include(x => x.StopLinks).FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
                 if (osmStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no OSM stop with id {connectionAction.OsmStopId}." });
                 }
-                DbConnection osmConnection = osmStop.Connections.LastOrDefault();
+                DbStopLink osmConnection = osmStop.StopLinks.LastOrDefault();
                 if (osmConnection != null && osmConnection.OperationType == ConnectionOperationType.Added)
                 {
                     string message = $"The OSM stop has already been connected with different stop. Stop id: {connectionAction.OsmStopId}.";
@@ -112,7 +112,7 @@ namespace OsmIntegrator.Controllers
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-                DbConnection newConnection = new DbConnection()
+                DbStopLink newConnection = new DbStopLink()
                 {
                     OsmStop = osmStop,
                     GtfsStop = gtfsStop,
@@ -142,9 +142,9 @@ namespace OsmIntegrator.Controllers
                 Error validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                List<DbStopLink> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                     x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
-                DbConnection existingConnection = existingConnections.LastOrDefault();
+                DbStopLink existingConnection = existingConnections.LastOrDefault();
                 bool imported = false;
                 if (existingConnection != null)
                 {
@@ -166,7 +166,7 @@ namespace OsmIntegrator.Controllers
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-                DbConnection newConnection = new DbConnection()
+                DbStopLink newConnection = new DbStopLink()
                 {
                     OsmStopId = connectionAction.OsmStopId,
                     GtfsStopId = connectionAction.GtfsStopId,
@@ -204,10 +204,10 @@ namespace OsmIntegrator.Controllers
 
                 string query = 
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                    "FROM \"Connections\" c " +
+                    "FROM \"StopLinks\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-                List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
+                List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
                     query).Include(x => x.OsmStop).ToListAsync();
 
                 connections = connections.Where(
@@ -235,9 +235,9 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
+                List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                    "FROM \"Connections\" c " +
+                    "FROM \"StopLinks\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
                 ).ToListAsync();
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);

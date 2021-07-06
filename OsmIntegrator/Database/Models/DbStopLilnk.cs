@@ -5,8 +5,8 @@ using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("Connections")]
-    public class DbConnection
+    [Table("StopLinks")]
+    public class DbStopLink
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
