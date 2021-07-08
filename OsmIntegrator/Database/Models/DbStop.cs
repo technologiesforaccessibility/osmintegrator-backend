@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OsmIntegrator.Database.Models
 {
@@ -49,5 +47,5 @@ namespace OsmIntegrator.Database.Models
         public int Version { get; set; }
 
         public string Changeset { get; set; }
-    }
+    }    
 }

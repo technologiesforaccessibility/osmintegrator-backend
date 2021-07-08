@@ -9,6 +9,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database;
+using OsmIntegrator.Database.Models;
+using OsmIntegrator.Enums;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tools;
 
@@ -46,13 +48,17 @@ namespace OsmIntegrator.DomainUseCases
 
         }
         public async Task<AUseCaseResponse> Handle(CreateChangeFileInputDto useCaseData)
-        {
-            List<Connection> existingConnections = _mapper.Map<List<Connection>>(
-                await _dbContext.Connections.Where(connection => connection.OsmStop.Tile.Id == useCaseData.TileUuid)
-                    .Include(connection => connection.GtfsStop)
-                    .Include(connection => connection.OsmStop)
-                    .ToListAsync()
-            );
+        {                    
+            var querySet = await _dbContext.Connections.Where(connection => connection.OsmStop.Tile.Id == useCaseData.TileUuid && connection.OperationType == ConnectionOperationType.Added)
+                .Include(connection => connection.GtfsStop)
+                .Include(connection => connection.OsmStop)                    
+                .OrderByDescending(con => con.CreatedAt)
+                .ThenByDescending(con => con.OsmStop)
+                .ThenByDescending(con => con.GtfsStop)                    
+                .ToListAsync();
+            
+            var existingConnections = _mapper.Map<List<Connection>>(querySet.Distinct(new DbStopLinkComparer()).ToList());
+                    
             OsmChange osmNodes = new OsmChange()
             {
                 Generator = "osm integrator v0.1",
