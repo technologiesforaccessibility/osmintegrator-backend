@@ -1,5 +1,5 @@
 namespace OsmIntegrator.Interfaces {
-    public interface PresentResponse<TResult> 
+    public interface IPresentResponse<TResult> 
     {
         public TResult Content { get;}
 

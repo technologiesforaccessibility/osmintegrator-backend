@@ -7,7 +7,7 @@ using OsmIntegrator.Interfaces;
 namespace OsmIntegrator.Presenters
 {
 
-    public class CreateChangeFileWebPresenter : PresentResponse<StreamContent>
+    public class CreateChangeFileWebPresenter : IPresentResponse<StreamContent>
     {
         public StreamContent Content { get; private set;}
 
