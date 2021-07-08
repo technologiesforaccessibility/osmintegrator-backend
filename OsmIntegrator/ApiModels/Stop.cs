@@ -17,6 +17,8 @@ namespace OsmIntegrator.ApiModels
         public ProviderType ProviderType { get; set; }
         public Guid TileId { get; set; }
         public Tile Tile { get; set; }
-        public bool OutsideSelectedTile { get; set; } = false;
+        public bool OutsideSelectedTile { get; set; } = false;        
+        public int Version { get; set; }
+        public string Changeset { get; set; }
     }
 }

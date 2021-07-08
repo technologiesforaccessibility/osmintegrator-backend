@@ -45,5 +45,9 @@ namespace OsmIntegrator.Database.Models
         public List<DbStopLink> StopLinks { get; set; }
 
         public long Ref { get; set; }
+
+        public int Version { get; set; }
+
+        public string Changeset { get; set; }
     }
 }
