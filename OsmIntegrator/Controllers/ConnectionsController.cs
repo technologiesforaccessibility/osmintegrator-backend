@@ -249,5 +249,29 @@ namespace OsmIntegrator.Controllers
                 return BadRequest(new UnknownError() { Message = e.Message });
             }
         }
+
+        [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.SUPERVISOR)]
+        public async Task<ActionResult<string>> Approve(string id)
+        {
+            try
+            {                                                
+                DbStopLink link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+                if (link == null) {
+                    return BadRequest(new Error() {
+                        Title = $"Connection with id: {id} does not exists" 
+                    });
+                }
+                link.Approved = true;                                                        
+                _dbContext.SaveChanges();
+
+                return Ok("Connection approved");                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Cannot approve connection {id}");
+                return Problem("Cannot approve connection");
+            }
+        }        
     }
 }

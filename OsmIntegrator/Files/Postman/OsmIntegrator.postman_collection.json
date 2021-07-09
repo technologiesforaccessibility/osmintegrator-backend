@@ -1293,6 +1293,40 @@
 					"response": []
 				},
 				{
+					"name": "Approve",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Connections/e044ac55-294a-47a5-98de-971696146968",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Connections",
+								"e044ac55-294a-47a5-98de-971696146968"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get",
 					"request": {
 						"auth": {

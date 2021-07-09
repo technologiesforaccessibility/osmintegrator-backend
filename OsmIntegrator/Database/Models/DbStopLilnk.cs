@@ -35,5 +35,7 @@ namespace OsmIntegrator.Database.Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+        
+        public bool Approved {get; set;}
     }
 }
