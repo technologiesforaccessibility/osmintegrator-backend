@@ -52,6 +52,17 @@ namespace OsmIntegrator.Database
                 .HasDefaultValueSql("NOW()")
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<DbTile>()
+                .HasMany(t => t.Approvers)
+                .WithMany(u => u.ApprovedTiles)
+                .UsingEntity(j => j.ToTable("TileApprover"));
+
+            modelBuilder.Entity<DbTile>()
+                .HasMany(t => t.Users)
+                .WithMany(u => u.Tiles)
+                .UsingEntity(j => j.ToTable("ApplicationUserDbTile"));
+                
+
             base.OnModelCreating(modelBuilder);
         }
 
