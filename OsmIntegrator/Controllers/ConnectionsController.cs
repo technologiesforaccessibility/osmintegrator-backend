@@ -262,7 +262,8 @@ namespace OsmIntegrator.Controllers
                         Title = $"Connection with id: {id} does not exists" 
                     });
                 }
-                link.Approved = true;                                                        
+                ApplicationUser currentUser = await _userManager.GetUserAsync(User);
+                link.ApprovedBy = currentUser;                                                        
                 _dbContext.SaveChanges();
 
                 return Ok("Connection approved");                
