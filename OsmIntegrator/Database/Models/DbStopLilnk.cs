@@ -37,6 +37,8 @@ namespace OsmIntegrator.Database.Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+        
+        public ApplicationUser ApprovedBy {get; set;}
     }
 
     public class DbStopLinkComparer : IEqualityComparer<DbStopLink>

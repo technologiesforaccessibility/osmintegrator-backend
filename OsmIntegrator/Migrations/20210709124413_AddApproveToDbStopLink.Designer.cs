@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
@@ -11,9 +12,10 @@ using OsmIntegrator.Database.Models;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210709124413_AddApproveToDbStopLink")]
+    partial class AddApproveToDbStopLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,21 +24,6 @@ namespace osmintegrator.Migrations
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("ApplicationUserDbTile", b =>
-                {
-                    b.Property<Guid>("ApprovedTilesId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ApproversId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("ApprovedTilesId", "ApproversId");
-
-                    b.HasIndex("ApproversId");
-
-                    b.ToTable("TileApprover");
-                });
-
-            modelBuilder.Entity("ApplicationUserDbTile1", b =>
                 {
                     b.Property<Guid>("TilesId")
                         .HasColumnType("uuid");
@@ -322,8 +309,8 @@ namespace osmintegrator.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ApprovedById")
-                        .HasColumnType("uuid");
+                    b.Property<bool>("Approved")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -349,8 +336,6 @@ namespace osmintegrator.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApprovedById");
 
                     b.HasIndex("GtfsStopId");
 
@@ -409,21 +394,6 @@ namespace osmintegrator.Migrations
                 });
 
             modelBuilder.Entity("ApplicationUserDbTile", b =>
-                {
-                    b.HasOne("OsmIntegrator.Database.Models.DbTile", null)
-                        .WithMany()
-                        .HasForeignKey("ApprovedTilesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("ApproversId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("ApplicationUserDbTile1", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.DbTile", null)
                         .WithMany()
@@ -513,10 +483,6 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbStopLink", b =>
                 {
-                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "ApprovedBy")
-                        .WithMany()
-                        .HasForeignKey("ApprovedById");
-
                     b.HasOne("OsmIntegrator.Database.Models.DbStop", "GtfsStop")
                         .WithMany()
                         .HasForeignKey("GtfsStopId")
@@ -532,8 +498,6 @@ namespace osmintegrator.Migrations
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-
-                    b.Navigation("ApprovedBy");
 
                     b.Navigation("GtfsStop");
 
