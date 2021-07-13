@@ -264,7 +264,7 @@ namespace OsmIntegrator.Controllers
                 
                 try {
 
-                    var user  = await prepareUserForTile(id, u);     
+                    var user  = await PrepareUserForTile(id, u);     
                     IList<string> roles = await _userManager.GetRolesAsync(user);            
                     if (!roles.Contains(UserRoles.EDITOR))
                     {
@@ -315,7 +315,7 @@ namespace OsmIntegrator.Controllers
                         .Include(tile => tile.Approvers)                        
                         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
-                    var user  = await prepareUserForTile(id, u);                    
+                    var user  = await PrepareUserForTile(id, u);                    
                     currentTile.Approvers.Add(user);
                     _dbContext.SaveChanges();
 
@@ -334,7 +334,7 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        private async Task<ApplicationUser> prepareUserForTile(string id, [FromBody] User u) {
+        private async Task<ApplicationUser> PrepareUserForTile(string id, User u) {
             
             ApplicationUser selectedUser = await _userManager.Users.SingleOrDefaultAsync(x => x.Id == u.Id);
 
