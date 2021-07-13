@@ -976,6 +976,50 @@
 					"response": []
 				},
 				{
+					"name": "Approve",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tile/Approve/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"Approve",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "RemoveUser",
 					"request": {
 						"auth": {

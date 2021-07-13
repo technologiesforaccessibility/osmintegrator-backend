@@ -53,6 +53,8 @@ namespace OsmIntegrator.Database.Models
 
         public List<ApplicationUser> Users { get; set; }
 
+        public List<ApplicationUser> Approvers { get; set; }
+
         public DbTile()
         {
 

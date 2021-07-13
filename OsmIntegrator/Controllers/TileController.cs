@@ -254,59 +254,105 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User u)
         {
+
             try
             {
                 var validationResult = _validationHelper.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                ApplicationUser selectedUser = await _userManager.Users.SingleOrDefaultAsync(x => x.Id == u.Id);
+                
+                
+                try {
 
-                if (selectedUser == null)
-                {
-                    return BadRequest(new Error
+                    var user  = await PrepareUserForTile(id, u);     
+                    IList<string> roles = await _userManager.GetRolesAsync(user);            
+                    if (!roles.Contains(UserRoles.EDITOR))
                     {
-                        Title = "Missing user",
-                        Message = $"There is no user with id: {selectedUser.Id} and user name: {selectedUser.UserName}."
-                    });
-                }
 
-                IList<string> roles = await _userManager.GetRolesAsync(selectedUser);
+                        throw new BadHttpRequestException($"User {u.Id} doesn't contain role {UserRoles.EDITOR}.");                                            
+                    }
 
-                if (!roles.Contains(UserRoles.EDITOR))
+                    DbTile currentTile =
+                    await _dbContext.Tiles
+                        .Include(tile => tile.Users)
+                        .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+                                   
+                    currentTile.Users.Clear();
+                    currentTile.Users.Add(user);
+
+                    _dbContext.SaveChanges();
+
+                    return Ok("Tile approved");
+                } catch (BadHttpRequestException e)
                 {
-                    return BadRequest(new Error
-                    {
-                        Title = "Missing required role",
-                        Message = $"User {u.Id} doesn't contain role {UserRoles.EDITOR}."
+                    return BadRequest(new Error() {
+                        Title = e.Message
                     });
-                }
+                }                                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, $"Unknown error while performing {nameof(UpdateUser)} method.");
+                return BadRequest(new UnknownError() { Title = ex.Message });
+            }            
+        }
 
-                // Get current tile by id
-                DbTile currentTile =
-                    await _dbContext.Tiles.Include(
-                        tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+        [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
+        public async Task<ActionResult<string>> Approve(string id, [FromBody] User u)
+        {
+            try
+            {
+                var validationResult = _validationHelper.Validate(ModelState);
+                if (validationResult != null) return BadRequest(validationResult);
 
-                if (currentTile == null)
+                 
+                
+                try {
+                    DbTile currentTile =
+                    await _dbContext.Tiles
+                        .Include(tile => tile.Approvers)                        
+                        .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+                    var user  = await PrepareUserForTile(id, u);                    
+                    currentTile.Approvers.Add(user);
+                    _dbContext.SaveChanges();
+
+                    return Ok("Tile approved");
+                } catch (BadHttpRequestException e)
                 {
-                    return BadRequest(new Error
-                    {
-                        Title = "Missing tile",
-                        Message = $"There is no tile with id {id}."
+                    return BadRequest(new Error() {
+                        Title = e.Message
                     });
-                }
-
-                currentTile.Users.Clear();
-                currentTile.Users.Add(selectedUser);
-
-                _dbContext.SaveChanges();
-
-                return Ok("User successfully assigned to the tile.");
+                }                                
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, $"Unknown error while performing {nameof(UpdateUser)} method.");
                 return BadRequest(new UnknownError() { Title = ex.Message });
             }
+        }
+
+        private async Task<ApplicationUser> PrepareUserForTile(string id, User u) {
+            
+            ApplicationUser selectedUser = await _userManager.Users.SingleOrDefaultAsync(x => x.Id == u.Id);
+
+            if (selectedUser == null)
+            {
+                throw new BadHttpRequestException($"There is no user with id: {u.Id} and user name: {u.UserName}.");                            
+            }            
+
+            // Get current tile by id
+            DbTile currentTile =
+                await _dbContext.Tiles.Include(
+                    tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (currentTile == null)
+            {
+                throw new BadHttpRequestException($"There is no tile with id {id}.");                                            
+            }
+            return selectedUser;
         }
     }
 }
