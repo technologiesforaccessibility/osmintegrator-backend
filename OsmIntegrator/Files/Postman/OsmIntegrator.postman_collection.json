@@ -1411,6 +1411,53 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "GetChangeFile",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"TileUuid\": \"f7df87e6-bbca-43a0-84b8-da02791d34a0\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/OsmChangeFile/GetChangeFile",
+							"protocol": "https",
+							"host": [
+								"{{host}}"
+							],							
+							"path": [
+								"api",
+								"OsmChangeFile",
+								"GetChangeFile"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

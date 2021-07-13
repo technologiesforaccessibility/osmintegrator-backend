@@ -19,6 +19,8 @@ using OsmIntegrator.Tools;
 using OsmIntegrator.AutoMapper;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Validators;
+using OsmIntegrator.DomainUseCases;
+using OsmIntegrator.Presenters;
 
 namespace osmintegrator
 {
@@ -34,6 +36,9 @@ namespace osmintegrator
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.AddScoped(typeof(IUseCase<CreateChangeFileInputDto>), typeof(CreateChangeFile));
+            services.AddSingleton<CreateChangeFileWebPresenter>();
             services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();

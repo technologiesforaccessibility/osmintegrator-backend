@@ -202,7 +202,9 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = double.Parse(node.Lat, CultureInfo.InvariantCulture),
                         Lon = double.Parse(node.Lon, CultureInfo.InvariantCulture),
                         StopType = StopType.Osm,
-                        ProviderType = ProviderType.Ztm
+                        ProviderType = ProviderType.Ztm,
+                        Version = node.Version,
+                        Changeset = node.Changeset
                     };
 
                     List<Models.Tag> tempTags = new List<Models.Tag>();
