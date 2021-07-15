@@ -25,9 +25,9 @@ namespace OsmIntegrator.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ApiController]
+    [ApiController]     
     [Route("api/[controller]/[action]")]
-    [EnableCors("AllowOrigin")]
+    [EnableCors("AllowOrigin")]    
     public class TileController : ControllerBase
     {
         private readonly ILogger<TileController> _logger;
@@ -300,6 +300,7 @@ namespace OsmIntegrator.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
+        [ApiVersion("1.1")]
         public async Task<ActionResult<string>> Approve(string id, [FromBody] User u)
         {
             try

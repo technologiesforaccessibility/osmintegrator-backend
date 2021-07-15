@@ -20,7 +20,7 @@ namespace OsmIntegrator.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ApiController]
+    [ApiController]    
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     public class StopController : ControllerBase

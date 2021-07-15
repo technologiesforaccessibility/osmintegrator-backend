@@ -29,6 +29,7 @@ namespace OsmIntegrator.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
+    [ApiController]    
     public class OsmChangeFileController : ControllerBase
     {
 

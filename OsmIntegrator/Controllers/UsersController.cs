@@ -21,7 +21,7 @@ namespace OsmIntegrator.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ApiController]
+    [ApiController]    
     [Route("api/[controller]")]
     [EnableCors("AllowOrigin")]
     public class UsersController : ControllerBase
