@@ -299,8 +299,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
-        [ApiVersion("1.1")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]        
         public async Task<ActionResult<string>> Approve(string id, [FromBody] User u)
         {
             try
