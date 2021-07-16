@@ -4,13 +4,12 @@ using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper
 {
-    public class StopLinkProfile : Profile
+    public class ExistingNoteProfile : Profile
     {
-        public StopLinkProfile()
+        public ExistingNoteProfile()
         {
             AllowNullCollections = true;
-            CreateMap<DbStopLink, Connection>()
-                .ReverseMap();
+            CreateMap<DbNote, ExistingNote>().ReverseMap();
         }
     }
 }

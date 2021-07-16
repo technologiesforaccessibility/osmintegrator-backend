@@ -40,7 +40,7 @@ namespace OsmIntegrator.Database.Models
 
         public bool OutsideSelectedTile { get; set; } = false;
 
-        public List<DbStopLink> StopLinks { get; set; }
+        public List<DbConnections> Connections { get; set; }
 
         public long Ref { get; set; }
 

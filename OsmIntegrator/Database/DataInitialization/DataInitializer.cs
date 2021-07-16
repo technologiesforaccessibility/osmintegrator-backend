@@ -76,7 +76,10 @@ namespace OsmIntegrator.Database.DataInitialization
                     ApplicationUser editor1 = users[0];
                     ApplicationUser editor2 = users[1];
 
-                    tiles[0].Users =tiles[1].Users = tiles[2].Users = new List<ApplicationUser> { editor1 };
+                    List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
+                    ApplicationUser supervisor1 = supervisors[0];
+
+                    tiles[0].Users = tiles[1].Users = tiles[2].Users = new List<ApplicationUser> { editor1 };
 
                     tiles[3].Users = tiles[4].Users = tiles[5].Users = new List<ApplicationUser> { editor2 };
 
@@ -85,24 +88,74 @@ namespace OsmIntegrator.Database.DataInitialization
                     db.SaveChanges();
 
                     DbTile tile = db.Tiles.First(x => x.X == 2264 && x.Y == 1384);
-                    DbNote note = new DbNote
+
+                    DbNote note1 = new DbNote
                     {
-                        Text = "Test note",
+                        Text = "Not approved",
                         Lat = tile.MinLat,
                         Lon = tile.MinLon,
-                        UserId = editor1.Id
+                        UserId = editor1.Id,
+                        Approved = false,
+                        TileId = tile.Id
                     };
-                    db.Notes.Add(note);
+
+                    DbNote note2 = new DbNote
+                    {
+                        Text = "Approved",
+                        Lat = tile.MaxLat,
+                        Lon = tile.MinLon,
+                        UserId = editor1.Id,
+                        Approved = true,
+                        Approver = supervisor1,
+                        TileId = tile.Id
+                    };
+
+                    DbNote note3 = new DbNote
+                    {
+                        Text = "Supervisor approved",
+                        Lat = tile.MaxLat,
+                        Lon = tile.MinLon,
+                        UserId = supervisor1.Id,
+                        Approved = true,
+                        Approver = supervisor1,
+                        TileId = tile.Id
+                    };
+
+                    DbNote note4 = new DbNote
+                    {
+                        Text = "Supervisor not approved",
+                        Lat = tile.MaxLat,
+                        Lon = tile.MinLon,
+                        UserId = supervisor1.Id,
+                        Approved = false,
+                        TileId = tile.Id
+                    };
+
+                    DbNote note5 = new DbNote
+                    {
+                        Text = "Editor 2",
+                        Lat = tile.MaxLat,
+                        Lon = tile.MinLon,
+                        UserId = editor2.Id,
+                        Approved = false,
+                        TileId = tile.Id
+                    };
+
+                    db.Notes.Add(note1);
+                    db.Notes.Add(note2);
+                    db.Notes.Add(note3);
+                    db.Notes.Add(note4);
+                    db.Notes.Add(note5);
                     db.SaveChanges();
 
-                    List<DbStopLink> connections = new List<DbStopLink>();
+                    List<DbConnections> connections = new List<DbConnections>();
 
                     foreach (DbStop osmStop in osmStops)
                     {
                         DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == osmStop.Ref);
                         if (gtfsStop != null)
                         {
-                            connections.Add(new DbStopLink()
+                            connections.Add(new DbConnections()
                             {
                                 GtfsStop = gtfsStop,
                                 OsmStop = osmStop,
@@ -118,7 +171,9 @@ namespace OsmIntegrator.Database.DataInitialization
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     transaction.Rollback();
+                    throw;
                 }
             }
         }

@@ -55,6 +55,8 @@ namespace OsmIntegrator.Database.Models
 
         public List<ApplicationUser> Approvers { get; set; }
 
+        public List<DbNote> Notes { get; set; }
+
         public DbTile()
         {
 
