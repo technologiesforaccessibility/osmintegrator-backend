@@ -434,3 +434,6 @@ $RECYCLE.BIN/
 !.vscode/extensions.json
 
 .vscode/launch.json
+.env.production
+*.key
+build
