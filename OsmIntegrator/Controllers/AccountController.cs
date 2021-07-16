@@ -24,8 +24,9 @@ namespace OsmIntegrator.Controllers
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ApiController]
     [EnableCors("AllowOrigin")]
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]/[action]")]      
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -76,8 +77,8 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpPost]
-        [AllowAnonymous]
+        [HttpPost]   
+        [AllowAnonymous]             
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
             try
@@ -102,8 +103,8 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
-        [Consumes(MediaTypeNames.Application.Json)]
+        [AllowAnonymous]             
+        [Consumes(MediaTypeNames.Application.Json)]        
         public async Task<ActionResult<TokenData>> Login([FromBody] LoginData model)
         {
             try
