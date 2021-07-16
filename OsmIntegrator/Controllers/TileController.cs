@@ -260,10 +260,7 @@ namespace OsmIntegrator.Controllers
                 var validationResult = _validationHelper.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                
-                
                 try {
-
                     var user  = await PrepareUserForTile(id, u);     
                     IList<string> roles = await _userManager.GetRolesAsync(user);            
                     if (!roles.Contains(UserRoles.EDITOR))
@@ -307,8 +304,6 @@ namespace OsmIntegrator.Controllers
                 var validationResult = _validationHelper.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                 
-                
                 try {
                     DbTile currentTile =
                     await _dbContext.Tiles

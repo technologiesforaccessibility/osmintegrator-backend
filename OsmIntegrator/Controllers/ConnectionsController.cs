@@ -66,13 +66,13 @@ namespace OsmIntegrator.Controllers
                 if (validationResult != null) return BadRequest(validationResult);
 
                 // Check if connection already exists and has not been deleted.
-                List<DbStopLink> existingConnections = await _dbContext.Connections
+                List<DbConnections> existingConnections = await _dbContext.Connections
                     .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                             x.GtfsStopId == connectionAction.GtfsStopId)
                     .OrderByDescending(link => link.CreatedAt)
                     .ToListAsync();
 
-                DbStopLink existingConnection = existingConnections.FirstOrDefault();
+                DbConnections existingConnection = existingConnections.FirstOrDefault();
                 bool imported = false;
                 if (existingConnection != null)
                 {
@@ -88,14 +88,14 @@ namespace OsmIntegrator.Controllers
 
                 // Check if GTFS stop has already been connected to another stop.
                 DbStop gtfsStop = await _dbContext.Stops
-                    .Include(x => x.StopLinks)
+                    .Include(x => x.Connections)
                     .FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
 
                 if (gtfsStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no GTFS stop with id {connectionAction.GtfsStopId}." });
                 }
-                DbStopLink gtfsConnection = gtfsStop.StopLinks
+                DbConnections gtfsConnection = gtfsStop.Connections
                     .OrderByDescending(link => link.CreatedAt)
                     .FirstOrDefault();
 
@@ -107,14 +107,14 @@ namespace OsmIntegrator.Controllers
 
                 // Check if OSM stop has already been connected to another stop.
                 DbStop osmStop = await _dbContext.Stops
-                    .Include(x => x.StopLinks)
+                    .Include(x => x.Connections)
                     .FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
 
                 if (osmStop == null)
                 {
                     return BadRequest(new ValidationError() { Message = $"There is no OSM stop with id {connectionAction.OsmStopId}." });
                 }
-                DbStopLink osmConnection = osmStop.StopLinks
+                DbConnections osmConnection = osmStop.Connections
                     .OrderByDescending(link => link.CreatedAt)
                     .FirstOrDefault();
 
@@ -126,7 +126,7 @@ namespace OsmIntegrator.Controllers
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-                DbStopLink newConnection = new DbStopLink()
+                DbConnections newConnection = new DbConnections()
                 {
                     OsmStop = osmStop,
                     GtfsStop = gtfsStop,
@@ -156,9 +156,9 @@ namespace OsmIntegrator.Controllers
                 Error validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null) return BadRequest(validationResult);
 
-                List<DbStopLink> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+                List<DbConnections> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                     x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
-                DbStopLink existingConnection = existingConnections.LastOrDefault();
+                DbConnections existingConnection = existingConnections.LastOrDefault();
                 bool imported = false;
                 if (existingConnection != null)
                 {
@@ -180,7 +180,7 @@ namespace OsmIntegrator.Controllers
 
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-                DbStopLink newConnection = new DbStopLink()
+                DbConnections newConnection = new DbConnections()
                 {
                     OsmStopId = connectionAction.OsmStopId,
                     GtfsStopId = connectionAction.GtfsStopId,
@@ -218,10 +218,10 @@ namespace OsmIntegrator.Controllers
 
                 string query = 
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                    "FROM \"StopLinks\" c " +
+                    "FROM \"Connections\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-                List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
+                List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
                     query).Include(x => x.OsmStop).ToListAsync();
 
                 connections = connections.Where(
@@ -249,9 +249,9 @@ namespace OsmIntegrator.Controllers
         {
             try
             {
-                List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
+                List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                    "FROM \"StopLinks\" c " +
+                    "FROM \"Connections\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
                 ).ToListAsync();
                 List<Connection> result = _mapper.Map<List<Connection>>(connections);
@@ -270,7 +270,7 @@ namespace OsmIntegrator.Controllers
         {
             try
             {                                                
-                DbStopLink link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+                DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
                 if (link == null) {
                     return BadRequest(new Error() {
                         Title = $"Connection with id: {id} does not exists" 

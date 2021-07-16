@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6db4bf86-2006-4d9e-b77c-77fde0053b18",
+		"_postman_id": "44020dcf-0ba4-4bee-b82d-f11d6aaa7292",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1523,11 +1523,11 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/OsmChangeFile/GetChangeFile",
+							"raw": "https://{{host}}/api/OsmChangeFile/GetChangeFile",
 							"protocol": "https",
 							"host": [
 								"{{host}}"
-							],							
+							],
 							"path": [
 								"api",
 								"OsmChangeFile",
@@ -1563,14 +1563,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Notes/731ed4b3-6e5b-44db-ac5b-7ba6bd80ba37",
+							"raw": "{{host}}/api/Notes/7228923f-183b-4ab4-98d7-696c232585d3",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Notes",
-								"731ed4b3-6e5b-44db-ac5b-7ba6bd80ba37"
+								"7228923f-183b-4ab4-98d7-696c232585d3"
 							]
 						}
 					},
@@ -1598,7 +1598,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\",\n    \"tileId\": \"7228923f-183b-4ab4-98d7-696c232585d3\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1613,6 +1613,134 @@
 							"path": [
 								"api",
 								"Notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"id\": \"25b25cbd-4e29-4c35-b65c-9b071653b1eb\",\n        \"lat\": 50.28933925329178,\n        \"lon\": 18.984375,\n        \"text\": \"Test 4\"\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes/52efeded-f4b1-47b8-9adf-bbb91cc970e5",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes",
+								"52efeded-f4b1-47b8-9adf-bbb91cc970e5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes/25b25cbd-4e29-4c35-b65c-9b071653b1eb",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes",
+								"25b25cbd-4e29-4c35-b65c-9b071653b1eb"
 							]
 						}
 					},
