@@ -203,7 +203,7 @@ namespace OsmIntegrator.Controllers
 
 
         /// <summary>
-        /// Get connection for tile id.
+        /// Get connections for tile id.
         /// </summary>
         /// <param name="id">Tile id.</param>
         /// <returns>Collection of connections in selected tile.</returns>
@@ -264,7 +264,7 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Approve/{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR)]
         public async Task<ActionResult<string>> Approve(string id)
         {

@@ -245,7 +245,7 @@ namespace OsmIntegrator.Controllers
             }
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Approve/{id}")]
         [Authorize(Roles =
             UserRoles.SUPERVISOR + "," +
             UserRoles.COORDINATOR + "," +

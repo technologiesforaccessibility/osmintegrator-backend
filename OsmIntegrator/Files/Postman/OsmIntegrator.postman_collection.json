@@ -1357,13 +1357,14 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Connections/e044ac55-294a-47a5-98de-971696146968",
+							"raw": "{{host}}/api/Connections/Approve/e044ac55-294a-47a5-98de-971696146968",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
+								"Approve",
 								"e044ac55-294a-47a5-98de-971696146968"
 							]
 						}
@@ -1598,7 +1599,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\",\n    \"tileId\": \"7228923f-183b-4ab4-98d7-696c232585d3\"\n}",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Kolejny test\",\n    \"tileId\": \"7228923f-183b-4ab4-98d7-696c232585d3\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1690,14 +1691,15 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Notes/52efeded-f4b1-47b8-9adf-bbb91cc970e5",
+							"raw": "{{host}}/api/Notes/Approve/4fd2ca93-c31b-41b5-8d43-159ab6a0c24f",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Notes",
-								"52efeded-f4b1-47b8-9adf-bbb91cc970e5"
+								"Approve",
+								"4fd2ca93-c31b-41b5-8d43-159ab6a0c24f"
 							]
 						}
 					},
