@@ -29,7 +29,7 @@ namespace OsmIntegrator.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
-    [ApiController]    
+    [ApiController]
     public class OsmChangeFileController : ControllerBase
     {
 
@@ -62,7 +62,7 @@ namespace OsmIntegrator.Controllers
         public async Task<ActionResult> GetChangeFile([FromBody] CreateChangeFileRequestInput data)
         {
             try
-            {                
+            {
                 var validationResult = _modelValidator.Validate(ModelState);
                 if (validationResult != null)
                 {

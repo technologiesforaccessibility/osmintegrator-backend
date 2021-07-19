@@ -26,7 +26,7 @@ namespace OsmIntegrator.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
     [EnableCors("AllowOrigin")]
-    [Route("api/[controller]/[action]")]      
+    [Route("api/[controller]/[action]")]
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;

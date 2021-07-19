@@ -25,7 +25,7 @@ namespace OsmIntegrator.Controllers
     /// Make sure you've already read this article before making any changes in the code:
     /// https://github.com/technologiesforaccessibility/osmintegrator-wiki/wiki/Permissions-and-Roles
     /// </summary>
-    [ApiController]      
+    [ApiController]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]")]
     [Produces(MediaTypeNames.Application.Json)]
