@@ -118,7 +118,7 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(new ValidationError() { Message = $"Tile with id {id} doesn't exist." });
                 }
 
-                List<DbNote> notes = await _dbContext.Notes.Where(x => 
+                List<DbNote> notes = await _dbContext.Notes.Where(x =>
                     x.Lat >= tile.OverlapMinLat &&
                     x.Lat < tile.OverlapMaxLat &&
                     x.Lon >= tile.OverlapMinLon &&
