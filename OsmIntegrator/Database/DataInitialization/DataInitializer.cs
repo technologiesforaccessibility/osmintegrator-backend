@@ -116,9 +116,11 @@ namespace OsmIntegrator.Database.DataInitialization
 
                     transaction.Commit();
                 }
-                catch (Exception e)
+                catch
                 {
                     transaction.Rollback();
+                    // instant message about failure
+                    throw;
                 }
             }
         }
