@@ -46,16 +46,8 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Stop>>> Get()
         {
-            try
-            {
-                var result = await _dbContext.Stops.ToListAsync();
-                return Ok(_mapper.Map<List<Stop>>(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Unknown error while performing ");
-                return BadRequest(new UnknownError() { Message = ex.Message });
-            }
+            var result = await _dbContext.Stops.ToListAsync();
+            return Ok(_mapper.Map<List<Stop>>(result));
         }
     }
 }

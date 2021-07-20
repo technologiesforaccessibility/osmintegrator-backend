@@ -126,9 +126,8 @@ namespace osmintegrator
                 typeof(ApplicationUserProfile),
                 typeof(StopLinkProfile),
                 typeof(NoteProfile));
-                
+
             services.AddSingleton<IEmailService, EmailService>();
-            services.AddSingleton<IModelValidator, ModelValidator>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
             services.AddSingleton<ITileValidator, TileValidator>();
         }
@@ -140,9 +139,11 @@ namespace osmintegrator
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                app.UseExceptionHandler("/error-local-development");
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "osmintegrator v1"));
+            } else {
+                app.UseExceptionHandler("/error");
             }
 
             app.UseHttpsRedirection();

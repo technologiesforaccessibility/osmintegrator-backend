@@ -51,44 +51,35 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         public async Task<ActionResult<List<User>>> Get()
         {
-            try
+            var users = await _userManager.Users
+                .Select(u => new { User = u, Roles = new List<string>() })
+                .ToListAsync();
+
+            var roleNames = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
+            foreach (var roleName in roleNames)
             {
-                var users = await _userManager.Users
-                    .Select(u => new { User = u, Roles = new List<string>() })
-                    .ToListAsync();
+                var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
 
-                var roleNames = await _roleManager.Roles.Select(r => r.Name).ToListAsync();
-                foreach (var roleName in roleNames)
+                var toUpdate = users.Where(u => usersInRole.Any(ur => ur.Id == u.User.Id));
+                foreach (var user in toUpdate)
                 {
-                    var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
-
-                    var toUpdate = users.Where(u => usersInRole.Any(ur => ur.Id == u.User.Id));
-                    foreach (var user in toUpdate)
-                    {
-                        user.Roles.Add(roleName);
-                    }
+                    user.Roles.Add(roleName);
                 }
-
-                List<User> result = new List<User>();
-
-                foreach (var user in users)
-                {
-                    result.Add(new ApiModels.User()
-                    {
-                        UserName = user.User.UserName,
-                        Email = user.User.Email,
-                        Roles = user.Roles,
-                        Id = user.User.Id
-                    });
-                }
-
-                return Ok(result);
             }
-            catch (Exception ex)
+
+            List<User> result = new List<User>();
+
+            foreach (var user in users)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Get)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                result.Add(new ApiModels.User()
+                {
+                    UserName = user.User.UserName,
+                    Email = user.User.Email,
+                    Roles = user.Roles,
+                    Id = user.User.Id
+                });
             }
+            return Ok(result);
         }
     }
 }
