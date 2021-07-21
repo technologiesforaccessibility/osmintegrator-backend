@@ -151,7 +151,7 @@ namespace OsmIntegrator.Controllers
                 if (errors.Count > 0)
                 {
                     scope.Dispose();
-                    throw new BadHttpRequestException("Problem with adding/removing user roles.");
+                    throw new BadHttpRequestException("Problem with update user roles.");
                 }
                 scope.Complete();
                 return Ok("User roles updated successfully!");

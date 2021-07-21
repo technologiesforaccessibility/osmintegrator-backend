@@ -249,7 +249,7 @@ namespace OsmIntegrator.Controllers
 
             if (selectedUser == null)
             {
-                throw new BadHttpRequestException($"There is no user with id: {u.Id} and user name: {u.UserName}.");
+                throw new BadHttpRequestException("Given user does not exist");
             }
 
             // Get current tile by id
@@ -259,7 +259,7 @@ namespace OsmIntegrator.Controllers
 
             if (currentTile == null)
             {
-                throw new BadHttpRequestException($"There is no tile with id {id}.");
+                throw new BadHttpRequestException("Given user does not exist");
             }
             return selectedUser;
         }

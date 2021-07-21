@@ -72,9 +72,7 @@ namespace OsmIntegrator.Controllers
             {
                 if (existingConnection.OperationType == ConnectionOperationType.Added)
                 {
-                    string message = "The connection already exists." +
-                        $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
-                    throw new BadHttpRequestException(message);
+                    throw new BadHttpRequestException("The connection already exists.");
                 }
                 // Check wether last connection was imported
                 imported = existingConnection.Imported;
@@ -87,7 +85,7 @@ namespace OsmIntegrator.Controllers
 
             if (gtfsStop == null)
             {
-                throw new BadHttpRequestException($"There is no GTFS stop with id {connectionAction.GtfsStopId}.");
+                throw new BadHttpRequestException("Please ensure correct stops were chosen");
             }
 
             DbStopLink gtfsConnection = gtfsStop.StopLinks
@@ -96,7 +94,7 @@ namespace OsmIntegrator.Controllers
 
             if (gtfsConnection != null && gtfsConnection.OperationType == ConnectionOperationType.Added)
             {
-                throw new BadHttpRequestException($"The GTFS stop has already been connected with different stop. Stop id: {connectionAction.GtfsStopId}.");
+                throw new BadHttpRequestException("The GTFS stop has already been connected with different stop");
             }
 
             // Check if OSM stop has already been connected to another stop.
@@ -106,7 +104,7 @@ namespace OsmIntegrator.Controllers
 
             if (osmStop == null)
             {
-                throw new BadHttpRequestException($"There is no OSM stop with id {connectionAction.OsmStopId}.");
+                throw new BadHttpRequestException("Please ensure correct stops were chosen");
             }
 
             DbStopLink osmConnection = osmStop.StopLinks
@@ -115,7 +113,7 @@ namespace OsmIntegrator.Controllers
 
             if (osmConnection != null && osmConnection.OperationType == ConnectionOperationType.Added)
             {
-                throw new BadHttpRequestException($"The OSM stop has already been connected with different stop. Stop id: {connectionAction.OsmStopId}.");
+                throw new BadHttpRequestException("The OSM stop has already been connected with different stop");
             }
 
             ApplicationUser currentUser = await _userManager.GetUserAsync(User);
@@ -147,18 +145,14 @@ namespace OsmIntegrator.Controllers
             {
                 if (existingConnection.OperationType == ConnectionOperationType.Removed)
                 {
-                    string message = "The connection have already been removed. " +
-                        $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
-                    throw new BadHttpRequestException(message);
+                    throw new BadHttpRequestException("The connection have already been removed");
                 }
                 // Check wether last connection was imported
                 imported = existingConnection.Imported;
             }
             else if (existingConnection == null)
             {
-                string message = "Connot remove connection which doesn't exist. " +
-                        $"OSM stop id: {connectionAction.OsmStopId}, GTFS stop id: {connectionAction.GtfsStopId}.";
-                throw new BadHttpRequestException(message);
+                throw new BadHttpRequestException("Connot remove connection which doesn't exist");
             }
 
             ApplicationUser currentUser = await _userManager.GetUserAsync(User);
@@ -190,7 +184,7 @@ namespace OsmIntegrator.Controllers
         {
 
             Error error = await _tileValidator.Validate(_dbContext, id);
-            if (error != null) throw new BadHttpRequestException(error.Message);
+            if (error != null) throw new BadHttpRequestException("Problem with given tile");
 
             string query =
                 "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
@@ -232,7 +226,7 @@ namespace OsmIntegrator.Controllers
 
             DbStopLink link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
             if (link == null) {
-                throw new BadHttpRequestException($"Connection with id: {id} does not exists");
+                throw new BadHttpRequestException("Given connection does not exist");
             }
             ApplicationUser currentUser = await _userManager.GetUserAsync(User);
             link.ApprovedBy = currentUser;

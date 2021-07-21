@@ -70,21 +70,21 @@ namespace OsmIntegrator.Controllers
 
             if (string.IsNullOrEmpty(id))
             {
-                throw new BadHttpRequestException($"Invalid id: {id}.");
+                throw new BadHttpRequestException("Invalid id");
             }
 
             var user = await _userManager.FindByIdAsync(id);
 
             if (user == null)
             {
-                throw new BadHttpRequestException($"No user with id: {id}.");
+                throw new BadHttpRequestException("Unable to find current user instance");
             }
 
             List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
 
-            if (user == null)
+            if (roles == null)
             {
-                throw new BadHttpRequestException("Unable to find current user instance");
+                throw new BadHttpRequestException("Unable to find current user roles");
             }
 
             return Ok(new User()

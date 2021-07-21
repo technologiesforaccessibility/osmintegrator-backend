@@ -17,7 +17,6 @@ using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -63,7 +62,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize]
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
@@ -80,27 +79,25 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<TokenData>> Login([FromBody] LoginData model)
         {
-                ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
+            ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
 
-                if (userEmail == null)
-                {
-                    throw new BadHttpRequestException("Email doesn't exist");
-                }
+            if (userEmail == null)
+            {
+                throw new BadHttpRequestException("Email doesn't exist");
+            }
 
-                var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
+            var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
 
-                if (result.Succeeded)
-                {
-                    var appUser = await _userManager.FindByEmailAsync(model.Email);
-                    List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
+            if (result.Succeeded)
+            {
+                var appUser = await _userManager.FindByEmailAsync(model.Email);
+                List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
 
-                    TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, userRoles, _signInManager);
-                    return Ok(tokenData);
-                }
+                TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, userRoles, _signInManager);
+                return Ok(tokenData);
+            }
 
-                return Unauthorized(new AuthorizationError() { Message = "The username or password were not correct. Try again." });
-
-
+            return Unauthorized(new AuthorizationError() { Message = "The username or password were not correct. Try again." });
         }
 
         [HttpPost]
@@ -229,9 +226,6 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
         {
-
-            // var validationResult = _modelValidator.Validate(ModelState);
-            // if (validationResult != null) return BadRequest(validationResult);
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user != null && await _userManager.IsEmailConfirmedAsync(user))
@@ -317,7 +311,7 @@ namespace OsmIntegrator.Controllers
                         errorMessage += identityError.Description;
                     }
 
-                    return BadRequest(new Error() { Title = "Reset password failed.", Message = errorMessage });
+                    throw new BadHttpRequestException(errorMessage);
                 }
             }
             else

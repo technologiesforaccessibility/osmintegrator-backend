@@ -98,7 +98,7 @@ namespace OsmIntegrator.Controllers
 
             if(tile == null)
             {
-                throw new BadHttpRequestException($"Tile with id {id} doesn't exist.");
+                throw new BadHttpRequestException("Given tile does not exist");
             }
 
             List<DbNote> notes = await _dbContext.Notes.Where(x =>

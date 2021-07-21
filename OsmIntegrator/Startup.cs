@@ -14,7 +14,6 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Services;
-using Microsoft.AspNetCore.Authorization;
 using OsmIntegrator.Tools;
 using OsmIntegrator.AutoMapper;
 using OsmIntegrator.Database.Models;
@@ -23,6 +22,7 @@ using OsmIntegrator.DomainUseCases;
 using OsmIntegrator.Presenters;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using OsmIntegrator.Errors;
 
 namespace osmintegrator
 {
@@ -38,14 +38,13 @@ namespace osmintegrator
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = new ApiVersion(0, 9); // global default version all controlers fit it
                 config.AssumeDefaultVersionWhenUnspecified = true;
                 config.ReportApiVersions = true;
                 config.ApiVersionReader = new HeaderApiVersionReader("Api-Version");
-                config.ErrorResponses = new DefaultErrorResponseProvider();
+                config.ErrorResponses = new ApiVersioningErrorResponseProvider();
             });
 
             services.AddScoped(typeof(IUseCase<CreateChangeFileInputDto>), typeof(CreateChangeFile));
@@ -53,12 +52,7 @@ namespace osmintegrator
             services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
-            services.AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.WriteIndented = true;
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
-                });
+            services.AddControllers().AddNewtonsoftJson();
 
             // ===== Allow-Origin ========
             services.AddCors(c =>

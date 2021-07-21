@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -39,7 +40,8 @@ namespace OsmIntegrator.Controllers
                     type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     title = "Bad Request",
                     status = 400,
-                    errors = context.Error.Message,
+                    // the list is here to keep same format as ValidationProblem
+                    errors = new {message = new List<string>() {context.Error.Message} },
                     detail = context.Error.StackTrace
 
 
@@ -48,7 +50,7 @@ namespace OsmIntegrator.Controllers
             return Problem(
                 type: "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1",
                 detail: context.Error.StackTrace,
-                title: context.Error.Message);
+                title: "Internal Server Error");
         }
 
 
@@ -64,7 +66,8 @@ namespace OsmIntegrator.Controllers
                     type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     title = "Bad Request",
                     status = 400,
-                    errors = context.Error.Message,
+                    // the list is here to keep same format as ValidationProblem
+                    errors = new {message = new List<string>() {context.Error.Message} },
                 });
             }
             return Problem(

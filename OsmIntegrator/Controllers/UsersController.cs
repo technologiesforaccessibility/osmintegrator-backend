@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
-using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Roles;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
