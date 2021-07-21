@@ -14,6 +14,7 @@ using AutoMapper;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Roles;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -29,17 +30,20 @@ namespace OsmIntegrator.Controllers
         private readonly ApplicationDbContext _dbContext;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<StopController> _localizer;
 
         public StopController(
             ILogger<StopController> logger,
             IConfiguration configuration,
             ApplicationDbContext dbContext,
-            IMapper mapper
+            IMapper mapper,
+            IStringLocalizer<StopController> localizer
         )
         {
             _logger = logger;
             _dbContext = dbContext;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
         [HttpGet]

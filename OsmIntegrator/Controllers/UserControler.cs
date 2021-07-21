@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
@@ -30,16 +31,19 @@ namespace OsmIntegrator.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<UserController> _localizer;
 
         public UserController(
             ILogger<UserController> logger,
             IMapper mapper,
-            UserManager<ApplicationUser> userManager
+            UserManager<ApplicationUser> userManager,
+            IStringLocalizer<UserController> localizer
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
         [HttpGet]
@@ -51,7 +55,7 @@ namespace OsmIntegrator.Controllers
 
             if (user == null)
             {
-                throw new BadHttpRequestException("Unable to find current user instance");
+                throw new BadHttpRequestException(_localizer["Unable to find current user instance"]);
             }
 
             return Ok(new User()
@@ -70,21 +74,21 @@ namespace OsmIntegrator.Controllers
 
             if (string.IsNullOrEmpty(id))
             {
-                throw new BadHttpRequestException("Invalid id");
+                throw new BadHttpRequestException(_localizer["Invalid id"]);
             }
 
             var user = await _userManager.FindByIdAsync(id);
 
             if (user == null)
             {
-                throw new BadHttpRequestException("Unable to find current user instance");
+                throw new BadHttpRequestException(_localizer["Unable to find current user instance"]);
             }
 
             List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
 
             if (roles == null)
             {
-                throw new BadHttpRequestException("Unable to find current user roles");
+                throw new BadHttpRequestException(_localizer["Unable to find current user roles"]);
             }
 
             return Ok(new User()

@@ -14,6 +14,7 @@ using OsmIntegrator.Presenters;
 using OsmIntegrator.Roles;
 using OsmIntegrator.Validators;
 using OsmIntegrator.DomainUseCases;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -38,19 +39,22 @@ namespace OsmIntegrator.Controllers
         private readonly ILogger<OsmChangeFileController> _logger;
         private readonly CreateChangeFileWebPresenter _presenter;
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<OsmChangeFileController> _localizer;
 
         public OsmChangeFileController(
             ApplicationDbContext dbContext,
             ILogger<OsmChangeFileController> logger,
             IMapper mapper,
             IUseCase<CreateChangeFileInputDto> useCase,
-            CreateChangeFileWebPresenter presenter)
+            CreateChangeFileWebPresenter presenter,
+            IStringLocalizer<OsmChangeFileController> localizer)
         {
             _dbContext = dbContext;
             _useCase = useCase;
             _logger = logger;
             _mapper = mapper;
             _presenter = presenter;
+            _localizer = localizer;
         }
 
         [HttpGet]

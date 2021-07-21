@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -32,18 +33,21 @@ namespace OsmIntegrator.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<UsersController> _localizer;
 
         public UsersController(
             ILogger<UserController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager
+            RoleManager<ApplicationRole> roleManager,
+            IStringLocalizer<UsersController> localizer
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
+            _localizer = localizer;
         }
 
         [HttpGet]

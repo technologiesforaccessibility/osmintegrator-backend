@@ -18,6 +18,7 @@ using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -43,13 +44,16 @@ namespace OsmIntegrator.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<NotesController> _localizer;
 
         public NotesController(
             ILogger<NotesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            ApplicationDbContext dbContext
+            ApplicationDbContext dbContext,
+            IStringLocalizer<NotesController> localizer
+
         )
         {
             _logger = logger;
@@ -57,6 +61,7 @@ namespace OsmIntegrator.Controllers
             _mapper = mapper;
             _roleManager = roleManager;
             _dbContext = dbContext;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -78,7 +83,7 @@ namespace OsmIntegrator.Controllers
             await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
             _dbContext.SaveChanges();
 
-            return Ok("Note successfully added");
+            return Ok(_localizer["Note successfully added"]);
         }
 
         /// <summary>
@@ -98,7 +103,7 @@ namespace OsmIntegrator.Controllers
 
             if(tile == null)
             {
-                throw new BadHttpRequestException("Given tile does not exist");
+                throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
             }
 
             List<DbNote> notes = await _dbContext.Notes.Where(x =>

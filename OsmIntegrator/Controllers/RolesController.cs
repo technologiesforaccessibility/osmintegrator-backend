@@ -16,6 +16,7 @@ using System.Net.Mime;
 using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -39,18 +40,21 @@ namespace OsmIntegrator.Controllers
         private readonly RoleManager<ApplicationRole> _roleManager;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<RolesController> _localizer;
 
         public RolesController(
             ILogger<RolesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager
+            RoleManager<ApplicationRole> roleManager,
+            IStringLocalizer<RolesController> localizer
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
+            _localizer = localizer;
         }
 
         [HttpGet]
@@ -141,7 +145,7 @@ namespace OsmIntegrator.Controllers
             Error error = await ValidateRoles(users);
             if (error != null)
             {
-                throw new BadHttpRequestException("Roles validation failed");
+                throw new BadHttpRequestException(_localizer["Roles validation failed"]);
             }
 
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -151,10 +155,10 @@ namespace OsmIntegrator.Controllers
                 if (errors.Count > 0)
                 {
                     scope.Dispose();
-                    throw new BadHttpRequestException("Problem with update user roles.");
+                    throw new BadHttpRequestException(_localizer["Problem with update user roles"]);
                 }
                 scope.Complete();
-                return Ok("User roles updated successfully!");
+                return Ok(_localizer["User roles updated successfully!"]);
             }
         }
 
@@ -199,7 +203,7 @@ namespace OsmIntegrator.Controllers
             {
                 return new Error
                 {
-                    Title = "Role permissions problem.",
+                    Title = _localizer["Role permissions problem"],
                     Message = string.Join(Environment.NewLine, errors)
                 };
             }

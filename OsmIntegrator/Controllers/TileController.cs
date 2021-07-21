@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database;
@@ -37,6 +38,7 @@ namespace OsmIntegrator.Controllers
         private readonly IMapper _mapper;
 
         private readonly RoleManager<ApplicationRole> _roleManger;
+        private readonly IStringLocalizer<TileController> _localizer;
 
         public TileController(
             ILogger<TileController> logger,
@@ -44,7 +46,8 @@ namespace OsmIntegrator.Controllers
             ApplicationDbContext dbContext,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
-            RoleManager<ApplicationRole> roleManager
+            RoleManager<ApplicationRole> roleManager,
+            IStringLocalizer<TileController> localizer
         )
         {
             _logger = logger;
@@ -52,6 +55,7 @@ namespace OsmIntegrator.Controllers
             _mapper = mapper;
             _userManager = userManager;
             _roleManger = roleManager;
+            _localizer = localizer;
         }
 
         [HttpGet]
@@ -86,7 +90,7 @@ namespace OsmIntegrator.Controllers
             Guid tileId;
             if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
             {
-                throw new BadHttpRequestException("Unable to validate tile id.");
+                throw new BadHttpRequestException(_localizer["Invalid tile"]);
             }
 
             // Check if tile exists
@@ -94,7 +98,7 @@ namespace OsmIntegrator.Controllers
                 await _dbContext.Tiles.Include(x => x.Users).SingleOrDefaultAsync(x => x.Id == tileId);
             if (tile == null)
             {
-                throw new BadHttpRequestException($"Unable to find tile with id {id}.");
+                throw new BadHttpRequestException(_localizer["Unable to find tile"]);
             }
 
             // Get current user roles
@@ -106,7 +110,7 @@ namespace OsmIntegrator.Controllers
             if (!roles.Contains(UserRoles.SUPERVISOR) && !roles.Contains(UserRoles.ADMIN) &&
                 roles.Contains(UserRoles.EDITOR) && !tile.Users.Any(x => x.Id == user.Id))
             {
-                throw new BadHttpRequestException("Current user is not able to edit this tile.");
+                throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
             }
 
             // Get all stops in selected tile + stops around that tile
@@ -138,7 +142,7 @@ namespace OsmIntegrator.Controllers
             Guid tileId;
             if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
             {
-                throw new BadHttpRequestException("Unable to validate tile id.");
+                throw new BadHttpRequestException(_localizer["Invalid tile"]);
             }
 
             List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
@@ -188,13 +192,13 @@ namespace OsmIntegrator.Controllers
 
             if (currentTile == null)
             {
-                throw new BadHttpRequestException($"There is no tile with id {id}.");
+                throw new BadHttpRequestException(_localizer["Unable to find tile"]);
             }
 
             currentTile.Users.Clear();
             _dbContext.SaveChanges();
 
-            return Ok("User successfully removed from the tile.");
+            return Ok(_localizer["User successfully removed from the tile"]);
         }
 
         [HttpPut("{id}")]
@@ -208,7 +212,7 @@ namespace OsmIntegrator.Controllers
             if (!roles.Contains(UserRoles.EDITOR))
             {
 
-                throw new BadHttpRequestException($"User {u.Id} doesn't contain role {UserRoles.EDITOR}.");
+                throw new BadHttpRequestException(_localizer["You are not an editor"]);
             }
 
             DbTile currentTile =
@@ -222,7 +226,7 @@ namespace OsmIntegrator.Controllers
 
             _dbContext.SaveChanges();
 
-            return Ok("Tile approved");
+            return Ok(_localizer["Tile approved"]);
 
 
         }
@@ -240,7 +244,7 @@ namespace OsmIntegrator.Controllers
             currentTile.Approvers.Add(user);
             _dbContext.SaveChanges();
 
-            return Ok("Tile approved");
+            return Ok(_localizer["Tile approved"]);
         }
         private async Task<ApplicationUser> PrepareUserForTile(string id, User u)
         {
@@ -249,7 +253,7 @@ namespace OsmIntegrator.Controllers
 
             if (selectedUser == null)
             {
-                throw new BadHttpRequestException("Given user does not exist");
+                throw new BadHttpRequestException(_localizer["Given user does not exist"]);
             }
 
             // Get current tile by id
@@ -259,7 +263,7 @@ namespace OsmIntegrator.Controllers
 
             if (currentTile == null)
             {
-                throw new BadHttpRequestException("Given user does not exist");
+                throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
             }
             return selectedUser;
         }

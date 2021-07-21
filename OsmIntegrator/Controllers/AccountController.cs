@@ -17,6 +17,7 @@ using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Database.Models;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -35,6 +36,7 @@ namespace OsmIntegrator.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ITokenHelper _tokenHelper;
+        private readonly IStringLocalizer<AccountController> _localizer;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -43,7 +45,8 @@ namespace OsmIntegrator.Controllers
             IConfiguration configuration,
             ILogger<AccountController> logger,
             RoleManager<ApplicationRole> roleManager,
-            ITokenHelper tokenHelper
+            ITokenHelper tokenHelper,
+            IStringLocalizer<AccountController> localizer
             )
         {
             _logger = logger;
@@ -53,12 +56,13 @@ namespace OsmIntegrator.Controllers
             _configuration = configuration;
             _roleManager = roleManager;
             _tokenHelper = tokenHelper;
+            _localizer = localizer;
         }
 
         [HttpGet]
         public IActionResult IsTokenValid()
         {
-            return Ok("Ok");
+            return Ok(_localizer["Ok"]);
         }
 
         [HttpPost]
@@ -71,7 +75,7 @@ namespace OsmIntegrator.Controllers
             {
                 return LocalRedirect(returnUrl);
             }
-            return Ok("Ok");
+            return Ok(_localizer["Ok"]);
         }
 
         [HttpPost]
@@ -83,7 +87,7 @@ namespace OsmIntegrator.Controllers
 
             if (userEmail == null)
             {
-                throw new BadHttpRequestException("Email doesn't exist");
+                throw new BadHttpRequestException(_localizer["Email doesn't exist"]);
             }
 
             var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
@@ -97,7 +101,7 @@ namespace OsmIntegrator.Controllers
                 return Ok(tokenData);
             }
 
-            return Unauthorized(new AuthorizationError() { Message = "The username or password were not correct. Try again." });
+            return Unauthorized(new AuthorizationError() { Message = _localizer["The username or password were not correct. Try again"] });
         }
 
         [HttpPost]
@@ -116,7 +120,7 @@ namespace OsmIntegrator.Controllers
 
             if (savedRefreshToken != refreshTokenData.RefreshToken)
             {
-                return Unauthorized(new AuthorizationError() { Message = "Invalid refresh token" });
+                return Unauthorized(new AuthorizationError() { Message = _localizer["Invalid refresh token"] });
             }
             else
             {
@@ -141,7 +145,7 @@ namespace OsmIntegrator.Controllers
 
             if (user == null)
             {
-                string errorMessage = "User with this email does not exist.";
+                string errorMessage = _localizer["User with this email does not exist"];
                 throw new BadHttpRequestException(errorMessage);
             }
 
@@ -157,7 +161,7 @@ namespace OsmIntegrator.Controllers
 
                 throw new BadHttpRequestException(errorMessage);
             }
-            return Ok("Registration confirmed.");
+            return Ok(_localizer["Registration confirmed"]);
 
         }
 
@@ -184,7 +188,7 @@ namespace OsmIntegrator.Controllers
             {
                 if (emailUser.EmailConfirmed)
                 {
-                    throw new BadHttpRequestException("Email occupied");
+                    throw new BadHttpRequestException(_localizer["Email occupied"]);
                 }
             }
             else
@@ -201,14 +205,14 @@ namespace OsmIntegrator.Controllers
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     await _userManager.ConfirmEmailAsync(user, token);
-                    return Ok("User registered. No email confirmation required.");
+                    return Ok(_localizer["User registered. No email confirmation required"]);
                 }
             }
 
             var t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t;
-            _emailService.Send(model.Email, "Confirm account registration", "Click to confirm account registration:" + urlToResetPassword);
-            return Ok("Confirmation email sent.");
+            _emailService.Send(model.Email, _localizer["Confirm account registration"], _localizer["Click to confirm account registration:"] + urlToResetPassword);
+            return Ok(_localizer["Confirmation email sent"]);
 
         }
 
@@ -238,12 +242,12 @@ namespace OsmIntegrator.Controllers
                 // to do: create function to generate email message and subject
                 // containing instruction what to do and url link to reset password
 
-                _emailService.Send(model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
-                return Ok("Reset password email has been sent.");
+                _emailService.Send(model.Email, _localizer["Reset Password"], _localizer["Click to reset password:"] + urlToResetPassword);
+                return Ok(_localizer["Reset password email has been sent"]);
             }
             else
             {
-                return Unauthorized(new AuthorizationError() { Message = "User with this email does not exist or email was not confirmed." });
+                return Unauthorized(new AuthorizationError() { Message = _localizer["User with this email does not exist or email was not confirmed"] });
             }
         }
 
@@ -259,7 +263,7 @@ namespace OsmIntegrator.Controllers
             var result = await _userManager.ChangeEmailAsync(user, model.NewEmail, model.Token);
             if (result.Succeeded)
             {
-                return Ok("Email updated successfully!");
+                return Ok(_localizer["Email updated successfully!"]);
             }
 
             string errorMessage = string.Empty;
@@ -284,8 +288,8 @@ namespace OsmIntegrator.Controllers
             string urlToResetPassword =
                 _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
 
-            _emailService.Send(model.Email, "Confirm email change", "Click to confirm new email:" + urlToResetPassword);
-            return Ok("Confirmation email sent.");
+            _emailService.Send(model.Email, _localizer["Confirm email change"], _localizer["Click to confirm new email:"] + urlToResetPassword);
+            return Ok(_localizer["Confirmation email sent"]);
         }
 
         [HttpPost]
@@ -301,7 +305,7 @@ namespace OsmIntegrator.Controllers
 
                 if (result.Succeeded)
                 {
-                    return Ok("Password reset successfully.");
+                    return Ok(_localizer["Password reset successfully"]);
                 }
                 else
                 {
@@ -316,7 +320,7 @@ namespace OsmIntegrator.Controllers
             }
             else
             {
-                string errorMessage = "User with this email does not exist.";
+                string errorMessage = _localizer["User with this email does not exist"];
                 return Unauthorized(new AuthorizationError() { Message = errorMessage });
             }
         }
