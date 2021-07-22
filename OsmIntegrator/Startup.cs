@@ -55,7 +55,11 @@ namespace osmintegrator
             services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                });
 
             // ===== Allow-Origin ========
             services.AddCors(c =>
