@@ -169,7 +169,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
                     transaction.Commit();
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Console.WriteLine(e);
                     transaction.Rollback();

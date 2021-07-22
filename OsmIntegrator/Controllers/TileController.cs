@@ -266,7 +266,7 @@ namespace OsmIntegrator.Controllers
                     if (!roles.Contains(UserRoles.EDITOR))
                     {
 
-                        throw new BadHttpRequestException($"User {u.Id} doesn't contain role {UserRoles.EDITOR}.");                                            
+                        throw new BadHttpRequestException($"User {u.Id} doesn't contain role {UserRoles.EDITOR}.");
                     }
 
                     DbTile currentTile =
@@ -274,7 +274,7 @@ namespace OsmIntegrator.Controllers
                         .Include(tile => tile.Users)
                         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
-                                   
+
                     currentTile.Users.Clear();
                     currentTile.Users.Add(user);
 
@@ -286,13 +286,13 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(new Error() {
                         Title = e.Message
                     });
-                }                                
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, $"Unknown error while performing {nameof(UpdateUser)} method.");
                 return BadRequest(new UnknownError() { Title = ex.Message });
-            }            
+            }
         }
 
         [HttpPut("{id}")]
@@ -307,10 +307,10 @@ namespace OsmIntegrator.Controllers
                 try {
                     DbTile currentTile =
                     await _dbContext.Tiles
-                        .Include(tile => tile.Approvers)                        
+                        .Include(tile => tile.Approvers)
                         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
-                    var user  = await PrepareUserForTile(id, u);                    
+                    var user  = await PrepareUserForTile(id, u);
                     currentTile.Approvers.Add(user);
                     _dbContext.SaveChanges();
 
@@ -320,7 +320,7 @@ namespace OsmIntegrator.Controllers
                     return BadRequest(new Error() {
                         Title = e.Message
                     });
-                }                                
+                }
             }
             catch (Exception ex)
             {
@@ -330,13 +330,13 @@ namespace OsmIntegrator.Controllers
         }
 
         private async Task<ApplicationUser> PrepareUserForTile(string id, User u) {
-            
+
             ApplicationUser selectedUser = await _userManager.Users.SingleOrDefaultAsync(x => x.Id == u.Id);
 
             if (selectedUser == null)
             {
-                throw new BadHttpRequestException($"There is no user with id: {u.Id} and user name: {u.UserName}.");                            
-            }            
+                throw new BadHttpRequestException($"There is no user with id: {u.Id} and user name: {u.UserName}.");
+            }
 
             // Get current tile by id
             DbTile currentTile =
@@ -345,7 +345,7 @@ namespace OsmIntegrator.Controllers
 
             if (currentTile == null)
             {
-                throw new BadHttpRequestException($"There is no tile with id {id}.");                                            
+                throw new BadHttpRequestException($"There is no tile with id {id}.");
             }
             return selectedUser;
         }

@@ -116,7 +116,6 @@ namespace OsmIntegrator.Controllers
                 {
                     return BadRequest(new ValidationError() { Message = $"Tile with id {id} doesn't exist." });
                 }
-
                 ApplicationUser user = await _userManager.GetUserAsync(User);
                 IList<string> roles = await _userManager.GetRolesAsync(user);
 

@@ -21,6 +21,8 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Validators;
 using OsmIntegrator.DomainUseCases;
 using OsmIntegrator.Presenters;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc;
 
 namespace osmintegrator
 {
@@ -37,16 +39,24 @@ namespace osmintegrator
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddApiVersioning(config =>
+            {
+                config.DefaultApiVersion = new ApiVersion(0, 9); // global default version all controlers fit it
+                config.AssumeDefaultVersionWhenUnspecified = true;
+                config.ReportApiVersions = true;
+                config.ApiVersionReader = new HeaderApiVersionReader("Api-Version");
+                config.ErrorResponses = new DefaultErrorResponseProvider();
+            });
+
             services.AddScoped(typeof(IUseCase<CreateChangeFileInputDto>), typeof(CreateChangeFile));
             services.AddSingleton<CreateChangeFileWebPresenter>();
             services.AddSingleton<DataInitializer>();
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
             services.AddControllers()
-                .AddJsonOptions(options =>
+                .AddNewtonsoftJson(options =>
                 {
-                    options.JsonSerializerOptions.WriteIndented = true;
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
 
             // ===== Allow-Origin ========
@@ -102,13 +112,7 @@ namespace osmintegrator
                     };
                 });
 
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
-
+            services.AddAuthorization();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

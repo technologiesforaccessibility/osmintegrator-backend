@@ -216,7 +216,7 @@ namespace OsmIntegrator.Controllers
                 Error error = await _tileValidator.Validate(_dbContext, id);
                 if (error != null) return BadRequest(error);
 
-                string query = 
+                string query =
                     "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
                     "FROM \"Connections\" c " +
                     "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
@@ -273,20 +273,20 @@ namespace OsmIntegrator.Controllers
                 DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
                 if (link == null) {
                     return BadRequest(new Error() {
-                        Title = $"Connection with id: {id} does not exists" 
+                        Title = $"Connection with id: {id} does not exists"
                     });
                 }
                 ApplicationUser currentUser = await _userManager.GetUserAsync(User);
-                link.ApprovedBy = currentUser;                                                        
+                link.ApprovedBy = currentUser;
                 _dbContext.SaveChanges();
 
-                return Ok("Connection approved");                
+                return Ok("Connection approved");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Cannot approve connection {id}");
                 return Problem("Cannot approve connection");
             }
-        }        
+        }
     }
 }
