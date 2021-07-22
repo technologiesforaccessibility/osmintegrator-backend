@@ -18,6 +18,7 @@ using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -42,25 +43,25 @@ namespace OsmIntegrator.Controllers
 
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        private readonly IModelValidator _validationHelper;
-
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<NotesController> _localizer;
 
         public NotesController(
             ILogger<NotesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IModelValidator validationHelper,
-            ApplicationDbContext dbContext
+            ApplicationDbContext dbContext,
+            IStringLocalizer<NotesController> localizer
+
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
-            _validationHelper = validationHelper;
             _dbContext = dbContext;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -76,24 +77,13 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult> Add([FromBody] Note note)
         {
-            try
-            {
-                var validationResult = _validationHelper.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            note.UserId = user.Id;
 
-                ApplicationUser user = await _userManager.GetUserAsync(User);
-                note.UserId = user.Id;
+            await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
+            _dbContext.SaveChanges();
 
-                await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
-                _dbContext.SaveChanges();
-
-                return Ok("Note successfully added");
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+            return Ok(_localizer["Note successfully added"]);
         }
 
         /// <summary>
@@ -109,28 +99,20 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult<List<Note>>> Get(string id)
         {
-            try
+            DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if(tile == null)
             {
-                DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-                if(tile == null)
-                {
-                    return BadRequest(new ValidationError() { Message = $"Tile with id {id} doesn't exist." });
-                }
-
-                List<DbNote> notes = await _dbContext.Notes.Where(x =>
-                    x.Lat >= tile.OverlapMinLat &&
-                    x.Lat < tile.OverlapMaxLat &&
-                    x.Lon >= tile.OverlapMinLon &&
-                    x.Lon < tile.OverlapMaxLon).ToListAsync();
-
-                return Ok(_mapper.Map<List<Note>>(notes));
+                throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
             }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+
+            List<DbNote> notes = await _dbContext.Notes.Where(x =>
+                x.Lat >= tile.OverlapMinLat &&
+                x.Lat < tile.OverlapMaxLat &&
+                x.Lon >= tile.OverlapMinLon &&
+                x.Lon < tile.OverlapMaxLon).ToListAsync();
+
+            return Ok(_mapper.Map<List<Note>>(notes));
         }
     }
 }

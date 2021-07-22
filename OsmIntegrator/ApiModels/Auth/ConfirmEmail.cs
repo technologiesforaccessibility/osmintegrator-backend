@@ -6,13 +6,13 @@ namespace OsmIntegrator.ApiModels.Auth
     {
         [Required]
         [EmailAddress]
-        public string NewEmail { get; set; }
+        public string? NewEmail { get; set; }
 
         [Required]
         [EmailAddress]
-        public string OldEmail { get; set; }
+        public string? OldEmail { get; set; }
 
         [Required]
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 }
