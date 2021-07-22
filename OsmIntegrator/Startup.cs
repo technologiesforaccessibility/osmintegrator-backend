@@ -54,10 +54,9 @@ namespace osmintegrator
             // ===== Add our DbContext ========
             services.AddDbContext<ApplicationDbContext>();
             services.AddControllers()
-                .AddJsonOptions(options =>
+                .AddNewtonsoftJson(options =>
                 {
-                    options.JsonSerializerOptions.WriteIndented = true;
-                    options.JsonSerializerOptions.IgnoreNullValues = true;
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                 });
 
             // ===== Allow-Origin ========
@@ -126,7 +125,7 @@ namespace osmintegrator
                 typeof(ApplicationUserProfile),
                 typeof(StopLinkProfile),
                 typeof(NoteProfile));
-                
+
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<IModelValidator, ModelValidator>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
