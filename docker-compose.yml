@@ -3,6 +3,7 @@ version: '3.1'
 services:
     app:
         build: .
+        restart: always
         depends_on:
             - db
         env_file:
@@ -10,6 +11,7 @@ services:
 
     nginx:
         image: nginx
+        restart: always
         # this is due to certbot renewal. we have to gracefull reload after certs are obtained again
         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
         volumes:
@@ -29,6 +31,7 @@ services:
 
     certbot:
         image: certbot/certbot
+        restart: always
         # the entrpoint wont allow container to die, every 12h it will try to reneval (this is common practice, cert will be renewed only if required)
         entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
         volumes:
