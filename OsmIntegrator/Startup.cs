@@ -139,6 +139,7 @@ namespace osmintegrator
 
             services.AddAuthorization();
             services.AddControllers();
+            services.AddSwaggerGenNewtonsoftSupport();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "osmintegrator", Version = "v1" });
