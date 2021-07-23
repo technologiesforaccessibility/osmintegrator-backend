@@ -995,15 +995,7 @@
 						},
 						"method": "PUT",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
+						"body": {},
 						"url": {
 							"raw": "{{host}}/api/Tile/Approve/{{firstTileId}}",
 							"host": [
@@ -1527,7 +1519,7 @@
 							"protocol": "https",
 							"host": [
 								"{{host}}"
-							],							
+							],
 							"path": [
 								"api",
 								"OsmChangeFile",

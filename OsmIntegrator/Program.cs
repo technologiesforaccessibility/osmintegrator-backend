@@ -23,7 +23,6 @@ namespace osmintegrator
             {
                 logger.Debug("init main");
                 IHost host = CreateHostBuilder(args).Build();
-
                 InitializeData(host);
                 host.Run();
             }

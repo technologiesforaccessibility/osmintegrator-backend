@@ -16,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
 using OsmIntegrator.Validators;
 
@@ -39,6 +40,7 @@ namespace OsmIntegrator.Controllers
 
         private readonly RoleManager<ApplicationRole> _roleManger;
         private readonly IStringLocalizer<TileController> _localizer;
+        private readonly IEmailService _emailService;
 
         public TileController(
             ILogger<TileController> logger,
@@ -47,7 +49,8 @@ namespace OsmIntegrator.Controllers
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IStringLocalizer<TileController> localizer
+            IStringLocalizer<TileController> localizer,
+            IEmailService emailService
         )
         {
             _logger = logger;
@@ -56,6 +59,7 @@ namespace OsmIntegrator.Controllers
             _userManager = userManager;
             _roleManger = roleManager;
             _localizer = localizer;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -233,16 +237,37 @@ namespace OsmIntegrator.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
-        public async Task<ActionResult<string>> Approve(string id, [FromBody] User u)
+        public async Task<ActionResult<string>> Approve(string id)
         {
 
             DbTile currentTile = await _dbContext.Tiles
                 .Include(tile => tile.Approvers)
                 .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
+            var userId = _userManager.GetUserId(HttpContext.User);
+            User u = _mapper.Map<User>(_dbContext.Users.First(u => u.Id == Guid.Parse(userId)));
+
             var user = await PrepareUserForTile(id, u);
             currentTile.Approvers.Add(user);
             _dbContext.SaveChanges();
+
+            List<User> usersInRole = new List<User>();
+            if (User.IsInRole(UserRoles.EDITOR))
+            {
+                usersInRole = _mapper.Map<List<User>>((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.SUPERVISOR));
+
+            }
+            else if (User.IsInRole(UserRoles.SUPERVISOR))
+            {
+                usersInRole = _mapper.Map<List<User>>((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
+            }
+            foreach (var _u in usersInRole)
+            {
+                // this is wrong, blocking. better approach: prepare list of SmtpClient.SendMailAsync tasks, then wait them all
+                // the best use some kind of background queue
+                // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-5.0&tabs=visual-studio
+                _emailService.Send(u.Email, _localizer["Tile approved"], _localizer["One of the tiles was approved"]);
+            }
 
             return Ok(_localizer["Tile approved"]);
         }
