@@ -117,30 +117,35 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="Given tile does not exist" xml:space="preserve">
-        <value>Użyty kafelek nie istnieje</value>
+    <data name="Click to confirm account registration:" xml:space="preserve">
+        <value>Kliknij aby potwierdzić rejestrację</value>
         <comment/>
     </data>
-    <data name="Note successfully added" xml:space="preserve">
-        <value>Notatka stworzona</value>
+    <data name="User registered. No email confirmation required" xml:space="preserve">
+        <value>Rejestracja przebiegła pomyślnie</value>
         <comment/>
     </data>
-    <data name="Tile doesn't exist" xml:space="preserve">
-        <value>Kafelek nie istnieje</value>
+    <data name="Email occupied" xml:space="preserve">
+        <value>Email jest już zajęty</value>
+        <comment/>
     </data>
-    <data name="Selected note doesn't exist" xml:space="preserve">
-        <value>Notatka nie istnieje</value>
+    <data name="Registration confirmed" xml:space="preserve">
+        <value>Rejestracja przebiegła pomyślnie</value>
+        <comment/>
     </data>
-    <data name="Note doesn't belong to editor" xml:space="preserve">
-        <value>Notatka nie przynależy do tego edytora</value>
+    <data name="User with this email does not exist" xml:space="preserve">
+        <value>Użytkownik o podanym adresie email nie istnieje</value>
     </data>
-    <data name="Note already approved" xml:space="preserve">
-        <value>Notatka została już wcześniej zaakceptowana</value>
+    <data name="Invalid refresh token" xml:space="preserve">
+        <value>Niepoprawny token</value>
     </data>
-    <data name="Note approved successfully" xml:space="preserve">
-        <value>Notatka została zatwierdzona</value>
+    <data name="The username or password were not correct. Try again" xml:space="preserve">
+        <value>Niepoprawne nick lub hasło. Spróbuj ponownie</value>
     </data>
-    <data name="Note removed successfully" xml:space="preserve">
-        <value>Notatka została usunięta</value>
+    <data name="Email doesn't exist" xml:space="preserve">
+        <value>Email nie istnieje</value>
+    </data>
+    <data name="Ok" xml:space="preserve">
+        <value>Ok</value>
     </data>
 </root>

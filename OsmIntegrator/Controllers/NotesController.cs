@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Roles;
 using System.Linq;
@@ -14,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Validators;
-using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
@@ -75,7 +73,7 @@ namespace OsmIntegrator.Controllers
             UserRoles.SUPERVISOR + "," +
             UserRoles.COORDINATOR + "," +
             UserRoles.ADMIN)]
-        public async Task<ActionResult> Add([FromBody] Note note)
+        public async Task<ActionResult> Add([FromBody] NewNote note)
         {
             ApplicationUser user = await _userManager.GetUserAsync(User);
             note.UserId = user.Id;
@@ -97,22 +95,141 @@ namespace OsmIntegrator.Controllers
             UserRoles.SUPERVISOR + "," +
             UserRoles.COORDINATOR + "," +
             UserRoles.ADMIN)]
-        public async Task<ActionResult<List<Note>>> Get(string id)
+        public async Task<ActionResult<List<NewNote>>> Get(string id)
         {
-            DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+            DbTile tile = await _dbContext.Tiles.Include(x => x.Notes).
+                FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
 
-            if(tile == null)
+            if (tile == null)
             {
-                throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
+                throw new BadHttpRequestException(_localizer["Tile doesn't exist"]);
+            }
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+
+            List<DbNote> notes = tile.Notes;
+            List<ExistingNote> result = new List<ExistingNote>();
+
+            if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
+                roles.Contains(UserRoles.ADMIN))
+            {
+                foreach (DbNote note in notes)
+                {
+                    ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
+
+                    if (note.UserId == user.Id && !note.Approved)
+                    {
+                        existingNote.Editable = true;
+                    }
+                    result.Add(existingNote);
+                }
+            }
+            else
+            {
+                foreach (DbNote note in notes)
+                {
+                    ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
+
+                    if (note.UserId == user.Id && !note.Approved)
+                    {
+                        existingNote.Editable = true;
+                        result.Add(existingNote);
+                    }
+                }
             }
 
-            List<DbNote> notes = await _dbContext.Notes.Where(x =>
-                x.Lat >= tile.OverlapMinLat &&
-                x.Lat < tile.OverlapMaxLat &&
-                x.Lon >= tile.OverlapMinLon &&
-                x.Lon < tile.OverlapMaxLon).ToListAsync();
+            return Ok(result);
+        }
 
-            return Ok(_mapper.Map<List<Note>>(notes));
+        [HttpPut]
+        [Authorize(Roles =
+            UserRoles.EDITOR + "," +
+            UserRoles.SUPERVISOR + "," +
+            UserRoles.COORDINATOR + "," +
+            UserRoles.ADMIN)]
+        public async Task<ActionResult> Update([FromBody] UpdateNote note)
+        {
+            DbNote dbNote = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == note.Id);
+
+            if (dbNote == null)
+            {
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
+            }
+
+            dbNote.Lat = note.Lat;
+            dbNote.Lon = note.Lon;
+            dbNote.Text = note.Text;
+
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note successfully added"]);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles =
+            UserRoles.EDITOR + "," +
+            UserRoles.SUPERVISOR + "," +
+            UserRoles.COORDINATOR + "," +
+            UserRoles.ADMIN)]
+        public async Task<ActionResult> Delete(string id)
+        {
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+
+            DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (note == null)
+            {
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
+            }
+
+            // These roles can remove all notes
+            if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
+                roles.Contains(UserRoles.ADMIN))
+            {
+                _dbContext.Remove(note);
+            }
+            // Editor can only remove his note.
+            else
+            {
+                if (note.UserId == user.Id && !note.Approved)
+                {
+                    _dbContext.Remove(note);
+                }
+                else
+                {
+                    throw new BadHttpRequestException(_localizer["Note doesn't belong to editor"]);
+                }
+            }
+
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note removed successfully"]);
+        }
+
+        [HttpPut("Approve/{id}")]
+        [Authorize(Roles =
+            UserRoles.SUPERVISOR + "," +
+            UserRoles.COORDINATOR + "," +
+            UserRoles.ADMIN)]
+        public async Task<ActionResult> Approve(string id)
+        {
+            DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (note == null)
+            {
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
+            }
+
+            if (note.Approved)
+            {
+                throw new BadHttpRequestException(_localizer["Note already approved"]);
+            }
+
+            note.Approved = true;
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note approved successfully"]);
         }
     }
 }

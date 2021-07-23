@@ -7,8 +7,8 @@ using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("StopLinks")]
-    public class DbStopLink
+    [Table("Connections")]
+    public class DbConnections
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -41,12 +41,12 @@ namespace OsmIntegrator.Database.Models
         public ApplicationUser ApprovedBy {get; set;}
     }
 
-    public class DbStopLinkComparer : IEqualityComparer<DbStopLink>
+    public class DbConnectionComparer : IEqualityComparer<DbConnections>
     {
         /* 
             This lives here temporairly for simplicity. Dependency rule broken on purpose.
         */
-        public bool Equals(DbStopLink x, DbStopLink y)
+        public bool Equals(DbConnections x, DbConnections y)
         {
             if (Object.ReferenceEquals(x, y)) return true;
             if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
@@ -56,12 +56,12 @@ namespace OsmIntegrator.Database.Models
             
         }
 
-        public int GetHashCode([DisallowNull] DbStopLink obj)
+        public int GetHashCode([DisallowNull] DbConnections obj)
         {            
             if (Object.ReferenceEquals(obj, null)) return 0;
 
-            int hashProductName = obj.OsmStopId == null ? 0 : obj.OsmStopId.GetHashCode();            
-            int hashProductCode = obj.GtfsStopId == null ? 0 : obj.GtfsStopId.GetHashCode();
+            int hashProductName = obj.OsmStopId.GetHashCode();            
+            int hashProductCode = obj.GtfsStopId.GetHashCode();
 
             return hashProductName ^ hashProductCode;
         }

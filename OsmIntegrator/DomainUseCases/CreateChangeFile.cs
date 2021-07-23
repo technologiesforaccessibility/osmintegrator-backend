@@ -57,7 +57,7 @@ namespace OsmIntegrator.DomainUseCases
                 .ThenByDescending(con => con.GtfsStop)                    
                 .ToListAsync();
             
-            var existingConnections = _mapper.Map<List<Connection>>(querySet.Distinct(new DbStopLinkComparer()).ToList());
+            var existingConnections = _mapper.Map<List<Connection>>(querySet.Distinct(new DbConnectionComparer()).ToList());
                     
             OsmChange osmNodes = new OsmChange()
             {

@@ -148,9 +148,10 @@ namespace osmintegrator
                 typeof(StopProfile),
                 typeof(TagProfile),
                 typeof(ApplicationUserProfile),
-                typeof(StopLinkProfile),
-                typeof(NoteProfile));
-
+                typeof(ConnectionProfile),
+                typeof(ExistingNoteProfile),
+                typeof(NewNoteProfile));
+                
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
             services.AddSingleton<ITileValidator, TileValidator>();

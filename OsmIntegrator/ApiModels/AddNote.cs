@@ -1,16 +1,19 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-public class Note
+public class NewNote
 {
+    public Guid UserId { get; set; }
+
     [Required]
     public double? Lat { get; set; }
 
     [Required]
     public double? Lon { get; set; }
 
-    public Guid UserId { get; set; }
-
     [Required]
-    public string? Text { get; set; }
+    public Guid? TileId { get; set; }
+
+    public string Text { get; set; }
+
 }

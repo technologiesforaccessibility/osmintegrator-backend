@@ -64,13 +64,13 @@ namespace OsmIntegrator.Controllers
         {
 
             // Check if connection already exists and has not been deleted.
-            List<DbStopLink> existingConnections = await _dbContext.Connections
+            List<DbConnections> existingConnections = await _dbContext.Connections
                 .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                         x.GtfsStopId == connectionAction.GtfsStopId)
                 .OrderByDescending(link => link.CreatedAt)
                 .ToListAsync();
 
-            DbStopLink existingConnection = existingConnections.FirstOrDefault();
+            DbConnections existingConnection = existingConnections.FirstOrDefault();
             bool imported = false;
             if (existingConnection != null)
             {
@@ -84,7 +84,7 @@ namespace OsmIntegrator.Controllers
 
             // Check if GTFS stop has already been connected to another stop.
             DbStop gtfsStop = await _dbContext.Stops
-                .Include(x => x.StopLinks)
+                .Include(x => x.Connections)
                 .FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
 
             if (gtfsStop == null)
@@ -92,7 +92,7 @@ namespace OsmIntegrator.Controllers
                 throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
             }
 
-            DbStopLink gtfsConnection = gtfsStop.StopLinks
+            DbConnections gtfsConnection = gtfsStop.Connections
                 .OrderByDescending(link => link.CreatedAt)
                 .FirstOrDefault();
 
@@ -103,7 +103,7 @@ namespace OsmIntegrator.Controllers
 
             // Check if OSM stop has already been connected to another stop.
             DbStop osmStop = await _dbContext.Stops
-                .Include(x => x.StopLinks)
+                .Include(x => x.Connections)
                 .FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
 
             if (osmStop == null)
@@ -111,7 +111,7 @@ namespace OsmIntegrator.Controllers
                 throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
             }
 
-            DbStopLink osmConnection = osmStop.StopLinks
+            DbConnections osmConnection = osmStop.Connections
                 .OrderByDescending(link => link.CreatedAt)
                 .FirstOrDefault();
 
@@ -122,7 +122,7 @@ namespace OsmIntegrator.Controllers
 
             ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-            DbStopLink newConnection = new DbStopLink()
+            DbConnections newConnection = new DbConnections()
             {
                 OsmStop = osmStop,
                 GtfsStop = gtfsStop,
@@ -141,9 +141,9 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<IActionResult> Remove([FromBody] ConnectionAction connectionAction)
         {
-            List<DbStopLink> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+            List<DbConnections> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                 x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
-            DbStopLink existingConnection = existingConnections.LastOrDefault();
+            DbConnections existingConnection = existingConnections.LastOrDefault();
             bool imported = false;
             if (existingConnection != null)
             {
@@ -161,7 +161,7 @@ namespace OsmIntegrator.Controllers
 
             ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-            DbStopLink newConnection = new DbStopLink()
+            DbConnections newConnection = new DbConnections()
             {
                 OsmStopId = (Guid)connectionAction.OsmStopId,
                 GtfsStopId = (Guid)connectionAction.GtfsStopId,
@@ -178,7 +178,7 @@ namespace OsmIntegrator.Controllers
 
 
         /// <summary>
-        /// Get connection for tile id.
+        /// Get connections for tile id.
         /// </summary>
         /// <param name="id">Tile id.</param>
         /// <returns>Collection of connections in selected tile.</returns>
@@ -192,10 +192,10 @@ namespace OsmIntegrator.Controllers
 
             string query =
                 "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                "FROM \"StopLinks\" c " +
+                "FROM \"Connections\" c " +
                 "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-            List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
+            List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
                 query).Include(x => x.OsmStop).ToListAsync();
 
             connections = connections.Where(
@@ -214,21 +214,21 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Connection>>> GetAll()
         {
-            List<DbStopLink> connections = await _dbContext.Connections.FromSqlRaw(
+            List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
                 "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
-                "FROM \"StopLinks\" c " +
+                "FROM \"Connections\" c " +
                 "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
             ).ToListAsync();
-            List<Connection> result = _mapper.Map<List<Connection>>(connections);
+            List<DbConnections> result = _mapper.Map<List<DbConnections>>(connections);
             return Ok(result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("Approve/{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR)]
         public async Task<ActionResult<string>> Approve(string id)
         {
 
-            DbStopLink link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+            DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
             if (link == null) {
                 throw new BadHttpRequestException(_localizer["Given connection does not exist"]);
             }

@@ -24,9 +24,21 @@ namespace OsmIntegrator.Database.Models
         public double Lon { get; set; }
 
         [Required]
-        public ApplicationUser User { get; set; }
+        public Guid UserId { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
+        public ApplicationUser User { get; set; }
+
+        public Guid? ApproverId { get; set; }
+
+        public bool Approved { get; set; }
+
+        public ApplicationUser Approver { get; set; }
+
+        [Required]
+        public Guid TileId { get; set; }
+
+        [Required]
+        public DbTile Tile { get; set; }
     }
 }
