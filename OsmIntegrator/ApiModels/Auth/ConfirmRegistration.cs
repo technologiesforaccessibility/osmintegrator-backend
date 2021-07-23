@@ -10,9 +10,9 @@ namespace OsmIntegrator.ApiModels.Auth
     {
         [Required]
         [EmailAddress]
-        public string? Email { get; set; }
+        public string Email { get; set; }
 
         [Required]
-        public string? Token { get; set; }
+        public string Token { get; set; }
     }
 }

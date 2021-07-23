@@ -60,8 +60,8 @@ namespace OsmIntegrator.Database.Models
         {            
             if (Object.ReferenceEquals(obj, null)) return 0;
 
-            int hashProductName = obj.OsmStopId == null ? 0 : obj.OsmStopId.GetHashCode();            
-            int hashProductCode = obj.GtfsStopId == null ? 0 : obj.GtfsStopId.GetHashCode();
+            int hashProductName = obj.OsmStopId.GetHashCode();            
+            int hashProductCode = obj.GtfsStopId.GetHashCode();
 
             return hashProductName ^ hashProductCode;
         }
