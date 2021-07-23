@@ -16,6 +16,7 @@ using OsmIntegrator.Validators;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -40,25 +41,25 @@ namespace OsmIntegrator.Controllers
 
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        private readonly IModelValidator _validationHelper;
-
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<NotesController> _localizer;
 
         public NotesController(
             ILogger<NotesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IModelValidator validationHelper,
-            ApplicationDbContext dbContext
+            ApplicationDbContext dbContext,
+            IStringLocalizer<NotesController> localizer
+
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
-            _validationHelper = validationHelper;
             _dbContext = dbContext;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -74,24 +75,13 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult> Add([FromBody] NewNote note)
         {
-            try
-            {
-                var validationResult = _validationHelper.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            note.UserId = user.Id;
 
-                ApplicationUser user = await _userManager.GetUserAsync(User);
-                note.UserId = user.Id;
+            await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
+            _dbContext.SaveChanges();
 
-                await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
-                _dbContext.SaveChanges();
-
-                return Ok("Note successfully added");
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+            return Ok(_localizer["Note successfully added"]);
         }
 
         /// <summary>
@@ -107,56 +97,48 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult<List<NewNote>>> Get(string id)
         {
-            try
+            DbTile tile = await _dbContext.Tiles.Include(x => x.Notes).
+                FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (tile == null)
             {
-                DbTile tile = await _dbContext.Tiles.Include(x => x.Notes).
-                    FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+                throw new BadHttpRequestException(_localizer["Tile doesn't exist"]);
+            }
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            IList<string> roles = await _userManager.GetRolesAsync(user);
 
-                if (tile == null)
+            List<DbNote> notes = tile.Notes;
+            List<ExistingNote> result = new List<ExistingNote>();
+
+            if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
+                roles.Contains(UserRoles.ADMIN))
+            {
+                foreach (DbNote note in notes)
                 {
-                    return BadRequest(new ValidationError() { Message = $"Tile with id {id} doesn't exist." });
-                }
-                ApplicationUser user = await _userManager.GetUserAsync(User);
-                IList<string> roles = await _userManager.GetRolesAsync(user);
+                    ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
 
-                List<DbNote> notes = tile.Notes;
-                List<ExistingNote> result = new List<ExistingNote>();
-
-                if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
-                    roles.Contains(UserRoles.ADMIN))
-                {
-                    foreach (DbNote note in notes)
+                    if (note.UserId == user.Id && !note.Approved)
                     {
-                        ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
+                        existingNote.Editable = true;
+                    }
+                    result.Add(existingNote);
+                }
+            }
+            else
+            {
+                foreach (DbNote note in notes)
+                {
+                    ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
 
-                        if (note.UserId == user.Id && !note.Approved)
-                        {
-                            existingNote.Editable = true;
-                        }
+                    if (note.UserId == user.Id && !note.Approved)
+                    {
+                        existingNote.Editable = true;
                         result.Add(existingNote);
                     }
                 }
-                else
-                {
-                    foreach (DbNote note in notes)
-                    {
-                        ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
-
-                        if (note.UserId == user.Id && !note.Approved)
-                        {
-                            existingNote.Editable = true;
-                            result.Add(existingNote);
-                        }
-                    }
-                }
-
-                return Ok(result);
             }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+
+            return Ok(result);
         }
 
         [HttpPut]
@@ -167,31 +149,20 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult> Update([FromBody] UpdateNote note)
         {
-            try
+            DbNote dbNote = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == note.Id);
+
+            if (dbNote == null)
             {
-                var validationResult = _validationHelper.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
-
-                DbNote dbNote = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == note.Id);
-
-                if (dbNote == null)
-                {
-                    return BadRequest(new ValidationError() { Message = $"Note with id {note.Id} doesn't exist." });
-                }
-
-                dbNote.Lat = note.Lat;
-                dbNote.Lon = note.Lon;
-                dbNote.Text = note.Text;
-
-                _dbContext.SaveChanges();
-
-                return Ok("Note successfully added");
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
             }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+
+            dbNote.Lat = note.Lat;
+            dbNote.Lon = note.Lon;
+            dbNote.Text = note.Text;
+
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note successfully added"]);
         }
 
         [HttpDelete("{id}")]
@@ -202,46 +173,38 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult> Delete(string id)
         {
-            try
+            ApplicationUser user = await _userManager.GetUserAsync(User);
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+
+            DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (note == null)
             {
-                ApplicationUser user = await _userManager.GetUserAsync(User);
-                IList<string> roles = await _userManager.GetRolesAsync(user);
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
+            }
 
-                DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-                if (note == null)
-                {
-                    return BadRequest(new ValidationError() { Message = $"Note with id {note.Id} doesn't exist." });
-                }
-
-                // These roles can remove all notes
-                if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
-                    roles.Contains(UserRoles.ADMIN))
+            // These roles can remove all notes
+            if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
+                roles.Contains(UserRoles.ADMIN))
+            {
+                _dbContext.Remove(note);
+            }
+            // Editor can only remove his note.
+            else
+            {
+                if (note.UserId == user.Id && !note.Approved)
                 {
                     _dbContext.Remove(note);
                 }
-                // Editor can only remove his note.
                 else
                 {
-                    if (note.UserId == user.Id && !note.Approved)
-                    {
-                        _dbContext.Remove(note);
-                    }
-                    else
-                    {
-                        return BadRequest(new Error() { Message = $"Note with id: {note.Id} doesn't belong to this Editor." });
-                    }
+                    throw new BadHttpRequestException(_localizer["Note doesn't belong to editor"]);
                 }
-
-                _dbContext.SaveChanges();
-
-                return Ok("Note removed successfully!");
             }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
-            }
+
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note removed successfully"]);
         }
 
         [HttpPut("Approve/{id}")]
@@ -251,30 +214,22 @@ namespace OsmIntegrator.Controllers
             UserRoles.ADMIN)]
         public async Task<ActionResult> Approve(string id)
         {
-            try
+            DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (note == null)
             {
-                DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-                if (note == null)
-                {
-                    return BadRequest(new ValidationError() { Message = $"Note with id {note.Id} doesn't exist." });
-                }
-
-                if (note.Approved)
-                {
-                    return BadRequest(new ValidationError() { Message = $"Note with id {note.Id} already approved." });
-                }
-
-                note.Approved = true;
-                _dbContext.SaveChanges();
-
-                return Ok("Note approved successfully!");
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
             }
-            catch (Exception e)
+
+            if (note.Approved)
             {
-                _logger.LogWarning(e, $"Unknown error while performing request.");
-                return BadRequest(new UnknownError() { Message = e.Message });
+                throw new BadHttpRequestException(_localizer["Note already approved"]);
             }
+
+            note.Approved = true;
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note approved successfully"]);
         }
     }
 }

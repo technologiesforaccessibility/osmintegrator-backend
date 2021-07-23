@@ -17,7 +17,7 @@ using OsmIntegrator.Tools;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Validators;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -36,7 +36,7 @@ namespace OsmIntegrator.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ITokenHelper _tokenHelper;
-        private readonly IModelValidator _modelValidator;
+        private readonly IStringLocalizer<AccountController> _localizer;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -45,8 +45,8 @@ namespace OsmIntegrator.Controllers
             IConfiguration configuration,
             ILogger<AccountController> logger,
             RoleManager<ApplicationRole> roleManager,
-            IModelValidator validationHelper,
-            ITokenHelper tokenHelper
+            ITokenHelper tokenHelper,
+            IStringLocalizer<AccountController> localizer
             )
         {
             _logger = logger;
@@ -55,90 +55,53 @@ namespace OsmIntegrator.Controllers
             _emailService = emailService;
             _configuration = configuration;
             _roleManager = roleManager;
-            _modelValidator = validationHelper;
             _tokenHelper = tokenHelper;
+            _localizer = localizer;
         }
 
         [HttpGet]
         public IActionResult IsTokenValid()
         {
-            try
-            {
-                return Ok("Ok");
-            }
-            catch (Exception e)
-            {
-                UnknownError error = new UnknownError()
-                {
-                    Title = e.Message
-                };
-                _logger.LogWarning(e, $"Unknown problem with {nameof(IsTokenValid)} method.");
-                return BadRequest(error);
-            }
-        }
-
-        [HttpPost]   
-        [AllowAnonymous]             
-        public async Task<IActionResult> Logout(string returnUrl = null)
-        {
-            try
-            {
-                await _signInManager.SignOutAsync();
-
-                if (returnUrl != null)
-                {
-                    return LocalRedirect(returnUrl);
-                }
-                return Ok("Ok");
-            }
-            catch (Exception e)
-            {
-                UnknownError error = new UnknownError()
-                {
-                    Title = e.Message
-                };
-                _logger.LogWarning(e, $"Unknown problem with {nameof(Logout)} method.");
-                return BadRequest(error);
-            }
+            return Ok(_localizer["Ok"]);
         }
 
         [HttpPost]
-        [AllowAnonymous]             
-        [Consumes(MediaTypeNames.Application.Json)]        
+        [Authorize]
+        public async Task<IActionResult> Logout(string returnUrl = null)
+        {
+            await _signInManager.SignOutAsync();
+
+            if (returnUrl != null)
+            {
+                return LocalRedirect(returnUrl);
+            }
+            return Ok(_localizer["Ok"]);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Consumes(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<TokenData>> Login([FromBody] LoginData model)
         {
-            try
+            ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
+
+            if (userEmail == null)
             {
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
-
-                ApplicationUser userEmail = await _userManager.FindByEmailAsync(model.Email);
-
-                if (userEmail == null)
-                {
-                    return BadRequest(new ValidationError() { Message = "Email doesn't exist" });
-                }
-
-                var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
-
-                if (result.Succeeded)
-                {
-                    var appUser = await _userManager.FindByEmailAsync(model.Email);
-                    List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
-
-                    TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, userRoles, _signInManager);
-                    return Ok(tokenData);
-                }
-
-                return Unauthorized(new AuthorizationError() { Message = "The username or password were not correct. Try again." });
-
+                throw new BadHttpRequestException(_localizer["Email doesn't exist"]);
             }
-            catch (Exception ex)
+
+            var result = await _signInManager.PasswordSignInAsync(userEmail.UserName, model.Password, false, false);
+
+            if (result.Succeeded)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Login)} method.");
+                var appUser = await _userManager.FindByEmailAsync(model.Email);
+                List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(appUser);
 
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, userRoles, _signInManager);
+                return Ok(tokenData);
             }
+
+            return Unauthorized(new AuthorizationError() { Message = _localizer["The username or password were not correct. Try again"] });
         }
 
         [HttpPost]
@@ -146,38 +109,28 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<ActionResult<TokenData>> Refresh([FromBody] TokenData refreshTokenData)
         {
-            try
+
+            var principal = await Task.Run(() =>
             {
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+                return _tokenHelper.GetPrincipalFromExpiredToken(refreshTokenData.Token);
+            });
 
-                var principal = await Task.Run(() =>
-                {
-                    return _tokenHelper.GetPrincipalFromExpiredToken(refreshTokenData.Token);
-                });
+            var userId = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
+            var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refreshToken").Value;
 
-                var userId = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "sub").Value;
-                var savedRefreshToken = ((ClaimsIdentity)(principal.Identity)).Claims.First(n => n.Type == "refreshToken").Value;
-
-                if (savedRefreshToken != refreshTokenData.RefreshToken)
-                {
-                    return Unauthorized(new AuthorizationError() { Message = "Invalid refresh token" });
-                }
-                else
-                {
-                    var appUser = _userManager.Users.SingleOrDefault(r => r.Id == Guid.Parse(userId));
-
-                    List<string> roles = (List<string>)await _userManager.GetRolesAsync(appUser);
-                    TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, roles, _signInManager);
-                    return Ok(tokenData);
-                }
-
-            }
-            catch (Exception ex)
+            if (savedRefreshToken != refreshTokenData.RefreshToken)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Refresh)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                return Unauthorized(new AuthorizationError() { Message = _localizer["Invalid refresh token"] });
             }
+            else
+            {
+                var appUser = _userManager.Users.SingleOrDefault(r => r.Id == Guid.Parse(userId));
+
+                List<string> roles = (List<string>)await _userManager.GetRolesAsync(appUser);
+                TokenData tokenData = _tokenHelper.GenerateJwtToken(appUser.Id.ToString(), appUser, roles, _signInManager);
+                return Ok(tokenData);
+            }
+
         }
 
         [HttpPost]
@@ -185,40 +138,31 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ConfirmRegistration([FromBody] ConfirmRegistration model)
         {
-            try
+
+            model.Email = model.Email.ToLower().Trim();
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user == null)
             {
-                model.Email = model.Email.ToLower().Trim();
+                string errorMessage = _localizer["User with this email does not exist"];
+                throw new BadHttpRequestException(errorMessage);
+            }
 
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+            var result = await _userManager.ConfirmEmailAsync(user, model.Token);
 
-                var user = await _userManager.FindByEmailAsync(model.Email);
-
-                if (user == null)
+            if (!result.Succeeded)
+            {
+                string errorMessage = string.Empty;
+                foreach (var identityError in result.Errors)
                 {
-                    string errorMessage = "User with this email does not exist.";
-                    return BadRequest(new ValidationError() { Message = errorMessage });
+                    errorMessage += identityError.Description;
                 }
 
-                var result = await _userManager.ConfirmEmailAsync(user, model.Token);
-
-                if (!result.Succeeded)
-                {
-                    string errorMessage = string.Empty;
-                    foreach (var identityError in result.Errors)
-                    {
-                        errorMessage += identityError.Description;
-                    }
-
-                    return BadRequest(new Error() { Title = "Reset password failed", Message = errorMessage });
-                }
-                return Ok("Registration confirmed.");
+                throw new BadHttpRequestException(errorMessage);
             }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(ConfirmRegistration)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
-            }
+            return Ok(_localizer["Registration confirmed"]);
+
         }
 
 
@@ -229,80 +173,47 @@ namespace OsmIntegrator.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterData model)
         {
             ApplicationUser user = null;
-            try
+            model.Email = model.Email.ToLower().Trim();
+            model.Username = model.Username.Trim();
+
+            user = new ApplicationUser
             {
-                model.Email = model.Email.ToLower().Trim();
-                model.Username = model.Username.Trim();
+                UserName = model.Username,
+                Email = model.Email,
+                EmailConfirmed = false
+            };
 
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
-
-                user = new ApplicationUser
+            var emailUser = await _userManager.FindByEmailAsync(model.Email);
+            if (emailUser != null)
+            {
+                if (emailUser.EmailConfirmed)
                 {
-                    UserName = model.Username,
-                    Email = model.Email,
-                    EmailConfirmed = false
-                };
-
-                var emailUser = await _userManager.FindByEmailAsync(model.Email);
-                if (emailUser != null)
-                {
-                    if (emailUser.EmailConfirmed)
-                    {
-                        Error error = new ValidationError();
-                        error.Message = "Email occupied";
-                        return BadRequest(error);
-                    }
+                    throw new BadHttpRequestException(_localizer["Email occupied"]);
                 }
-                else
+            }
+            else
+            {
+                IdentityResult userAddedResult = await _userManager.CreateAsync(user, model.Password);
+
+                if (!userAddedResult.Succeeded)
                 {
-                    IdentityResult userAddedResult = await _userManager.CreateAsync(user, model.Password);
-
-                    if (!userAddedResult.Succeeded)
-                    {
-                        Error error = new UnknownError();
-                        error.Message = userAddedResult.Errors.FirstOrDefault().Code + " " + userAddedResult.Errors.FirstOrDefault().Description;
-                        RemoveUser(user);
-                        return BadRequest(error);
-                    }
-
-                    if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
-                    {
-                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        await _userManager.ConfirmEmailAsync(user, token);
-                        return Ok("User registered. No email confirmation required.");
-                    }
+                    RemoveUser(user);
+                    throw new BadHttpRequestException(userAddedResult.Errors.FirstOrDefault().Code + " " + userAddedResult.Errors.FirstOrDefault().Description);
                 }
 
-                try
+                if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
                 {
                     var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
-                    _emailService.Send(model.Email, "Confirm account registration", "Click to confirm account registration:" + urlToResetPassword);
+                    await _userManager.ConfirmEmailAsync(user, token);
+                    return Ok(_localizer["User registered. No email confirmation required"]);
                 }
-                catch (Exception e)
-                {
-                    _logger.LogWarning(e, "Unable to send email with confirmation token.");
-                    return BadRequest(new Error()
-                    {
-                        Message = "Registration problem",
-                        Title = "Unable to send email with confirmation token."
-                    });
-                    throw;
-                }
-
-                return Ok("Confirmation email sent.");
             }
-            catch (Exception ex)
-            {
 
-                RemoveUser(user);
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Register)} method.");
+            var t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t;
+            _emailService.Send(model.Email, _localizer["Confirm account registration"], _localizer["Click to confirm account registration:"] + urlToResetPassword);
+            return Ok(_localizer["Confirmation email sent"]);
 
-                Error error = new UnknownError();
-                error.Message = ex.Message;
-                return BadRequest(error);
-            }
         }
 
 
@@ -310,14 +221,7 @@ namespace OsmIntegrator.Controllers
         {
             if (user != null)
             {
-                try
-                {
-                    await _userManager.DeleteAsync(user);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogWarning(e, $"Unable to delete user {JsonSerializer.Serialize(user)}.");
-                }
+                await _userManager.DeleteAsync(user);
             }
         }
 
@@ -326,35 +230,24 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
         {
-            try
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user != null && await _userManager.IsEmailConfirmedAsync(user))
             {
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
-                var user = await _userManager.FindByEmailAsync(model.Email);
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-                if (user != null && await _userManager.IsEmailConfirmedAsync(user))
-                {
-                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                //Generate reset password link using url to frontend service, email and reset password token
+                //for example:
+                string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ResetPassword?email=" + model.Email + "&token=" + token;
+                // to do: create function to generate email message and subject
+                // containing instruction what to do and url link to reset password
 
-                    //Generate reset password link using url to frontend service, email and reset password token
-                    //for example: 
-                    string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ResetPassword?email=" + model.Email + "&token=" + token;
-                    // to do: create function to generate email message and subject
-                    // containing instruction what to do and url link to reset password
-
-                    _emailService.Send(model.Email, "Reset Password", "Click to reset password:" + urlToResetPassword);
-                    return Ok("Reset password email has been sent.");
-                }
-                else
-                {
-                    return Unauthorized(new AuthorizationError() { Message = "User with this email does not exist or email was not confirmed." });
-                }
+                _emailService.Send(model.Email, _localizer["Reset Password"], _localizer["Click to reset password:"] + urlToResetPassword);
+                return Ok(_localizer["Reset password email has been sent"]);
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(ForgotPassword)} method.");
-                Error error = new UnknownError() { Message = ex.Message };
-                return BadRequest(error);
+                return Unauthorized(new AuthorizationError() { Message = _localizer["User with this email does not exist or email was not confirmed"] });
             }
         }
 
@@ -363,61 +256,40 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmail model)
         {
-            try
+            model.NewEmail = model.NewEmail.ToLower().Trim();
+            model.OldEmail = model.OldEmail.ToLower().Trim();
+
+            var user = await _userManager.FindByEmailAsync(model.OldEmail);
+            var result = await _userManager.ChangeEmailAsync(user, model.NewEmail, model.Token);
+            if (result.Succeeded)
             {
-                model.NewEmail = model.NewEmail.ToLower().Trim();
-                model.OldEmail = model.OldEmail.ToLower().Trim();
-
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
-
-                var user = await _userManager.FindByEmailAsync(model.OldEmail);
-                var result = await _userManager.ChangeEmailAsync(user, model.NewEmail, model.Token);
-                if (result.Succeeded)
-                {
-                    return Ok("Email updated successfully!");
-                }
-
-                string errorMessage = string.Empty;
-                foreach (var identityError in result.Errors)
-                {
-                    errorMessage += identityError.Description;
-                }
-
-                return BadRequest(new Error() { Title = "Email confirmation failed:", Message = errorMessage });
+                return Ok(_localizer["Email updated successfully!"]);
             }
-            catch (Exception ex)
+
+            string errorMessage = string.Empty;
+            foreach (var identityError in result.Errors)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(ConfirmEmail)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                errorMessage += identityError.Description;
             }
+
+            throw new BadHttpRequestException(errorMessage);
         }
 
         [HttpPost]
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ChangeEmail([FromBody] ResetEmail model)
         {
-            try
-            {
-                model.Email = model.Email.ToLower().Trim();
 
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+            model.Email = model.Email.ToLower().Trim();
 
-                var user = await _userManager.GetUserAsync(User);
-                var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
+            var user = await _userManager.GetUserAsync(User);
+            var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
 
-                string urlToResetPassword =
-                    _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
+            string urlToResetPassword =
+                _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
 
-                _emailService.Send(model.Email, "Confirm email change", "Click to confirm new email:" + urlToResetPassword);
-                return Ok("Confirmation email sent.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(ChangeEmail)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
-            }
+            _emailService.Send(model.Email, _localizer["Confirm email change"], _localizer["Click to confirm new email:"] + urlToResetPassword);
+            return Ok(_localizer["Confirmation email sent"]);
         }
 
         [HttpPost]
@@ -425,43 +297,31 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
         {
-            try
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user != null)
             {
-                var validationResult = _modelValidator.Validate(ModelState);
-                if (validationResult != null) return BadRequest(validationResult);
+                var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
 
-                var user = await _userManager.FindByEmailAsync(model.Email);
-
-                if (user != null)
+                if (result.Succeeded)
                 {
-                    var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
-
-                    if (result.Succeeded)
-                    {
-                        return Ok("Password reset successfully.");
-                    }
-                    else
-                    {
-                        string errorMessage = string.Empty;
-                        foreach (var identityError in result.Errors)
-                        {
-                            errorMessage += identityError.Description;
-                        }
-
-                        return BadRequest(new Error() { Title = "Reset password failed.", Message = errorMessage });
-                    }
+                    return Ok(_localizer["Password reset successfully"]);
                 }
                 else
                 {
-                    string errorMessage = "User with this email does not exist.";
-                    return Unauthorized(new AuthorizationError() { Message = errorMessage });
-                }
+                    string errorMessage = string.Empty;
+                    foreach (var identityError in result.Errors)
+                    {
+                        errorMessage += identityError.Description;
+                    }
 
+                    throw new BadHttpRequestException(errorMessage);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(ResetPassword)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                string errorMessage = _localizer["User with this email does not exist"];
+                return Unauthorized(new AuthorizationError() { Message = errorMessage });
             }
         }
     }

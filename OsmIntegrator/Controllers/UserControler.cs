@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
@@ -30,90 +31,74 @@ namespace OsmIntegrator.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
 
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<UserController> _localizer;
 
         public UserController(
             ILogger<UserController> logger,
             IMapper mapper,
-            UserManager<ApplicationUser> userManager
+            UserManager<ApplicationUser> userManager,
+            IStringLocalizer<UserController> localizer
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
+            _localizer = localizer;
         }
 
         [HttpGet]
         public async Task<ActionResult<User>> Get()
         {
-            try
-            {
-                var user = await _userManager.GetUserAsync(User);
-                List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
 
-                if (user == null)
-                {
-                    return BadRequest("Unable to find current user instance");
-                }
+            var user = await _userManager.GetUserAsync(User);
+            List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
 
-                return Ok(new User()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Roles = roles
-                });
-            }
-            catch (Exception ex)
+            if (user == null)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Get)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                throw new BadHttpRequestException(_localizer["Unable to find current user instance"]);
             }
+
+            return Ok(new User()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = roles
+            });
         }
 
         [HttpGet("{id}")]
         [Authorize(UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + ", " + UserRoles.ADMIN)]
         public async Task<ActionResult<User>> Get(string id)
         {
-            try
+
+            if (string.IsNullOrEmpty(id))
             {
-                if (string.IsNullOrEmpty(id))
-                {
-                    return BadRequest(new ValidationError()
-                    {
-                        Message = $"Invalid id: {id}."
-                    });
-                }
-
-                var user = await _userManager.FindByIdAsync(id);
-
-                if (user == null)
-                {
-                    return BadRequest(new ValidationError()
-                    {
-                        Message = $"No user with id: {id}."
-                    });
-                }
-
-                List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
-
-                if (user == null)
-                {
-                    return BadRequest("Unable to find current user instance");
-                }
-
-                return Ok(new User()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    Roles = roles
-                });
+                throw new BadHttpRequestException(_localizer["Invalid id"]);
             }
-            catch (Exception ex)
+
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
             {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Get)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                throw new BadHttpRequestException(_localizer["Unable to find current user instance"]);
             }
+
+            List<string> roles = (List<string>)await _userManager.GetRolesAsync(user);
+
+            if (roles == null)
+            {
+                throw new BadHttpRequestException(_localizer["Unable to find current user roles"]);
+            }
+
+            return Ok(new User()
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                Roles = roles
+            });
+
         }
     }
 }

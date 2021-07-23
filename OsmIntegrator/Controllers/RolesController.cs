@@ -13,10 +13,10 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Mime;
-using OsmIntegrator.Validators;
 using System.Transactions;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
+using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -39,55 +39,46 @@ namespace OsmIntegrator.Controllers
 
         private readonly RoleManager<ApplicationRole> _roleManager;
 
-        private readonly IModelValidator _validationHelper;
-
         private readonly IMapper _mapper;
+        private readonly IStringLocalizer<RolesController> _localizer;
 
         public RolesController(
             ILogger<RolesController> logger,
             IMapper mapper,
             UserManager<ApplicationUser> userManager,
             RoleManager<ApplicationRole> roleManager,
-            IModelValidator validationHelper
+            IStringLocalizer<RolesController> localizer
         )
         {
             _logger = logger;
             _userManager = userManager;
             _mapper = mapper;
             _roleManager = roleManager;
-            _validationHelper = validationHelper;
+            _localizer = localizer;
         }
 
         [HttpGet]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         public async Task<ActionResult<List<RoleUser>>> Get()
         {
-            try
-            {
-                // Get current user roles
-                var currentUser = await _userManager.GetUserAsync(User);
-                List<string> currentUserRoles = (List<string>)await _userManager.GetRolesAsync(currentUser);
+            // Get current user roles
+            var currentUser = await _userManager.GetUserAsync(User);
+            List<string> currentUserRoles = (List<string>)await _userManager.GetRolesAsync(currentUser);
 
-                // Get all users and remove current one
-                List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
-                ApplicationUser userToRemove = allUsers.First(x => x.Email == currentUser.Email);
-                allUsers.Remove(userToRemove);
+            // Get all users and remove current one
+            List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
+            ApplicationUser userToRemove = allUsers.First(x => x.Email == currentUser.Email);
+            allUsers.Remove(userToRemove);
 
-                // Get all roles
-                List<ApplicationRole> allRoles = await _roleManager.Roles.ToListAsync();
+            // Get all roles
+            List<ApplicationRole> allRoles = await _roleManager.Roles.ToListAsync();
 
-                // Assign roles to result users
-                List<RoleUser> usersWithRoles = await GetUsersWithRoles(allUsers, allRoles);
+            // Assign roles to result users
+            List<RoleUser> usersWithRoles = await GetUsersWithRoles(allUsers, allRoles);
 
-                RemoveRoles(usersWithRoles, currentUserRoles);
+            RemoveRoles(usersWithRoles, currentUserRoles);
 
-                return Ok(usersWithRoles);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"Unknown problem with {nameof(Get)} method.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
-            }
+            return Ok(usersWithRoles);
         }
 
         /// <summary>
@@ -150,47 +141,24 @@ namespace OsmIntegrator.Controllers
         [Consumes(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> Update([FromBody] List<RoleUser> users)
         {
-            var validationResult = _validationHelper.Validate(ModelState);
-            if (validationResult != null) return BadRequest(validationResult);
 
-            try
+            Error error = await ValidateRoles(users);
+            if (error != null)
             {
-                Error error = await ValidateRoles(users);
-                if (error != null)
-                {
-                    return BadRequest(error);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, $"Problem with user roles validation.");
-                return BadRequest(new UnknownError() { Message = ex.Message });
+                throw new BadHttpRequestException(_localizer["Roles validation failed"]);
             }
 
             using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                try
-                {
-                    List<string> errors = await UpdateRoles(users);
+                List<string> errors = await UpdateRoles(users);
 
-                    if (errors.Count > 0)
-                    {
-                        scope.Dispose();
-                        return BadRequest(new Error
-                        {
-                            Title = "Problem with adding/removing user roles.",
-                            Message = string.Join($"{Environment.NewLine}", errors)
-                        });
-                    }
-                    scope.Complete();
-                    return Ok("User roles updated successfully!");
-                }
-                catch (Exception ex)
+                if (errors.Count > 0)
                 {
                     scope.Dispose();
-                    _logger.LogWarning(ex, $"Unknown problem with {nameof(Update)} method.");
-                    return BadRequest(new UnknownError() { Message = ex.Message });
+                    throw new BadHttpRequestException(_localizer["Problem with update user roles"]);
                 }
+                scope.Complete();
+                return Ok(_localizer["User roles updated successfully!"]);
             }
         }
 
@@ -235,7 +203,7 @@ namespace OsmIntegrator.Controllers
             {
                 return new Error
                 {
-                    Title = "Role permissions problem.",
+                    Title = _localizer["Role permissions problem"],
                     Message = string.Join(Environment.NewLine, errors)
                 };
             }
