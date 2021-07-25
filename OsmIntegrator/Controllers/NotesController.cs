@@ -162,7 +162,7 @@ namespace OsmIntegrator.Controllers
 
             _dbContext.SaveChanges();
 
-            return Ok(_localizer["Note successfully added"]);
+            return Ok(_localizer["Note successfully updated"]);
         }
 
         [HttpDelete("{id}")]

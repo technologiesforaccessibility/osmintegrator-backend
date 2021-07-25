@@ -143,4 +143,7 @@
     <data name="Note removed successfully" xml:space="preserve">
         <value>Notatka została usunięta</value>
     </data>
+    <data name="Note successfully updated" xml:space="preserve">
+        <value>Notatka została zaktualizowana</value>
+    </data>
 </root>

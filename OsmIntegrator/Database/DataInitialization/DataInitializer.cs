@@ -72,6 +72,8 @@ namespace OsmIntegrator.Database.DataInitialization
                     allStops.AddRange(gtfsStops);
                     List<DbTile> tiles = GetTiles(allStops);
 
+                    DbTile tile_2264_1384 = tiles.FirstOrDefault(x => x.X == 2264 && x.Y == 1384);
+
                     List<ApplicationUser> users = db.Users.Where(x => x.UserName.Contains("editor")).ToList();
                     ApplicationUser editor1 = users[0];
                     ApplicationUser editor2 = users[1];
@@ -79,7 +81,7 @@ namespace OsmIntegrator.Database.DataInitialization
                     List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
                     ApplicationUser supervisor1 = supervisors[0];
 
-                    tiles[0].Users = tiles[1].Users = tiles[2].Users = new List<ApplicationUser> { editor1 };
+                    tiles[0].Users = tiles[1].Users = tiles[2].Users = tile_2264_1384.Users = new List<ApplicationUser> { editor1 };
 
                     tiles[3].Users = tiles[4].Users = tiles[5].Users = new List<ApplicationUser> { editor2 };
 
