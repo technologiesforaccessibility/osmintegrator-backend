@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using OsmIntegrator.Database.Models;
 
 public class ExistingNote
 {
@@ -15,7 +16,7 @@ public class ExistingNote
 
     public Guid TileId { get; set; }
 
-    public bool Approved { get; set; }
+    public NoteStatus Status { get; set; }
 
     public bool Editable { get; set; } = false;
 }

@@ -146,4 +146,10 @@
     <data name="Note successfully updated" xml:space="preserve">
         <value>Notatka została zaktualizowana</value>
     </data>
+    <data name="Note already rejected" xml:space="preserve">
+        <value>Notatka została już wcześniej odrzucona</value>
+    </data>
+    <data name="Note rejected successfully" xml:space="preserve">
+        <value>Notatka odrzucona pomyślnie</value>
+    </data>
 </root>

@@ -31,7 +31,8 @@ namespace OsmIntegrator.Database.Models
 
         public Guid? ApproverId { get; set; }
 
-        public bool Approved { get; set; }
+        [Required]
+        public NoteStatus Status { get; set; }
 
         public ApplicationUser Approver { get; set; }
 

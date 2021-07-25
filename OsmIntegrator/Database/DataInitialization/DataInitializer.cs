@@ -97,7 +97,7 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = tile.MinLat,
                         Lon = tile.MinLon,
                         UserId = editor1.Id,
-                        Approved = false,
+                        Status = NoteStatus.Created,
                         TileId = tile.Id
                     };
 
@@ -107,7 +107,7 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = tile.MaxLat,
                         Lon = tile.MinLon,
                         UserId = editor1.Id,
-                        Approved = true,
+                        Status = NoteStatus.Approved,
                         Approver = supervisor1,
                         TileId = tile.Id
                     };
@@ -118,7 +118,7 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = tile.MaxLat,
                         Lon = tile.MinLon,
                         UserId = supervisor1.Id,
-                        Approved = true,
+                        Status = NoteStatus.Rejected,
                         Approver = supervisor1,
                         TileId = tile.Id
                     };
@@ -129,7 +129,7 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = tile.MaxLat,
                         Lon = tile.MinLon,
                         UserId = supervisor1.Id,
-                        Approved = false,
+                        Status = NoteStatus.Created,
                         TileId = tile.Id
                     };
 
@@ -139,7 +139,7 @@ namespace OsmIntegrator.Database.DataInitialization
                         Lat = tile.MaxLat,
                         Lon = tile.MinLon,
                         UserId = editor2.Id,
-                        Approved = false,
+                        Status = NoteStatus.Created,
                         TileId = tile.Id
                     };
 

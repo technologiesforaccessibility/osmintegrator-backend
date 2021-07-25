@@ -1554,7 +1554,7 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"var result = data.filter( element => element.approved === false);",
+									"var result = data.filter( element => element.status. === 0);",
 									"",
 									"pm.environment.set(\"connection\", result[0].id);"
 								],
@@ -1716,6 +1716,50 @@
 								"api",
 								"Notes",
 								"Approve",
+								"{{connection}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes/Reject/{{connection}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes",
+								"Reject",
 								"{{connection}}"
 							]
 						}
