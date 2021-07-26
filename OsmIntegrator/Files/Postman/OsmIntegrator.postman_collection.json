@@ -753,7 +753,10 @@
 							"script": {
 								"exec": [
 									"var data = pm.response.json();",
-									"pm.environment.set(\"firstTileId\", data[0].id);"
+									"pm.environment.set(\"firstTileId\", data[0].id);",
+									"",
+									"var result = data.filter( element => element.x === 2264 && element.y === 1384);",
+									"pm.environment.set(\"tile_2264_1384\", result[0].id);"
 								],
 								"type": "text/javascript"
 							}
@@ -1545,6 +1548,20 @@
 			"item": [
 				{
 					"name": "Get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"var result = data.filter( element => element.status. === 0);",
+									"",
+									"pm.environment.set(\"connection\", result[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1564,14 +1581,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Notes/7228923f-183b-4ab4-98d7-696c232585d3",
+							"raw": "{{host}}/api/Notes/{{tile_2264_1384}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Notes",
-								"7228923f-183b-4ab4-98d7-696c232585d3"
+								"{{tile_2264_1384}}"
 							]
 						}
 					},
@@ -1599,7 +1616,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Kolejny test\",\n    \"tileId\": \"7228923f-183b-4ab4-98d7-696c232585d3\"\n}",
+							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Kolejny test\",\n    \"tileId\": \"{{tile_2264_1384}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1641,7 +1658,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "    {\n        \"id\": \"25b25cbd-4e29-4c35-b65c-9b071653b1eb\",\n        \"lat\": 50.28933925329178,\n        \"lon\": 18.984375,\n        \"text\": \"Test 4\"\n    }",
+							"raw": "    {\n        \"id\": \"{{connection}}\",\n        \"lat\": 50.28933925329178,\n        \"lon\": 18.984375,\n        \"text\": \"Test 4\"\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1683,7 +1700,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1691,7 +1708,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Notes/Approve/4fd2ca93-c31b-41b5-8d43-159ab6a0c24f",
+							"raw": "{{host}}/api/Notes/Approve/{{connection}}",
 							"host": [
 								"{{host}}"
 							],
@@ -1699,7 +1716,51 @@
 								"api",
 								"Notes",
 								"Approve",
-								"4fd2ca93-c31b-41b5-8d43-159ab6a0c24f"
+								"{{connection}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Notes/Reject/{{connection}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Notes",
+								"Reject",
+								"{{connection}}"
 							]
 						}
 					},
@@ -1735,14 +1796,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Notes/25b25cbd-4e29-4c35-b65c-9b071653b1eb",
+							"raw": "{{host}}/api/Notes/{{connection}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Notes",
-								"25b25cbd-4e29-4c35-b65c-9b071653b1eb"
+								"{{connection}}"
 							]
 						}
 					},

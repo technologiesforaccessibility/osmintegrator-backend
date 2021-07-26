@@ -78,7 +78,10 @@ namespace OsmIntegrator.Controllers
             ApplicationUser user = await _userManager.GetUserAsync(User);
             note.UserId = user.Id;
 
-            await _dbContext.AddAsync(_mapper.Map<DbNote>(note));
+            DbNote newNote = _mapper.Map<DbNote>(note);
+            newNote.Status = NoteStatus.Created;
+
+            await _dbContext.AddAsync(newNote);
             _dbContext.SaveChanges();
 
             return Ok(_localizer["Note successfully added"]);
@@ -117,7 +120,8 @@ namespace OsmIntegrator.Controllers
                 {
                     ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
 
-                    if (note.UserId == user.Id && !note.Approved)
+                    if (note.UserId == user.Id && note.Status != NoteStatus.Approved && 
+                        note.Status != NoteStatus.Rejected)
                     {
                         existingNote.Editable = true;
                     }
@@ -130,7 +134,8 @@ namespace OsmIntegrator.Controllers
                 {
                     ExistingNote existingNote = _mapper.Map<ExistingNote>(note);
 
-                    if (note.UserId == user.Id && !note.Approved)
+                    if (note.UserId == user.Id && note.Status != NoteStatus.Approved && 
+                        note.Status != NoteStatus.Rejected)
                     {
                         existingNote.Editable = true;
                         result.Add(existingNote);
@@ -162,7 +167,7 @@ namespace OsmIntegrator.Controllers
 
             _dbContext.SaveChanges();
 
-            return Ok(_localizer["Note successfully added"]);
+            return Ok(_localizer["Note successfully updated"]);
         }
 
         [HttpDelete("{id}")]
@@ -192,7 +197,8 @@ namespace OsmIntegrator.Controllers
             // Editor can only remove his note.
             else
             {
-                if (note.UserId == user.Id && !note.Approved)
+                if (note.UserId == user.Id && note.Status != NoteStatus.Approved && 
+                    note.Status != NoteStatus.Rejected)
                 {
                     _dbContext.Remove(note);
                 }
@@ -221,15 +227,40 @@ namespace OsmIntegrator.Controllers
                 throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
             }
 
-            if (note.Approved)
+            if (note.Status == NoteStatus.Approved)
             {
                 throw new BadHttpRequestException(_localizer["Note already approved"]);
             }
 
-            note.Approved = true;
+            note.Status = NoteStatus.Approved;
             _dbContext.SaveChanges();
 
             return Ok(_localizer["Note approved successfully"]);
+        }
+
+        [HttpPut("Reject/{id}")]
+        [Authorize(Roles =
+            UserRoles.SUPERVISOR + "," +
+            UserRoles.COORDINATOR + "," +
+            UserRoles.ADMIN)]
+        public async Task<ActionResult> Reject(string id)
+        {
+            DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+
+            if (note == null)
+            {
+                throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
+            }
+
+            if (note.Status == NoteStatus.Rejected)
+            {
+                throw new BadHttpRequestException(_localizer["Note already rejected"]);
+            }
+
+            note.Status = NoteStatus.Rejected;
+            _dbContext.SaveChanges();
+
+            return Ok(_localizer["Note rejected successfully"]);
         }
     }
 }
