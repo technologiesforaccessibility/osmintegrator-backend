@@ -18,7 +18,6 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
-using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -261,13 +260,7 @@ namespace OsmIntegrator.Controllers
             {
                 usersInRole = _mapper.Map<List<User>>((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
             }
-            foreach (var _u in usersInRole)
-            {
-                // this is wrong, blocking. better approach: prepare list of SmtpClient.SendMailAsync tasks, then wait them all
-                // the best use some kind of background queue
-                // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-5.0&tabs=visual-studio
-                _emailService.Send(u.Email, _localizer["Tile approved"], _localizer["One of the tiles was approved"]);
-            }
+            usersInRole.ForEach(async (u) => await _emailService.SendEmailAsync(u.Email, _localizer["Tile approved"], _localizer["One of the tiles was approved"]));
 
             return Ok(_localizer["Tile approved"]);
         }
