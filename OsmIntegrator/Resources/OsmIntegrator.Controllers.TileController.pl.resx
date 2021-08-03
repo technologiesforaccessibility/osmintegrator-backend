@@ -149,4 +149,8 @@
     <value>Błędny kafelek</value>
     <comment/>
   </data>
+  <data name="One of the tiles was approved" xml:space="preserve">
+    <value>Jeden z kafelków został zatwierdzony</value>
+    <comment/>
+  </data>
 </root>

@@ -11,7 +11,6 @@ namespace OsmIntegrator.Database.Models
 
         [NotMapped]
         public IList<string> Roles { get; set; }
-        
         public List<DbTile> ApprovedTiles { get; set; }
     }
 }
