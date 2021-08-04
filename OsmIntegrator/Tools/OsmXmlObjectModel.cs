@@ -10,6 +10,10 @@ namespace OsmIntegrator.Tools
     {
         [XmlAttribute(AttributeName = "version")]
         public string Version { get; set; }
+        [XmlAttribute(AttributeName = "comment")]
+        public string Comment { get; set; } = "Bus and tram stops tags update";
+        [XmlAttribute(AttributeName = "mechanical")]
+        public string Mechanical { get; set; } = "yes";
         [XmlAttribute(AttributeName = "generator")]
         public string Generator { get; set; }
 		[XmlElement(ElementName = "modify")]

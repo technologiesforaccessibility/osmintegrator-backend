@@ -64,7 +64,7 @@ namespace OsmIntegrator.Controllers
         {
             AUseCaseResponse result = await _useCase.Handle(_mapper.Map<CreateChangeFileInputDto>(data));
             _presenter.Present(result);
-            return File(_presenter.Content.ReadAsStream(), "text/xml", "file.xml");
+            return File(_presenter.Content.ReadAsStream(), "application/zip", "file.zip");
         }
     }
 }
