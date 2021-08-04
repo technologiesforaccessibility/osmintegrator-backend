@@ -22,6 +22,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [Route("/error-local-development")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult ErrorLocalDevelopment(
             [FromServices] IWebHostEnvironment webHostEnvironment)
         {
@@ -55,6 +56,7 @@ namespace OsmIntegrator.Controllers
 
 
         [Route("/error")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
