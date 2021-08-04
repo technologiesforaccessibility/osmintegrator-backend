@@ -28,21 +28,18 @@ namespace OsmIntegrator.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Self many-to-many implemented thanks to this solution: 
-            // https://stackoverflow.com/questions/49214748/many-to-many-self-referencing-relationship
-            // Cascade delete was disabled: https://docs.microsoft.com/pl-pl/ef/core/saving/cascade-delete
             modelBuilder.Entity<DbConnections>()
                 .HasKey(t => new { t.Id });
 
             modelBuilder.Entity<DbConnections>()
                 .HasOne(c => c.OsmStop)
-                .WithMany(o => o.Connections)
+                .WithMany(o => o.OsmConnections)
                 .HasForeignKey(c => c.OsmStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<DbConnections>()
                 .HasOne(c => c.GtfsStop)
-                .WithMany()
+                .WithMany(o => o.GtfsConnections)
                 .HasForeignKey(c => c.GtfsStopId)
                 .OnDelete(DeleteBehavior.NoAction);
 
@@ -61,7 +58,7 @@ namespace OsmIntegrator.Database
                 .HasMany(t => t.Users)
                 .WithMany(u => u.Tiles)
                 .UsingEntity(j => j.ToTable("ApplicationUserDbTile"));
-                
+
             base.OnModelCreating(modelBuilder);
         }
 
