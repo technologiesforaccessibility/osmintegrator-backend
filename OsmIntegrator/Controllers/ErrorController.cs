@@ -21,7 +21,8 @@ namespace OsmIntegrator.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/error-local-development")]
+        [Route("/error-local-development")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult ErrorLocalDevelopment(
             [FromServices] IWebHostEnvironment webHostEnvironment)
         {
@@ -54,7 +55,8 @@ namespace OsmIntegrator.Controllers
         }
 
 
-        [HttpGet("/error")]
+        [Route("/error")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Error()
         {
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
