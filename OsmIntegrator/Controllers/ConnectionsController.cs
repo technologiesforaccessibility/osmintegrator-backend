@@ -84,7 +84,7 @@ namespace OsmIntegrator.Controllers
 
             // Check if GTFS stop has already been connected to another stop.
             DbStop gtfsStop = await _dbContext.Stops
-                .Include(x => x.Connections)
+                .Include(x => x.GtfsConnections)
                 .FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
 
             if (gtfsStop == null)
@@ -92,7 +92,7 @@ namespace OsmIntegrator.Controllers
                 throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
             }
 
-            DbConnections gtfsConnection = gtfsStop.Connections
+            DbConnections gtfsConnection = gtfsStop.GtfsConnections
                 .OrderByDescending(link => link.CreatedAt)
                 .FirstOrDefault();
 
@@ -103,7 +103,7 @@ namespace OsmIntegrator.Controllers
 
             // Check if OSM stop has already been connected to another stop.
             DbStop osmStop = await _dbContext.Stops
-                .Include(x => x.Connections)
+                .Include(x => x.OsmConnections)
                 .FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
 
             if (osmStop == null)
@@ -111,7 +111,7 @@ namespace OsmIntegrator.Controllers
                 throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
             }
 
-            DbConnections osmConnection = osmStop.Connections
+            DbConnections osmConnection = osmStop.OsmConnections
                 .OrderByDescending(link => link.CreatedAt)
                 .FirstOrDefault();
 
@@ -125,6 +125,8 @@ namespace OsmIntegrator.Controllers
             DbConnections newConnection = new DbConnections()
             {
                 OsmStop = osmStop,
+                OsmStopId = osmStop.Id,
+                GtfsStopId = gtfsStop.Id,
                 GtfsStop = gtfsStop,
                 User = currentUser,
                 Imported = imported,
