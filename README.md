@@ -6,18 +6,34 @@ Welcome in `OsmIntegrator` project.
 
 To run project execute following steps from project root folder.
 
-### Install docker
+## Install docker
 
 Install docker from [here](https://docs.docker.com/desktop/).
 
-### Run database
+## Run project locally
+
+### Production environment values
+
+Copy file `.env.production.sample` to `.env.production` and fill it with proper data
+
+### Manage db
+
+**Start db conatainer**
 
 ```bash
-cd osmintegrator
-docker-compose up
+docker-compose up db
 ```
 
-### Run web api
+**Stop db container**
+
+```bash
+docker-compose down -v
+```
+
+Above command cleans volumens. 
+It's usefull when you want to clear database.
+
+## Run web api
 
 ```csharp
 dotnet run -p osmintegrator
@@ -28,7 +44,7 @@ dotnet run -p osmintegrator
 ### Check website
 
 Project should work on following websites:
-* Linux (Kestrel): `https://0.0.0.0:9999`
+* Linux (Kestrel): `https://0.0.0.0:9998`
 * Wndows (IISExpres): `http://localhost:44388`
 
 # Examine the API with Postman
