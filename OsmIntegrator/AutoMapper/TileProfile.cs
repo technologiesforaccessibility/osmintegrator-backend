@@ -9,8 +9,10 @@ namespace OsmIntegrator.AutoMapper
         public TileProfile()
         {
             AllowNullCollections = true;
-            CreateMap<DbTile, Tile>().
-                ForMember(x => x.UsersCount, o => o.MapFrom(x => x.Users.Count));
+            CreateMap<DbTile, Tile>()
+                .ForMember(x => x.UsersCount, o => o.MapFrom(x => x.Users.Count))
+                .ForMember(x => x.ApprovedBySupervisor, o => o.MapFrom(x => x.SupervisorApproved != null))
+                .ForMember(x => x.ApprovedByEditor, o => o.MapFrom(x => x.EditorApproved != null));
         }
     }
 }

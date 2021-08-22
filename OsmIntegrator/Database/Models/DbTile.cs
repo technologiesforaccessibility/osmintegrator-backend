@@ -53,7 +53,17 @@ namespace OsmIntegrator.Database.Models
 
         public List<ApplicationUser> Users { get; set; }
 
-        public List<ApplicationUser> Approvers { get; set; }
+        public Guid? EditorApprovedId { get; set; }
+
+        public ApplicationUser EditorApproved { get; set; }
+
+        public DateTime? EditorApprovalTime { get; set; }
+
+        public Guid? SupervisorApprovedId { get; set; }
+
+        public ApplicationUser SupervisorApproved { get; set; }
+
+        public DateTime? SupervisorApprovalTime { get; set; }
 
         public List<DbNote> Notes { get; set; }
 

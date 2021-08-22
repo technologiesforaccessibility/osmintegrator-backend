@@ -20,5 +20,7 @@ namespace OsmIntegrator.ApiModels
         public int GtfsStopsCount { get; set; }
         public int? UsersCount { get; set; }
         public List<Stop> Stops { get; set; }
+        public bool ApprovedByEditor { get; set; }
+        public bool ApprovedBySupervisor { get; set; }
     }
 }

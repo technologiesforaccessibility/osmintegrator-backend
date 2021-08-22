@@ -65,7 +65,6 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<List<Tile>>> GetTiles()
         {
-
             ApplicationUser user = await _userManager.GetUserAsync(User);
             IList<string> roles = await _userManager.GetRolesAsync(user);
 
@@ -82,7 +81,6 @@ namespace OsmIntegrator.Controllers
                 Where(x => x.Users.Any(x => x.Id == user.Id)).ToListAsync();
 
             return Ok(_mapper.Map<List<Tile>>(tiles));
-
         }
 
         [HttpGet("{id}")]
@@ -206,23 +204,17 @@ namespace OsmIntegrator.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User u)
+        public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User userBody)
         {
+            var user = await _userManager.GetUserAsync(User);
 
-
-            var user = await PrepareUserForTile(id, u);
             IList<string> roles = await _userManager.GetRolesAsync(user);
             if (!roles.Contains(UserRoles.EDITOR))
             {
-
-                throw new BadHttpRequestException(_localizer["You are not an editor"]);
+                throw new BadHttpRequestException(_localizer["This user is not an editor"]);
             }
 
-            DbTile currentTile =
-            await _dbContext.Tiles
-                .Include(tile => tile.Users)
-                .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
+            DbTile currentTile = await GetTileAsync(id);
 
             currentTile.Users.Clear();
             currentTile.Users.Add(user);
@@ -230,60 +222,74 @@ namespace OsmIntegrator.Controllers
             _dbContext.SaveChanges();
 
             return Ok(_localizer["Tile approved"]);
-
-
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
         public async Task<ActionResult<string>> Approve(string id)
         {
+            DbTile currentTile = await GetTileAsync(id);
 
-            DbTile currentTile = await _dbContext.Tiles
-                .Include(tile => tile.Approvers)
-                .SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+            ApplicationUser user = await _userManager.GetUserAsync(User);
 
-            var userId = _userManager.GetUserId(HttpContext.User);
-            User u = _mapper.Map<User>(_dbContext.Users.First(u => u.Id == Guid.Parse(userId)));
+            List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(user);
 
-            var user = await PrepareUserForTile(id, u);
-            currentTile.Approvers.Add(user);
+            if (userRoles.Contains(UserRoles.SUPERVISOR))
+            {
+                currentTile.SupervisorApproved = user;
+                currentTile.SupervisorApprovalTime = DateTime.Now;
+            }
+            else if (userRoles.Contains(UserRoles.EDITOR))
+            {
+                currentTile.EditorApproved = user;
+                currentTile.EditorApprovalTime = DateTime.Now;
+            }
+            else
+            {
+                throw new BadHttpRequestException(_localizer["User doesn't contain required roles"]);
+            }
+
             _dbContext.SaveChanges();
 
-            List<User> usersInRole = new List<User>();
-            if (User.IsInRole(UserRoles.EDITOR))
-            {
-                usersInRole = _mapper.Map<List<User>>((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.SUPERVISOR));
-
-            }
-            else if (User.IsInRole(UserRoles.SUPERVISOR))
-            {
-                usersInRole = _mapper.Map<List<User>>((List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
-            }
-            usersInRole.ForEach(async (u) => await _emailService.SendEmailAsync(u.Email, _localizer["Tile approved"], _localizer["One of the tiles was approved"]));
+            await SendEmails(currentTile);
 
             return Ok(_localizer["Tile approved"]);
         }
-        private async Task<ApplicationUser> PrepareUserForTile(string id, User u)
+
+        private async Task SendEmails(DbTile currentTile)
         {
-
-            ApplicationUser selectedUser = await _userManager.Users.SingleOrDefaultAsync(x => x.Id == u.Id);
-
-            if (selectedUser == null)
+            List<User> usersInRole = new List<User>();
+            if (User.IsInRole(UserRoles.EDITOR))
             {
-                throw new BadHttpRequestException(_localizer["Given user does not exist"]);
+                usersInRole = _mapper.Map<List<User>>(
+                    (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.SUPERVISOR));
+            }
+            else if (User.IsInRole(UserRoles.SUPERVISOR))
+            {
+                usersInRole = _mapper.Map<List<User>>(
+                    (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
             }
 
-            // Get current tile by id
-            DbTile currentTile =
-                await _dbContext.Tiles.Include(
-                    tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+            string message = _localizer["One of the tiles was approved"];
+            message += Environment.NewLine + $"X: {currentTile.X}, Y: {currentTile.Y}.";
 
+            foreach(User user in usersInRole)
+            {
+                Task task = Task.Run(() => _emailService.SendEmailAsync(
+                    user.Email, _localizer["Tile approved"],
+                    message));
+            }   
+        }
+
+        private async Task<DbTile> GetTileAsync(string tileId)
+        {
+            DbTile currentTile = await _dbContext.Tiles.Include(tile => tile.Users)
+                .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
             if (currentTile == null)
             {
                 throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
             }
-            return selectedUser;
+            return currentTile;
         }
     }
 }

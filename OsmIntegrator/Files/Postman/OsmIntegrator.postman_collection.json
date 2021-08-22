@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "44020dcf-0ba4-4bee-b82d-f11d6aaa7292",
+		"_postman_id": "b5cf2da4-3e98-4d06-89ec-8443880f04b4",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -956,7 +956,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c26\"\n}",
+							"raw": "{\n    \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -979,7 +979,7 @@
 					"response": []
 				},
 				{
-					"name": "Approve",
+					"name": "Approve FirstTile",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -998,7 +998,6 @@
 						},
 						"method": "PUT",
 						"header": [],
-						"body": {},
 						"url": {
 							"raw": "{{host}}/api/Tile/Approve/{{firstTileId}}",
 							"host": [
@@ -1009,6 +1008,41 @@
 								"Tile",
 								"Approve",
 								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve 2264x1384",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/Approve/{{tile_2264_1384}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"Approve",
+								"{{tile_2264_1384}}"
 							]
 						}
 					},
