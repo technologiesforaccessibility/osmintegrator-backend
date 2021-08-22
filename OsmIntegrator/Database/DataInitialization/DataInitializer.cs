@@ -61,7 +61,7 @@ namespace OsmIntegrator.Database.DataInitialization
                     AddUser(db.Users, db.UserRoles, Guid.Parse("d117c862-a563-4baf-bb9f-fd1024ac71b0"), "uploader1@abcd.pl", new List<Guid>() { uploaderRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("ed694889-5518-47d2-86e5-a71052361673"), "uploader2@abcd.pl", new List<Guid>() { supervisorRoleId, coordinatorRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { adminRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "kontakt@rozwiazaniadlaniewidomych.org", new List<Guid>() { adminRoleId });
+                    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { adminRoleId });
 
                     db.SaveChanges();
 
