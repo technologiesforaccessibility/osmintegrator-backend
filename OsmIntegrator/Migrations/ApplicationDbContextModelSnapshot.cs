@@ -421,11 +421,9 @@ namespace osmintegrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EditorApprovedId")
-                        .IsUnique();
+                    b.HasIndex("EditorApprovedId");
 
-                    b.HasIndex("SupervisorApprovedId")
-                        .IsUnique();
+                    b.HasIndex("SupervisorApprovedId");
 
                     b.ToTable("Tiles");
                 });
@@ -566,12 +564,12 @@ namespace osmintegrator.Migrations
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "EditorApproved")
-                        .WithOne()
-                        .HasForeignKey("OsmIntegrator.Database.Models.DbTile", "EditorApprovedId");
+                        .WithMany()
+                        .HasForeignKey("EditorApprovedId");
 
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "SupervisorApproved")
-                        .WithOne()
-                        .HasForeignKey("OsmIntegrator.Database.Models.DbTile", "SupervisorApprovedId");
+                        .WithMany()
+                        .HasForeignKey("SupervisorApprovedId");
 
                     b.Navigation("EditorApproved");
 

@@ -37,14 +37,12 @@ namespace osmintegrator.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Tiles_EditorApprovedId",
                 table: "Tiles",
-                column: "EditorApprovedId",
-                unique: true);
+                column: "EditorApprovedId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tiles_SupervisorApprovedId",
                 table: "Tiles",
-                column: "SupervisorApprovedId",
-                unique: true);
+                column: "SupervisorApprovedId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Tiles_AspNetUsers_EditorApprovedId",

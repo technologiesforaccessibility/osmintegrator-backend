@@ -51,11 +51,11 @@ namespace OsmIntegrator.Database
 
             modelBuilder.Entity<DbTile>()
                 .HasOne(t => t.EditorApproved)
-                .WithOne();
+                .WithMany();
 
             modelBuilder.Entity<DbTile>()
                 .HasOne(t => t.SupervisorApproved)
-                .WithOne();
+                .WithMany();
 
             modelBuilder.Entity<DbTile>()
                 .HasMany(t => t.Users)

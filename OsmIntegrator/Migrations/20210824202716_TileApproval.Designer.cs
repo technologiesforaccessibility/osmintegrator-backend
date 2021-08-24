@@ -12,7 +12,7 @@ using OsmIntegrator.Database.Models;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210822180152_TileApproval")]
+    [Migration("20210824202716_TileApproval")]
     partial class TileApproval
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -423,11 +423,9 @@ namespace osmintegrator.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EditorApprovedId")
-                        .IsUnique();
+                    b.HasIndex("EditorApprovedId");
 
-                    b.HasIndex("SupervisorApprovedId")
-                        .IsUnique();
+                    b.HasIndex("SupervisorApprovedId");
 
                     b.ToTable("Tiles");
                 });
@@ -568,12 +566,12 @@ namespace osmintegrator.Migrations
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "EditorApproved")
-                        .WithOne()
-                        .HasForeignKey("OsmIntegrator.Database.Models.DbTile", "EditorApprovedId");
+                        .WithMany()
+                        .HasForeignKey("EditorApprovedId");
 
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "SupervisorApproved")
-                        .WithOne()
-                        .HasForeignKey("OsmIntegrator.Database.Models.DbTile", "SupervisorApprovedId");
+                        .WithMany()
+                        .HasForeignKey("SupervisorApprovedId");
 
                     b.Navigation("EditorApproved");
 
