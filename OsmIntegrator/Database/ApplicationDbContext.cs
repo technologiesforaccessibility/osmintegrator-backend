@@ -50,9 +50,12 @@ namespace OsmIntegrator.Database
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<DbTile>()
-                .HasMany(t => t.Approvers)
-                .WithMany(u => u.ApprovedTiles)
-                .UsingEntity(j => j.ToTable("TileApprover"));
+                .HasOne(t => t.EditorApproved)
+                .WithMany();
+
+            modelBuilder.Entity<DbTile>()
+                .HasOne(t => t.SupervisorApproved)
+                .WithMany();
 
             modelBuilder.Entity<DbTile>()
                 .HasMany(t => t.Users)
