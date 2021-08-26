@@ -78,6 +78,8 @@ namespace OsmIntegrator.Controllers
 
             RemoveRoles(usersWithRoles, currentUserRoles);
 
+            usersWithRoles.Sort((x, y) => x.UserName.CompareTo(y.UserName));
+
             return Ok(usersWithRoles);
         }
 

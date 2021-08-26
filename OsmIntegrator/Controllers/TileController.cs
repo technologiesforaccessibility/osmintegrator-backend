@@ -179,6 +179,8 @@ namespace OsmIntegrator.Controllers
                 tileUser.IsAssigned = currentTile.Users.Any(x => x.Id == user.Id);
             }
 
+            result.Users.Sort((x, y) => x.UserName.CompareTo(y.UserName));
+
             return Ok(result);
 
         }
@@ -273,12 +275,12 @@ namespace OsmIntegrator.Controllers
             string message = _localizer["One of the tiles was approved"];
             message += Environment.NewLine + $"X: {currentTile.X}, Y: {currentTile.Y}.";
 
-            foreach(User user in usersInRole)
+            foreach (User user in usersInRole)
             {
                 Task task = Task.Run(() => _emailService.SendEmailAsync(
                     user.Email, _localizer["Tile approved"],
                     message));
-            }   
+            }
         }
 
         private async Task<DbTile> GetTileAsync(string tileId)
