@@ -208,7 +208,7 @@ namespace OsmIntegrator.Controllers
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
         public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User userBody)
         {
-            var user = await _userManager.GetUserAsync(User);
+            ApplicationUser user = await _userManager.FindByIdAsync(userBody.Id.ToString());
 
             IList<string> roles = await _userManager.GetRolesAsync(user);
             if (!roles.Contains(UserRoles.EDITOR))
@@ -223,7 +223,7 @@ namespace OsmIntegrator.Controllers
 
             _dbContext.SaveChanges();
 
-            return Ok(_localizer["Tile approved"]);
+            return Ok(_localizer["User has been added to the tile"]);
         }
 
         [HttpPut("{id}")]
