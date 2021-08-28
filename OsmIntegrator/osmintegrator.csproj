@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>8c183771-ef09-43ea-8e59-8d9f5ec2235b</UserSecretsId>
+    <AssemmblyVersion>0.0.0.1</AssemmblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

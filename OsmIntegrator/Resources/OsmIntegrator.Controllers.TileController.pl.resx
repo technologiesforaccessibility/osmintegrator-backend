@@ -155,4 +155,7 @@
     <data name="User doesn't contain required roles" xml:space="preserve">
         <value>Użytkownik nie posiada wymaganych ról</value>
     </data>
+    <data name="User has been added to the tile" xml:space="preserve">
+        <value>Użytkownik został przypisany do kafelka</value>
+    </data>
 </root>
