@@ -160,7 +160,7 @@ namespace OsmIntegrator.Controllers
                     throw new BadHttpRequestException(_localizer["Problem with update user roles"]);
                 }
                 scope.Complete();
-                return Ok(_localizer["User roles updated successfully!"]);
+                return Ok(_localizer["User roles updated successfully"]);
             }
         }
 

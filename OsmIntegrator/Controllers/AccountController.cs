@@ -211,7 +211,7 @@ namespace OsmIntegrator.Controllers
 
             var t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t;
-            _emailService.Send(model.Email, _localizer["Confirm account registration"], _localizer["Click to confirm account registration:"] + urlToResetPassword);
+            _emailService.Send(model.Email, _localizer["Confirm account registration"], _localizer["Click to confirm account registration:"] + " " + urlToResetPassword);
             return Ok(_localizer["Confirmation email sent"]);
 
         }
