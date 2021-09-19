@@ -560,7 +560,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8K2ELG/3G8JKu8XfKyA/T0mUCX6eosQwg8LRh7T65hzc1ItOKVpGNGeQHnhgCm+ULQlvBRFd7SSH/PdigKgWdZ+4DYpbduuC3hIVtZ+ti2WCe0KQPyzbiQPjbNw59Sqv8KrQhRkwAsYMn8r3Dxo0URbSh4rDCMKAfVNknz29HLGkdJKDC/JkHGsif5Cu48zfPCKFOswYgkevwDhjODicDg8OC63Wqh4EWv7e4lK7MKS93SLM35H5DjTztu47LpZBaw==\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"luktar@gmail.com\",\r\n    \"Token\": \"CfDJ8Ho5CfF7sMRFq5gFfrvgXeDmPaOKfsr+/tV6wd2tA2uIGBORaicxKcpUZEY5yyZiLyY2chUq+8kYKIz4L6MMMw/awwVLVMK0dxCm3MK74uwmDQTAQQmtLH9cqcLi3Z88mpFe8b7fP3OjVwEi2s6dBFYoUdyFkCm5OG/nbOJtZfR8bbcAFN8Sfh3ebaXvG1X+Y5XDIma9tJuqtGcsgTv/DNKFNRoKhB6adFx8YJH3Jf3l9RTlsErGk/S5qMy17z65Jw==\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/ConfirmRegistration",
@@ -885,7 +885,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetUsers/071d1170-5805-42cf-81b6-f67fde07fb1e",
+							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
@@ -893,7 +893,7 @@
 								"api",
 								"Tile",
 								"GetUsers",
-								"071d1170-5805-42cf-81b6-f67fde07fb1e"
+								"{{firstTileId}}"
 							]
 						}
 					},
@@ -956,7 +956,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"9815ba57-e990-4f91-a8e9-17abe977d681\"\n}",
+							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1259,10 +1259,16 @@
 							]
 						},
 						"method": "PUT",
-						"header": [],
+						"header": [
+							{
+								"key": "Accept-Language",
+								"value": "pl-pl",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    {\n        \"id\": \"d117c862-a563-4baf-bb9f-fd1024ac71b0\",\n        \"userName\": \"uploader1\",\n        \"roles\": [\n            {\n                \"name\": \"Editor\",\n                \"value\": true\n            }\n        ]\n    }\n]",
+							"raw": "[\n    {\n        \"id\": \"55529e52-ba92-4727-94bd-53bcc1be06c8\",\n        \"userName\": \"admin\",\n        \"roles\": [\n            {\n                \"name\": \"Editor\",\n                \"value\": true\n            }\n        ]\n    }\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1456,7 +1462,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"OsmStopId\": \"867d9034-6731-462a-8c78-9c5557f06a04\",\n    \"GtfsStopId\": \"cd9e1dbf-374a-4f9e-a422-b9ca9680d875\"\n}",
+							"raw": "{\n    \"OsmStopId\": \"c2f0e4aa-403e-4ff7-9fc2-2f35cf3d9d1e\",\n    \"GtfsStopId\": \"342b18e0-494f-4527-b5a1-6909c553078f\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1830,6 +1836,29 @@
 								"api",
 								"Notes",
 								"{{connection}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Version",
+			"item": [
+				{
+					"name": "Get Version",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Version",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Version"
 							]
 						}
 					},
