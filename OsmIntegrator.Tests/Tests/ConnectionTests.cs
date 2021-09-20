@@ -1,23 +1,10 @@
 using FluentAssertions;
-//using HowToTestYourCsharpWebApi.Api;
-//using HowToTestYourCsharpWebApi.Api.Ports;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tests.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -25,20 +12,11 @@ namespace OsmIntegrator.Tests.Tests
 {
     public class ConnectionTests : IntegrationTest
     {
-        public ConnectionTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
-
-        private const int InitialConnectionQuantity = 7;
-
-
-        [Fact]
-        public async Task InitialConnectionListTest()
+        private LoginData _defaultLoginData = new LoginData
         {
-            var helper = new ConnectionHelper(_factory.CreateClient());
-            var connectionList = await helper.GetConnectionListAsync();
-            connectionList.Should().HaveCount(7);
-        }
-
+            Email = "supervisor1@abcd.pl",
+            Password = "12345678",
+        };
 
         [Fact]
         public async Task CreateConnectionTest()
@@ -46,7 +24,7 @@ namespace OsmIntegrator.Tests.Tests
             int initialConnectionCount;
             HttpResponseMessage response;
 
-            var helper = new ConnectionHelper(_factory.CreateClient());
+            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
 
 
             var connectionDict = helper.GetTestConnectionDict();
@@ -55,10 +33,6 @@ namespace OsmIntegrator.Tests.Tests
             // Get an intitial connetion quantity
             var connectionList = await helper.GetConnectionListAsync();
             initialConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
-            //if (connectionCount != InitialConnectionQuantity)
-            //{
-            //    Assert.True(false, $"Connection quantity is {connectionCount} but should be {InitialConnectionQuantity}.");
-            //}
 
             // Create a new connection
             response = await helper.CreateConnection(connectionAction);
@@ -67,16 +41,17 @@ namespace OsmIntegrator.Tests.Tests
                 Assert.True(false, "Can't create a new connection.");
             }
 
+            // Get current connection quantity
             connectionList = await helper.GetConnectionListAsync();
-            var currentConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
+            var currentConnectionCount = connectionList.Count;
+            
+            // Assert
             if (currentConnectionCount != initialConnectionCount + 1)
             {
                 Assert.True(false, $"Connection quantity is {currentConnectionCount} but should be {initialConnectionCount + 1}.");
             }
-
             Assert.True(true);
         }
-
 
         [Fact]
         public async Task DeleteConnectionTest()
@@ -84,19 +59,14 @@ namespace OsmIntegrator.Tests.Tests
             int initialConnectionCount;
             HttpResponseMessage response;
 
-            var helper = new ConnectionHelper(_factory.CreateClient());
-
+            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
 
             var connectionDict = helper.GetTestConnectionDict();
             var connectionAction = connectionDict["1-4"];
 
-            // Get an intitial connetionquantity
+            // Get an intitial connetion quantity
             var connectionList = await helper.GetConnectionListAsync();
             initialConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
-            //if (connectionCount != InitialConnectionQuantity)
-            //{
-            //    Assert.True(false, $"Connection quantity is {connectionCount} but should be {InitialConnectionQuantity}.");
-            //}
 
             // Create a new connection
             response = await helper.DeleteConnection(connectionAction);
@@ -105,16 +75,17 @@ namespace OsmIntegrator.Tests.Tests
                 Assert.True(false, "Can't create a new connection.");
             }
 
+            // Get current connection quantity
             connectionList = await helper.GetConnectionListAsync();
-            var currentConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
+            var currentConnectionCount = connectionList.Count;
+
+            // Assert
             if (currentConnectionCount != initialConnectionCount - 1)
             {
                 Assert.True(false, $"Connection quantity is {currentConnectionCount} but should be {initialConnectionCount - 1}.");
             }
-
             Assert.True(true);
         }
-
 
         [Fact]
         public async Task CreateAndDeleteConnectionTest()
@@ -122,8 +93,7 @@ namespace OsmIntegrator.Tests.Tests
             int initialConnectionCount;
             HttpResponseMessage response;
 
-            var helper = new ConnectionHelper(_factory.CreateClient());
-
+            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
 
             var connectionDict = helper.GetTestConnectionDict();
             var connectionAction = connectionDict["1-4"];
@@ -131,10 +101,6 @@ namespace OsmIntegrator.Tests.Tests
             // Get an intitial connetionquantity
             var connectionList = await helper.GetConnectionListAsync();
             initialConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
-            //if (connectionCount != InitialConnectionQuantity)
-            //{
-            //    Assert.True(false, $"Connection quantity is {connectionCount} but should be {InitialConnectionQuantity}.");
-            //}
 
             // Create a new connection
             response = await helper.CreateConnection(connectionAction);
@@ -150,14 +116,20 @@ namespace OsmIntegrator.Tests.Tests
                 Assert.True(false, "Can't delete a new created connection.");
             }
 
+            // Get current connection quantity
             connectionList = await helper.GetConnectionListAsync();
-            var currentConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
+            var currentConnectionCount = connectionList.Count;
+            
+            // Assert
             if (currentConnectionCount != initialConnectionCount)
             {
                 Assert.True(false, $"Connection quantity is {currentConnectionCount} but should be {initialConnectionCount}.");
             }
-
             Assert.True(true, "Created a new connection and deleted a new created collection.");
         }
+
+
+        public ConnectionTests(ApiWebApplicationFactory fixture)
+          : base(fixture) { }
     }
 }

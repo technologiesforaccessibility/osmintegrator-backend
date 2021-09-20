@@ -13,8 +13,18 @@ namespace OsmIntegrator.Tests.Helpers.Base
 {
     public class BaseHelper
     {
-        protected const string HttpAddressAndPort = "https://localhost:44388/";
+        protected const string HttpAddressAndPort = "https://localhost:44388";
         protected HttpClient _client;
+
+        public async Task<HttpResponseMessage> LoginAsync(LoginData loginData)
+        {
+            var jsonLoginData = JsonConvert.SerializeObject(loginData);
+            var content = new StringContent(jsonLoginData, Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("/api/Account/Login", content);
+
+            return response;
+        }
+
 
         public BaseHelper(HttpClient factoryClient)
         {
@@ -28,31 +38,21 @@ namespace OsmIntegrator.Tests.Helpers.Base
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        public async Task<HttpResponseMessage> LoginAsync(LoginData loginData)
-        {
-            var jsonLoginData = JsonConvert.SerializeObject(loginData);
-            var content = new StringContent(jsonLoginData, Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync("/api/Account/Login", content);
 
-            return response;
-        }
-
-        protected async Task<TokenData> GetTokenDataAsync(LoginData loginData)
+        private async Task<TokenData> GetTokenDataAsync(LoginData loginData)
         {
             var response = await LoginAsync(loginData);
-
             var json = await response.Content.ReadAsStringAsync();
             var tokenData = JsonConvert.DeserializeObject<TokenData>(json);
 
             return tokenData;
         }
 
-        protected async Task<string> GetTokenAsync(LoginData loginData)
+        private async Task<string> GetTokenAsync(LoginData loginData)
         {
             var tokenData = await GetTokenDataAsync(loginData);
 
             return tokenData.Token;
         }
-
     }
 }

@@ -1,23 +1,11 @@
-using FluentAssertions;
-//using HowToTestYourCsharpWebApi.Api;
-//using HowToTestYourCsharpWebApi.Api.Ports;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tests.Helpers;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -26,24 +14,17 @@ namespace OsmIntegrator.Tests.Tests
     public class StopTests : IntegrationTest
     {
         private const int InitialStopQuantity = 20801;
-
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
             Password = "12345678",
         };
 
-        public StopTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
-
-
         [Fact]
         public async Task Get_GetAllTestAsync()
         {
             HttpResponseMessage response;
-
             var helper = new StopHelper(_factory.CreateClient(), _defaultLoginData);
-
             response = await helper.Get_GetAllTestAsync();
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -56,8 +37,11 @@ namespace OsmIntegrator.Tests.Tests
             {
                 Assert.True(false, $"Connection quantity is {connectionCount} but should be {InitialStopQuantity}.");
             }
-
             Assert.True(true);
         }
+
+
+        public StopTests(ApiWebApplicationFactory fixture)
+          : base(fixture) { }
     }
 }

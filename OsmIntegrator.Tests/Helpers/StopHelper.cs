@@ -2,20 +2,15 @@
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Helpers.Base;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OsmIntegrator.Tests.Helpers
 {
     public class StopHelper : BaseHelper
     {
-        private LoginData _loginData;
-
         public Dictionary<int, Stop> GetTestStopDict()
         {
             var list = new List<int>
@@ -49,15 +44,10 @@ namespace OsmIntegrator.Tests.Helpers
 
         public async Task<HttpResponseMessage> Get_GetAllTestAsync()
         {
-            //await LoginAsync(_loginData);
             var response = await _client.GetAsync("/api/Stop");
             return response;
         }
 
-
-        //public StopHelper(HttpClient factoryClient) : base(factoryClient)
-        //{
-        //}
         public StopHelper(HttpClient factoryClient, LoginData loginData) : base(factoryClient, loginData)
         {
         }

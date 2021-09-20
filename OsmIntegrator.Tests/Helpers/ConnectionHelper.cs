@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
+using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Helpers.Base;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace OsmIntegrator.Tests.Helpers
 {
     public class ConnectionHelper : BaseHelper
     {
+        private const string Route = "/api/Connections";
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
@@ -22,7 +24,6 @@ namespace OsmIntegrator.Tests.Helpers
 
         public Dictionary<string, ConnectionAction> GetTestConnectionDict()
         {
-
             var stopHelper = new StopHelper(_client, _defaultLoginData);
             var stopDict = stopHelper.GetTestStopDict();
 
@@ -46,37 +47,32 @@ namespace OsmIntegrator.Tests.Helpers
             return dict;
         }
 
-        public async Task<List<Connection>> GetConnectionListAsync()
+        public async Task<List<DbConnections>> GetConnectionListAsync()
         {
-            var token = await GetTokenAsync(_defaultLoginData);
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            var response = await _client.GetAsync("/api/Connections");
+            var response = await _client.GetAsync(Route);
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var connectionList = JsonConvert.DeserializeObject<Connection[]>(jsonResponse).ToList();
-            return connectionList;
+            var list = JsonConvert.DeserializeObject<DbConnections[]>(jsonResponse).Where(f => f.OperationType==Enums.ConnectionOperationType.Added).ToList();
+
+            return list;
         }
 
         public async Task<HttpResponseMessage> CreateConnection(ConnectionAction connectionAction)
         {
-            var token = await GetTokenAsync(_defaultLoginData);
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
             var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
-            var response = await _client.PutAsync("/api/Connections", content);
+            var response = await _client.PutAsync(Route, content);
             return response;
         }
 
         public async Task<HttpResponseMessage> DeleteConnection(ConnectionAction connectionAction)
         {
-            var token = await GetTokenAsync(_defaultLoginData);
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
             var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
 
             HttpRequestMessage requestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
-                RequestUri = new Uri($"{HttpAddressAndPort}api/Connections"),
+                RequestUri = new Uri($"{HttpAddressAndPort}{Route}"),
                 Content = content,
             };
             var response = await _client.SendAsync(requestMessage);
@@ -84,7 +80,7 @@ namespace OsmIntegrator.Tests.Helpers
         }
 
 
-        public ConnectionHelper(HttpClient factoryClient) : base(factoryClient)
+        public ConnectionHelper(HttpClient factoryClient, LoginData loginData) : base(factoryClient, loginData)
         {
         }
     }

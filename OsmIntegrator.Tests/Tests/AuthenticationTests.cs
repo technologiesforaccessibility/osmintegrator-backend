@@ -1,7 +1,6 @@
 using FluentAssertions;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
-using OsmIntegrator.Tests.Helpers;
 using OsmIntegrator.Tests.Helpers.Base;
 using System.Collections;
 using System.Collections.Generic;
