@@ -32,7 +32,7 @@ namespace OsmIntegrator.Tests.Tests
 
 
         [Fact]
-        public async Task InitialConnectionsTest()
+        public async Task InitialConnectionListTest()
         {
             var helper = new ConnectionHelper(_factory.CreateClient());
             var connectionList = await helper.GetConnectionListAsync();
@@ -52,7 +52,7 @@ namespace OsmIntegrator.Tests.Tests
             var connectionDict = helper.GetTestConnectionDict();
             var connectionAction = connectionDict["1-4"];
 
-            // Get an intitial connetionquantity
+            // Get an intitial connetion quantity
             var connectionList = await helper.GetConnectionListAsync();
             initialConnectionCount = connectionList.Where(f => f.Imported == true).ToList().Count;
             //if (connectionCount != InitialConnectionQuantity)

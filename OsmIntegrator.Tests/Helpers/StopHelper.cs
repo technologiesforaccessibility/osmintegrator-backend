@@ -14,6 +14,8 @@ namespace OsmIntegrator.Tests.Helpers
 {
     public class StopHelper : BaseHelper
     {
+        private LoginData _loginData;
+
         public Dictionary<int, Stop> GetTestStopDict()
         {
             var list = new List<int>
@@ -47,15 +49,16 @@ namespace OsmIntegrator.Tests.Helpers
 
         public async Task<HttpResponseMessage> Get_GetAllTestAsync()
         {
-            var token = await GetTokenAsync();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
+            //await LoginAsync(_loginData);
             var response = await _client.GetAsync("/api/Stop");
             return response;
         }
 
 
-        public StopHelper(HttpClient factoryClient) : base(factoryClient)
+        //public StopHelper(HttpClient factoryClient) : base(factoryClient)
+        //{
+        //}
+        public StopHelper(HttpClient factoryClient, LoginData loginData) : base(factoryClient, loginData)
         {
         }
 

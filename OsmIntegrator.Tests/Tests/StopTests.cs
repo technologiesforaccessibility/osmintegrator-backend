@@ -25,17 +25,24 @@ namespace OsmIntegrator.Tests.Tests
 {
     public class StopTests : IntegrationTest
     {
+        private const int InitialStopQuantity = 20801;
+
+        private LoginData _defaultLoginData = new LoginData
+        {
+            Email = "supervisor1@abcd.pl",
+            Password = "12345678",
+        };
+
         public StopTests(ApiWebApplicationFactory fixture)
           : base(fixture) { }
 
-        private const int InitialStopQuantity = 20801;
 
         [Fact]
         public async Task Get_GetAllTestAsync()
         {
             HttpResponseMessage response;
 
-            var helper = new StopHelper(_factory.CreateClient());
+            var helper = new StopHelper(_factory.CreateClient(), _defaultLoginData);
 
             response = await helper.Get_GetAllTestAsync();
             if (response.StatusCode != HttpStatusCode.OK)

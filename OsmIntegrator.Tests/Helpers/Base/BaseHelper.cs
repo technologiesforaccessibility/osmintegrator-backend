@@ -16,47 +16,30 @@ namespace OsmIntegrator.Tests.Helpers.Base
         protected const string HttpAddressAndPort = "https://localhost:44388/";
         protected HttpClient _client;
 
-
-        protected async Task<HttpResponseMessage> LoginAdminAsync()
-        {
-            var loginData = new LoginData
-            {
-                Email = "admin@abcd.pl",
-                Password = "12345678",
-            };
-            var jsonLoginData = JsonConvert.SerializeObject(loginData);
-            //var json = "{\"Email\":\"admin@abcd.pl\",\"Password\":\"12345678\"}";
-
-            var content = new StringContent(jsonLoginData, Encoding.UTF8, "application/json");
-
-            var response = await _client.PostAsync("/api/Account/Login", content);
-
-            return response;
-        }
-
-
-
         public BaseHelper(HttpClient factoryClient)
         {
             _client = factoryClient;
         }
 
-
-
-
-
-        protected async Task<TokenData> GetTokenDataAsync()
+        public BaseHelper(HttpClient factoryClient, LoginData loginData)
         {
-            //var loginData = new LoginData
-            //{
-            //    Email = "admin@abcd.pl",
-            //    Password = "12345678",
-            //};
-            //var jsonLoginData = JsonConvert.SerializeObject(loginData);
-            //var content = new StringContent(jsonLoginData, Encoding.UTF8, "application/json");
+            _client = factoryClient;
+            var token = GetTokenAsync(loginData).Result;
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
 
-            //var response = await _client.PostAsync("/api/Account/Login", content);
-            var response = await LoginAdminAsync();
+        public async Task<HttpResponseMessage> LoginAsync(LoginData loginData)
+        {
+            var jsonLoginData = JsonConvert.SerializeObject(loginData);
+            var content = new StringContent(jsonLoginData, Encoding.UTF8, "application/json");
+            var response = await _client.PostAsync("/api/Account/Login", content);
+
+            return response;
+        }
+
+        protected async Task<TokenData> GetTokenDataAsync(LoginData loginData)
+        {
+            var response = await LoginAsync(loginData);
 
             var json = await response.Content.ReadAsStringAsync();
             var tokenData = JsonConvert.DeserializeObject<TokenData>(json);
@@ -64,9 +47,9 @@ namespace OsmIntegrator.Tests.Helpers.Base
             return tokenData;
         }
 
-        protected async Task<string> GetTokenAsync()
+        protected async Task<string> GetTokenAsync(LoginData loginData)
         {
-            var tokenData = await GetTokenDataAsync();
+            var tokenData = await GetTokenDataAsync(loginData);
 
             return tokenData.Token;
         }

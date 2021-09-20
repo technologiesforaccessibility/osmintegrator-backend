@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Respawn;
 using System.Net.Http;
 using Xunit;
 
@@ -7,14 +6,6 @@ namespace OsmIntegrator.Tests.Fixtures
 {
     public abstract class IntegrationTest : IClassFixture<ApiWebApplicationFactory>
     {
-        //private readonly Checkpoint _checkpoint = new Checkpoint
-        //{
-        //    SchemasToInclude = new[] {
-        //    "Playground"
-        //},
-        //    WithReseed = true
-        //};
-
         protected readonly ApiWebApplicationFactory _factory;
         protected readonly HttpClient _client;
         protected readonly IConfiguration _configuration;
@@ -26,9 +17,6 @@ namespace OsmIntegrator.Tests.Fixtures
             _configuration = new ConfigurationBuilder()
                   .AddJsonFile("integrationsettings.json")
                   .Build();
-
-            // if needed, reset the DB
-            //_checkpoint.Reset(_configuration.GetConnectionString("SQL")).Wait();
         }
     }
 

@@ -15,10 +15,10 @@ namespace OsmIntegrator.Tests.Helpers
     public class AuthenticationHelper : BaseHelper
     {
 
-        public async Task<HttpResponseMessage> LoginUserAdminAsync()
-        {
-            return await LoginAdminAsync();
-        }
+        //public async Task<HttpResponseMessage> LoginUserAdminAsync()
+        //{
+        //    return await LoginAdminAsync();
+        //}
 
         public AuthenticationHelper(HttpClient factoryClient) : base(factoryClient)
         {
