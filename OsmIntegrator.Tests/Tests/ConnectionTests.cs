@@ -129,7 +129,8 @@ namespace OsmIntegrator.Tests.Tests
         }
 
 
-        public ConnectionTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
+        public ConnectionTests(ApiWebApplicationFactory fixture) : base(fixture) 
+        { 
+        }
     }
 }
