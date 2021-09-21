@@ -353,5 +353,33 @@ namespace OsmIntegrator.Database.DataInitialization
 
             return result.Values.ToList();
         }
+
+        public void ClearDatabase(ApplicationDbContext db)
+        {
+            using (var transaction = db.Database.BeginTransaction())
+            {
+                try
+                {
+                    db.Notes.RemoveRange(db.Notes);
+                    db.Connections.RemoveRange(db.Connections);
+                    db.Stops.RemoveRange(db.Stops);
+                    db.Tiles.RemoveRange(db.Tiles);
+
+                    db.Roles.RemoveRange(db.Roles);
+                    db.Users.RemoveRange(db.Users);
+                    db.UserRoles.RemoveRange(db.UserRoles);
+
+                    db.SaveChanges();
+
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    transaction.Rollback();
+                    throw;
+                }
+            }
+        }
     }
 }

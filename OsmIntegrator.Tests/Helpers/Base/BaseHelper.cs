@@ -1,13 +1,14 @@
 ﻿using Newtonsoft.Json;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using osmintegrator;
+using OsmIntegrator.Database;
+using OsmIntegrator.Database.DataInitialization;
 
 namespace OsmIntegrator.Tests.Helpers.Base
 {
@@ -28,16 +29,30 @@ namespace OsmIntegrator.Tests.Helpers.Base
 
         public BaseHelper(HttpClient factoryClient)
         {
-            _client = factoryClient;
+            CtorHelper(factoryClient);
         }
 
         public BaseHelper(HttpClient factoryClient, LoginData loginData)
         {
-            _client = factoryClient;
+            CtorHelper(factoryClient);
             var token = GetTokenAsync(loginData).Result;
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
+        public void CtorHelper(HttpClient factoryClient)
+        { 
+            _client = factoryClient;
+
+            // Refill database
+            IHost host = Program.CreateHostBuilder(null).Build();
+            using (var scope = host.Services.CreateScope())
+            {
+                ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                DataInitializer _dataInitializer = host.Services.GetService<DataInitializer>();
+                _dataInitializer.ClearDatabase(db);
+                _dataInitializer.Initialize(db);
+            }
+        }
 
         private async Task<TokenData> GetTokenDataAsync(LoginData loginData)
         {

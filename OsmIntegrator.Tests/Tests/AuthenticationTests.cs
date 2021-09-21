@@ -12,9 +12,6 @@ namespace OsmIntegrator.Tests.Tests
 {
     public class AuthenticationTests : IntegrationTest
     {
-        public AuthenticationTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
-
         [Theory]
         [ClassData(typeof(CalculatorTestData))]
         public async Task LoginTest(string email, string password)
@@ -42,6 +39,10 @@ namespace OsmIntegrator.Tests.Tests
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public AuthenticationTests(ApiWebApplicationFactory fixture) : base(fixture)
+        {
         }
     }
 }
