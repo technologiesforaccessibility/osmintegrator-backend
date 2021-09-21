@@ -2,6 +2,7 @@ using FluentAssertions;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tests.Helpers;
+using OsmIntegrator.Tests.Tests.Base;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -24,22 +25,23 @@ namespace OsmIntegrator.Tests.Tests
         {
             var initialConnectionQuantity = 7;
 
+            TestHelper.RefillDatabase();
+
             var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
             var connectionList = await helper.GetConnectionListAsync();
             connectionList.Should().HaveCount(initialConnectionQuantity);
         }
 
         [Fact]
-        public async Task CreateConnectionTest()
+        public async Task CreateAllowedConnectionTest()
         {
             int initialConnectionCount;
             HttpResponseMessage response;
 
+            TestHelper.RefillDatabase();
+
             var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
-
-
-            var connectionDict = helper.GetTestConnectionDict();
-            var connectionAction = connectionDict["1-4"];
+            var connectionAction = helper.CreateConnection(1, 4); 
 
             // Get an intitial connetion quantity
             var connectionList = await helper.GetConnectionListAsync();
@@ -64,16 +66,35 @@ namespace OsmIntegrator.Tests.Tests
             Assert.True(true);
         }
 
+        [Theory]
+        [InlineData(1, 2, HttpStatusCode.OK)]               // two stops of differen types
+        [InlineData(1, 3, HttpStatusCode.BadRequest)]       // two stops of the same type
+        [InlineData(1, 6, HttpStatusCode.OK)]               // OSM inside the tile and GTFS outside in acceptable distance
+        [InlineData(2, 5, HttpStatusCode.BadRequest)]       // GTFS inside the tile and OSM outside in acceptable distance
+        [InlineData(1, 10, HttpStatusCode.BadRequest)]      // OSM inside the tile and GTFS outside in not acceptable distance
+        [InlineData(2, 9, HttpStatusCode.BadRequest)]       // GTFS inside the tile and OSM outside in not acceptable distance
+        public async Task SerialCreateConnectionTest(int leftStopId, int rightStopId, HttpStatusCode httpStatusCode)
+        {
+            TestHelper.RefillDatabase();
+
+            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
+            var connectionAction = helper.CreateConnection(leftStopId, rightStopId);
+
+            // Create a new connection
+            HttpResponseMessage response = await helper.CreateConnection(connectionAction);
+            response.StatusCode.Should().Be(httpStatusCode);
+        }
+
         [Fact]
-        public async Task CreateAndDeleteConnectionTest()
+        public async Task CreateAndDeleteAllowedConnectionTest()
         {
             int initialConnectionCount;
             HttpResponseMessage response;
 
-            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
+            TestHelper.RefillDatabase();
 
-            var connectionDict = helper.GetTestConnectionDict();
-            var connectionAction = connectionDict["1-4"];
+            var helper = new ConnectionHelper(_factory.CreateClient(), _defaultLoginData);
+            var connectionAction = helper.CreateConnection(1, 4);
 
             // Get an intitial connetionquantity
             var connectionList = await helper.GetConnectionListAsync();

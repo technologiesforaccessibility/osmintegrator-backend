@@ -29,29 +29,19 @@ namespace OsmIntegrator.Tests.Helpers.Base
 
         public BaseHelper(HttpClient factoryClient)
         {
-            CtorHelper(factoryClient);
+            GetClient(factoryClient);
         }
 
         public BaseHelper(HttpClient factoryClient, LoginData loginData)
         {
-            CtorHelper(factoryClient);
+            GetClient(factoryClient);
             var token = GetTokenAsync(loginData).Result;
             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        public void CtorHelper(HttpClient factoryClient)
+        private void GetClient(HttpClient factoryClient)
         { 
             _client = factoryClient;
-
-            // Refill database
-            IHost host = Program.CreateHostBuilder(null).Build();
-            using (var scope = host.Services.CreateScope())
-            {
-                ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                DataInitializer _dataInitializer = host.Services.GetService<DataInitializer>();
-                _dataInitializer.ClearDatabase(db);
-                _dataInitializer.Initialize(db);
-            }
         }
 
         private async Task<TokenData> GetTokenDataAsync(LoginData loginData)

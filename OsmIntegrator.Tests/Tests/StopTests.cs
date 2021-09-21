@@ -3,6 +3,7 @@ using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tests.Helpers;
+using OsmIntegrator.Tests.Tests.Base;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -23,6 +24,8 @@ namespace OsmIntegrator.Tests.Tests
         [Fact]
         public async Task Get_GetAllTestAsync()
         {
+            TestHelper.RefillDatabase();
+
             HttpResponseMessage response;
             var helper = new StopHelper(_factory.CreateClient(), _defaultLoginData);
             response = await helper.Get_GetAllTestAsync();
