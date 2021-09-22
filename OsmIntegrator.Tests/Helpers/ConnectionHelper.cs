@@ -22,29 +22,16 @@ namespace OsmIntegrator.Tests.Helpers
             Password = "12345678",
         };
 
-        public Dictionary<string, ConnectionAction> GetTestConnectionDict()
+        public ConnectionAction CreateConnection(int firstStopId, int secondStopId)
         {
             var stopHelper = new StopHelper(_client, _defaultLoginData);
             var stopDict = stopHelper.GetTestStopDict();
-
-            var dict = new Dictionary<string, ConnectionAction>();
-
-            dict.Add(
-                "1-2",
-                new ConnectionAction
+            var connectionAction = new ConnectionAction
                 {
-                    OsmStopId = stopDict[1].Id,            // 159541
-                    GtfsStopId = stopDict[2].Id,           // 1831941739
-                });
-            dict.Add(
-                "1-4",
-                new ConnectionAction
-                {
-                    OsmStopId = stopDict[1].Id,            // 159541
-                    GtfsStopId = stopDict[4].Id,           // 159542
-                });
-
-            return dict;
+                    OsmStopId = stopDict[firstStopId].Id,
+                    GtfsStopId = stopDict[secondStopId].Id,
+                };
+            return connectionAction;
         }
 
         public async Task<List<DbConnections>> GetConnectionListAsync()

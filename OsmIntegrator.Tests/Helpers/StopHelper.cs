@@ -15,10 +15,10 @@ namespace OsmIntegrator.Tests.Helpers
         {
             var list = new List<int>
             {
-                159541,
-                1831941739,
-                159542,
-                1905028012,
+                159541,         // 1 - Key in Dictionary
+                1831941739,     // 2
+                159542,         // 3
+                1905028012,     
 
                 159077,
                 1831944331,
@@ -26,13 +26,13 @@ namespace OsmIntegrator.Tests.Helpers
                 159076,
 
                 159061,
-                1584594015,
+                1584594015,     // 10
             };
 
             var dbStopList = GetStopListAsync().Result;
 
             return list
-                .Select((x, index) => new { Key = index, Value = x })
+                .Select((x, index) => new { Key = ++index, Value = x })
                 .Join(
                     dbStopList,
                     l => l.Value,

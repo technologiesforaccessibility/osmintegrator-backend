@@ -2,6 +2,7 @@ using FluentAssertions;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tests.Helpers.Base;
+using OsmIntegrator.Tests.Tests.Base;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -12,13 +13,12 @@ namespace OsmIntegrator.Tests.Tests
 {
     public class AuthenticationTests : IntegrationTest
     {
-        public AuthenticationTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
-
         [Theory]
         [ClassData(typeof(CalculatorTestData))]
         public async Task LoginTest(string email, string password)
         {
+            TestHelper.RefillDatabase();
+
             var loginData = new LoginData
             {
                 Email = email,
@@ -42,6 +42,10 @@ namespace OsmIntegrator.Tests.Tests
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        public AuthenticationTests(ApiWebApplicationFactory fixture) : base(fixture)
+        {
         }
     }
 }
