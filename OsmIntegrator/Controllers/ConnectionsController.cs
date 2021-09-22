@@ -18,7 +18,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Validators;
 using OsmIntegrator.Enums;
-using System.Net;
 using Microsoft.Extensions.Localization;
 
 namespace OsmIntegrator.Controllers
@@ -60,7 +59,7 @@ namespace OsmIntegrator.Controllers
         /// <returns>Generic result or error.</returns>
         [HttpPut()]
         [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
-        public async Task<IActionResult> Add([FromBody] ConnectionAction connectionAction)
+        public async Task<IActionResult> Add([FromBody] NewConnectionAction connectionAction)
         {
 
             // Check if connection already exists and has not been deleted.
@@ -104,11 +103,17 @@ namespace OsmIntegrator.Controllers
             // Check if OSM stop has already been connected to another stop.
             DbStop osmStop = await _dbContext.Stops
                 .Include(x => x.OsmConnections)
+                .Include(x => x.Tile)
                 .FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
 
             if (osmStop == null)
             {
                 throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
+            }
+
+            if(osmStop.Tile.Id != connectionAction.TileId)
+            {
+              throw new BadHttpRequestException(_localizer["OSM stop needs to be placed inside the tile"]);
             }
 
             DbConnections osmConnection = osmStop.OsmConnections
