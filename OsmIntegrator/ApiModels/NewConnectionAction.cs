@@ -5,8 +5,10 @@ using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.ApiModels
 {
-  public class ConnectionAction
+  public class NewConnectionAction
   {
+    [Required]
+    public Guid? TileId { get; set; }
     [Required]
     public Guid? OsmStopId { get; set; }
     [Required]

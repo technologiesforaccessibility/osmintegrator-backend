@@ -121,6 +121,10 @@
     <value>Upewnij się że wybrano poprawne przystanki</value>
     <comment/>
   </data>
+  <data name="OSM stop needs to be placed inside the tile" xml:space="preserve">
+    <value>Przystanek OSM musi być położony wewnątrz kafelka</value>
+    <comment/>
+  </data>
   <data name="Connection approved" xml:space="preserve">
     <value>Połączenie zatwierdzone</value>
     <comment/>
