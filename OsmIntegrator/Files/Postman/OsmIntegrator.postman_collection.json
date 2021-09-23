@@ -1462,7 +1462,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"OsmStopId\": \"c2f0e4aa-403e-4ff7-9fc2-2f35cf3d9d1e\",\n    \"GtfsStopId\": \"342b18e0-494f-4527-b5a1-6909c553078f\"\n}",
+							"raw": "{\n    \"TileId\": \"{{firstTileId}}\",\n    \"OsmStopId\": \"fa396062-65d9-405a-89fc-5b2e9ee65d43\",\n    \"GtfsStopId\": \"baab739f-44cf-4536-932e-7faa32937561\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1884,6 +1884,29 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.request.headers.add({",
+					"  key: 'Accept-Language',",
+					"  value: 'pl-pl'",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
