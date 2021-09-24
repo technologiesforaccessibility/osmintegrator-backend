@@ -4,10 +4,15 @@ services:
     app:
         build: .
         restart: always
+        environment:
+            - USER_SECRETS_ID=8c183771-ef09-43ea-8e59-8d9f5ec2235b
         depends_on:
             - db
         env_file:
             - .env.production # that does not exist in the repo, need to be adjusted for tahrget server
+        volumes:
+            - $APPDATA/Microsoft/UserSecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID
+            - $HOME/.microsoft/usersecrets/$USER_SECRETS_ID:/root/.microsoft/usersecrets/$USER_SECRETS_ID
 
     nginx:
         image: nginx
