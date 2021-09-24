@@ -22,15 +22,21 @@ namespace OsmIntegrator.Tests.Helpers
             Password = "12345678",
         };
 
-        public ConnectionAction CreateConnection(int firstStopId, int secondStopId)
-        {
+        public NewConnectionAction CreateConnection(int gtfsStopId, int osmStopId, int tileId)
+        { 
+
             var stopHelper = new StopHelper(_client, _defaultLoginData);
             var stopDict = stopHelper.GetTestStopDict();
-            var connectionAction = new ConnectionAction
-                {
-                    OsmStopId = stopDict[firstStopId].Id,
-                    GtfsStopId = stopDict[secondStopId].Id,
-                };
+            var tileHelper = new TileHelper(_client, _defaultLoginData);
+            var tileDict = tileHelper.GetTestTileDict();
+
+            var connectionAction = new NewConnectionAction
+            {
+                OsmStopId = stopDict[osmStopId].Id,
+                GtfsStopId = stopDict[gtfsStopId].Id,
+                TileId = tileDict[tileId].Id,
+            };
+
             return connectionAction;
         }
 
@@ -43,7 +49,7 @@ namespace OsmIntegrator.Tests.Helpers
             return list;
         }
 
-        public async Task<HttpResponseMessage> CreateConnection(ConnectionAction connectionAction)
+        public async Task<HttpResponseMessage> CreateConnection(NewConnectionAction connectionAction)
         {
             var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
             var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
