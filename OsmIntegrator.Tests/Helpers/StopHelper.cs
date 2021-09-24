@@ -15,8 +15,8 @@ namespace OsmIntegrator.Tests.Helpers
         {
             var list = new List<int>
             {
-                159541,         // 1 - Key in Dictionary
-                1831941739,     // 2
+                159541,         // 1 - Gtfs
+                1831941739,     // 2 - Osm
                 159542,         // 3
                 1905028012,     
 
