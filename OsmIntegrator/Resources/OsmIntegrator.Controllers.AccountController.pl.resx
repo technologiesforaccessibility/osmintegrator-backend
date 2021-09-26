@@ -125,12 +125,20 @@
         <value>Rejestracja przebiegła pomyślnie</value>
         <comment/>
     </data>
+    <data name="An error occurred when registering the user" xml:space="preserve">
+        <value>Wystąpił problem podczas rejestracji uytkownika</value>
+        <comment/>
+    </data>
     <data name="Email occupied" xml:space="preserve">
         <value>Email jest już zajęty</value>
         <comment/>
     </data>
-    <data name="Registration confirmed" xml:space="preserve">
-        <value>Rejestracja przebiegła pomyślnie</value>
+    <data name="User name has already been occupied" xml:space="preserve">
+        <value>Nazwa użytkownika jest już zajęta</value>
+        <comment/>
+    </data>
+    <data name="Your account has been activated" xml:space="preserve">
+        <value>Twoje konto zostało aktywowane</value>
         <comment/>
     </data>
     <data name="User with this email does not exist" xml:space="preserve">
