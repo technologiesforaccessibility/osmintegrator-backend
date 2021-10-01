@@ -73,7 +73,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles.Include(x => x.Users)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.SupervisorApproved == null)
+          .Where(x => x.SupervisorApprovedId == null)
           .ToListAsync();
         tiles.AddRange(supervisorTiles);
       }
@@ -82,7 +82,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> coordinatorTiles = await _dbContext.Tiles.Include(x => x.Users)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.EditorApproved != null && x.SupervisorApproved != null).ToListAsync();
+          .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
         tiles.AddRange(coordinatorTiles);
       }
 
@@ -102,7 +102,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles.Include(x => x.Users)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.EditorApproved != null && x.SupervisorApproved == null)
+          .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId == null)
           .Where(x => !x.Users.Any(x => x.Id == user.Id))
           .ToListAsync();
         tiles.AddRange(supervisorTiles);
@@ -111,7 +111,7 @@ namespace OsmIntegrator.Controllers
       if (roles.Contains(UserRoles.COORDINATOR))
       {
         List<DbTile> coordinatorTiles = await _dbContext.Tiles.Include(x => x.Users).Where(
-          x => x.GtfsStopsCount > 0 && x.EditorApproved != null && x.SupervisorApproved != null).ToListAsync();
+          x => x.GtfsStopsCount > 0 && x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
         tiles.AddRange(coordinatorTiles);
       }
 
@@ -120,7 +120,7 @@ namespace OsmIntegrator.Controllers
         List<DbTile> editorTiles = await _dbContext.Tiles.Include(x => x.Users)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.Users.Any(x => x.Id == user.Id))
-          .Where(x => x.EditorApproved == null && x.SupervisorApproved == null)
+          .Where(x => x.EditorApprovedId == null && x.SupervisorApprovedId == null)
           .ToListAsync();
         tiles.AddRange(editorTiles);
       }
