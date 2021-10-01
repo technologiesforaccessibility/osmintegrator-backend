@@ -21,7 +21,6 @@ using OsmIntegrator.Roles;
 
 namespace OsmIntegrator.Controllers
 {
-
   [Produces(MediaTypeNames.Application.Json)]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -295,9 +294,14 @@ namespace OsmIntegrator.Controllers
 
       List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(user);
 
-      if (userRoles.Contains(UserRoles.SUPERVISOR))
+      if (currentTile.SupervisorApproved != null)
       {
-        if(currentTile.Users.Any(x => x.Id == user.Id))
+        throw new BadHttpRequestException(_localizer["Tile has already been approved by supervisor"]);
+      }
+
+      if (currentTile.EditorApproved != null && userRoles.Contains(UserRoles.SUPERVISOR))
+      {
+        if (currentTile.Users.Any(x => x.Id == user.Id))
         {
           throw new BadHttpRequestException(_localizer["Supervisor cannot approve tile edited by himself"]);
         }
@@ -305,18 +309,18 @@ namespace OsmIntegrator.Controllers
         currentTile.SupervisorApproved = user;
         currentTile.SupervisorApprovalTime = DateTime.Now;
       }
-      else if (userRoles.Contains(UserRoles.EDITOR))
+      else if (currentTile.EditorApproved == null && userRoles.Contains(UserRoles.EDITOR))
       {
         currentTile.EditorApproved = user;
         currentTile.EditorApprovalTime = DateTime.Now;
       }
       else
       {
-        throw new BadHttpRequestException(_localizer["User doesn't contain required roles"]);
+        _logger.LogError($"Problem with assigning user to tile. Tile id: {currentTile.Id}, editor approved: {currentTile.EditorApproved != null}, supervisor approved: {currentTile.SupervisorApproved != null}.");
+        throw new BadHttpRequestException(_localizer["Something went wrong when assigning user to a tile"]);
       }
 
       _dbContext.SaveChanges();
-
       await SendEmails(currentTile);
 
       return Ok(_localizer["Tile approved"]);

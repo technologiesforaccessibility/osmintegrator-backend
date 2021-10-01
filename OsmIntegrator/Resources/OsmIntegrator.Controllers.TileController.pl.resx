@@ -142,6 +142,10 @@
         <value>Przypisanie użytkownika usunięte</value>
         <comment/>
     </data>
+    <data name="Tile has already been approved by supervisor" xml:space="preserve">
+        <value>Kafelek został już zaakceptowany przez superwizora</value>
+        <comment/>
+    </data>
     <data name="Unable to remove user from already approved tile" xml:space="preserve">
         <value>Nie można usunąć użytkownika z kafelka zatwierdzonego przez edytora</value>
         <comment/>
@@ -162,8 +166,8 @@
         <value>Jeden z kafelków został zatwierdzony</value>
         <comment/>
     </data>
-    <data name="User doesn't contain required roles" xml:space="preserve">
-        <value>Użytkownik nie posiada wymaganych ról</value>
+    <data name="Something went wrong when assigning user to a tile" xml:space="preserve">
+        <value>Wystąpił błąd podczas przypisywania użytkownika do kafelka</value>
     </data>
     <data name="User has been added to the tile" xml:space="preserve">
         <value>Użytkownik został przypisany do kafelka</value>

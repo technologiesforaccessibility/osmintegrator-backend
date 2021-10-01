@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
-using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Roles;
 
