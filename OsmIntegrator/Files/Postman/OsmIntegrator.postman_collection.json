@@ -89,7 +89,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"admin@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"admin@abcd.pl\",\r\n    \"Password\": \"admin#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -138,7 +138,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"editor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"editor1@abcd.pl\",\r\n    \"Password\": \"editor1#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -187,7 +187,56 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"supervisor1#12345678\"\r\n}"
+						},
+						"url": {
+							"raw": "{{host}}/api/Account/Login",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Account",
+								"Login"
+							]
+						},
+						"description": "Account/Login"
+					},
+					"response": []
+				},
+				{
+					"name": "Login SE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"token\", data.token);",
+									"pm.environment.set(\"refreshToken\", data.refreshToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Cache-Control",
+								"value": "no-cache"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"Email\": \"supervisor2@abcd.pl\",\r\n    \"Password\": \"supervisor2#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -236,7 +285,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"coordinator1@abcd.pl\",\r\n    \"Password\": \"12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"coordinator1@abcd.pl\",\r\n    \"Password\": \"coordinator1#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -272,7 +321,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Username\": \"luktar\",\r\n\t\"Email\": \"luktar@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
+							"raw": "{\r\n    \"Username\": \"luktar4\",\r\n\t\"Email\": \"luktar2@gmail.com\",\r\n\t\"Password\": \"12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Register",
@@ -795,6 +844,55 @@
 					"response": []
 				},
 				{
+					"name": "GetAllTiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"firstTileId\", data[0].id);",
+									"",
+									"var result = data.filter( element => element.x === 2264 && element.y === 1384);",
+									"pm.environment.set(\"tile_2264_1384\", result[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetAllTiles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetAllTiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GetStops",
 					"request": {
 						"auth": {
@@ -956,7 +1054,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"df03df13-6dd9-444f-81f9-2c7ac3229c2\"\n}",
+							"raw": "{\n    \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

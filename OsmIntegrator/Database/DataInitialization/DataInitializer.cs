@@ -48,19 +48,11 @@ namespace OsmIntegrator.Database.DataInitialization
                     AddRole(db.Roles, adminRoleId, OsmIntegrator.Roles.UserRoles.ADMIN);
 
                     AddUser(db.Users, db.UserRoles, Guid.Parse("c514ae13-d80a-40b1-90d0-df88ccca73ec"), "user1@abcd.pl", new List<Guid>() { editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("56164fad-3ac3-444f-a31a-b78104db193a"), "user2@abcd.pl", new List<Guid>() { editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("54712763-695c-4efe-bbac-6f41403aab5a"), "user3@abcd.pl", new List<Guid>() { editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("0c06b082-d711-4535-afab-3c94ff30be93"), "user4@abcd.pl", new List<Guid>() { editorRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("9815ba57-e990-4f91-a8e9-17abe977d681"), "editor1@abcd.pl", new List<Guid>() { editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"), "editor2@abcd.pl", new List<Guid>() { editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"), "supervisor1@abcd.pl", new List<Guid>() { editorRoleId, supervisorRoleId });
+                    AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"), "supervisor1@abcd.pl", new List<Guid>() { supervisorRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("58fb0db2-0d67-4aa4-af63-9e7111d0b346"), "supervisor2@abcd.pl", new List<Guid>() { supervisorRoleId, editorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("e06b45c4-2090-4bba-83f0-ae4cfeaf6669"), "supervisor3@abcd.pl", new List<Guid>() { editorRoleId, supervisorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), "coordinator1@abcd.pl", new List<Guid>() { editorRoleId, coordinatorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("df03df13-6dd9-444f-81f9-2c7ac3229c26"), "coordinator2@abcd.pl", new List<Guid>() { editorRoleId, coordinatorRoleId, supervisorRoleId, uploaderRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("d117c862-a563-4baf-bb9f-fd1024ac71b0"), "uploader1@abcd.pl", new List<Guid>() { editorRoleId, uploaderRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("ed694889-5518-47d2-86e5-a71052361673"), "uploader2@abcd.pl", new List<Guid>() { editorRoleId, supervisorRoleId, coordinatorRoleId });
-                    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { editorRoleId, adminRoleId });
+                    AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), "coordinator1@abcd.pl", new List<Guid>() { coordinatorRoleId });
+                    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { adminRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { editorRoleId, adminRoleId, supervisorRoleId });
 
                     db.SaveChanges();
