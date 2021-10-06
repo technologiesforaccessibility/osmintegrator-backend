@@ -26,6 +26,14 @@ namespace OsmIntegrator.Database.DataInitialization
 
         public void Initialize(ApplicationDbContext db)
         {
+            List<DbStop> gtfsStops = GetGtfsStopsList();
+            List<DbStop> osmStops = GetOsmStopsList();
+
+            Initialize(db, gtfsStops, osmStops);
+        }
+
+        public void Initialize(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
+        {
             using (var transaction = db.Database.BeginTransaction())
             {
                 try
@@ -54,18 +62,15 @@ namespace OsmIntegrator.Database.DataInitialization
                     AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), "coordinator1@abcd.pl", new List<Guid>() { coordinatorRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { adminRoleId });
                     AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { editorRoleId, adminRoleId, supervisorRoleId });
-
+                    AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"), "editor2@abcd.pl", new List<Guid>() { editorRoleId });
                     db.SaveChanges();
-
-                    List<DbStop> gtfsStops = GetGtfsStopsList();
-                    List<DbStop> osmStops = GetOsmStopsList();
 
                     List<DbStop> allStops = new List<DbStop>();
                     allStops.AddRange(osmStops);
                     allStops.AddRange(gtfsStops);
                     List<DbTile> tiles = GetTiles(allStops);
 
-                    DbTile tile_2264_1384 = tiles.FirstOrDefault(x => x.X == 2264 && x.Y == 1384);
+                    DbTile tile_2263_1385 = tiles.FirstOrDefault(x => x.X == 2263 && x.Y == 1385);
 
                     List<ApplicationUser> users = db.Users.Where(x => x.UserName.Contains("editor")).ToList();
                     ApplicationUser editor1 = users[0];
@@ -74,18 +79,15 @@ namespace OsmIntegrator.Database.DataInitialization
                     List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
                     ApplicationUser supervisor1 = supervisors[0];
 
-                    tiles[0].Users = tiles[1].Users = tiles[2].Users = tile_2264_1384.Users = new List<ApplicationUser> { editor1 };
-
-                    tiles[3].Users = tiles[4].Users = tiles[5].Users = new List<ApplicationUser> { editor2 };
-
-                    tile_2264_1384.EditorApproved = editor1;
-                    tile_2264_1384.EditorApprovalTime = DateTime.Now;
+                    tiles[0].Users = tiles[1].Users = tile_2263_1385.Users = new List<ApplicationUser> { editor1 };
+                    tiles[0].EditorApproved = tiles[1].EditorApproved = tile_2263_1385.EditorApproved = editor1;
+                    tiles[0].EditorApprovalTime = tiles[1].EditorApprovalTime = tile_2263_1385.EditorApprovalTime = DateTime.Now;
 
                     db.Stops.AddRange(allStops);
                     db.Tiles.AddRange(tiles);
                     db.SaveChanges();
 
-                    DbTile tile = db.Tiles.First(x => x.X == 2264 && x.Y == 1384);
+                    DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
 
                     DbNote note1 = new DbNote
                     {

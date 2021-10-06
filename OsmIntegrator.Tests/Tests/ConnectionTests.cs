@@ -17,14 +17,14 @@ namespace OsmIntegrator.Tests.Tests
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
-            Password = "12345678",
+            Password = "supervisor1#12345678",
         };
 
 
         [Fact]
         public async Task InitialConnectionListTest()
         {
-            var initialConnectionQuantity = 7;
+            var initialConnectionQuantity = 0;
 
             TestHelper.RefillDatabase();
 

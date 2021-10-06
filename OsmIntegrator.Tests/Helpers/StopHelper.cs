@@ -11,23 +11,28 @@ namespace OsmIntegrator.Tests.Helpers
 {
     public class StopHelper : BaseHelper
     {
+        public static Dictionary<int, int> GetTestStopIdDict()
+        {
+            var dict = new Dictionary<int, int>();
+            dict.Add(159541, 1);
+            dict.Add(1831941739, 2);
+            dict.Add(159542, 1);
+            dict.Add(1905028012, 2);
+
+            dict.Add(159077, 1);
+            dict.Add(1831944331, 2);
+            dict.Add(1905039171, 2);
+            dict.Add(159076, 1);
+
+            dict.Add(159061, 1);
+            dict.Add(1584594015, 2);
+
+            return dict;
+        }
+
         public Dictionary<int, Stop> GetTestStopDict()
         {
-            var list = new List<int>
-            {
-                159541,         // 1 - Gtfs
-                1831941739,     // 2 - Osm
-                159542,         // 3
-                1905028012,     
-
-                159077,
-                1831944331,
-                1905039171,
-                159076,
-
-                159061,
-                1584594015,     // 10
-            };
+            var list = GetTestStopIdDict().Select(x => x.Key);
 
             var dbStopList = GetStopListAsync().Result;
 
