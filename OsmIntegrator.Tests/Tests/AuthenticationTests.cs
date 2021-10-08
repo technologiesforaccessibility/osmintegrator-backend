@@ -35,10 +35,10 @@ namespace OsmIntegrator.Tests.Tests
         {
             public IEnumerator<object[]> GetEnumerator()
             {
-                yield return new object[] { "admin@abcd.pl", "12345678" };
-                yield return new object[] { "supervisor1@abcd.pl", "12345678" };
-                yield return new object[] { "editor1@abcd.pl", "12345678" };
-                yield return new object[] { "user1@abcd.pl", "12345678" };
+                yield return new object[] { "admin@abcd.pl", "admin#12345678" };
+                yield return new object[] { "supervisor1@abcd.pl", "supervisor1#12345678" };
+                yield return new object[] { "editor1@abcd.pl", "editor1#12345678" };
+                yield return new object[] { "user1@abcd.pl", "user1#12345678" };
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

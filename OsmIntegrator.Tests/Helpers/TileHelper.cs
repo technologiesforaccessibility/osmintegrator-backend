@@ -16,18 +16,11 @@ namespace OsmIntegrator.Tests.Helpers
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
-            Password = "12345678",
+            Password = "supervisor1#12345678",
         };
 
         public Dictionary<int, Tile> GetTestTileDict()
         {
-            //var list = new List<string>
-            //{
-            //    "fa71c5ff-8804-4a86-8d63-c7b1f8953829",         // 1 - left tile
-            //    "e2290ef9-2c1f-4869-be6c-d2cca15328b2",         // 2 - right tile
-            //    //"04328842-4556-4903-80e8-a689848dd3f1",         // 3 - another tile
-            //};
-
             var dbList = GetTileListAsync().Result;
 
             return _tileIdList

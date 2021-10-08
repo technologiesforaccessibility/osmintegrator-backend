@@ -19,7 +19,7 @@ namespace OsmIntegrator.Tests.Helpers
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
-            Password = "12345678",
+            Password = "supervisor1#12345678",
         };
 
         public NewConnectionAction CreateConnection(int gtfsStopId, int osmStopId, int tileId)
