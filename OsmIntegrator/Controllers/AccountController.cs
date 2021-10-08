@@ -18,6 +18,7 @@ using System.Net.Mime;
 using OsmIntegrator.Database.Models;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Roles;
+using MimeKit;
 
 namespace OsmIntegrator.Controllers
 {
@@ -209,17 +210,45 @@ namespace OsmIntegrator.Controllers
 
       if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
       {
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+        string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         await _userManager.ConfirmEmailAsync(user, token);
         await _userManager.AddToRoleAsync(user, UserRoles.EDITOR);
         return Ok(_localizer["User registered. No email confirmation required"]);
       }
 
-      var t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-      string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t;
-      _emailService.Send(model.Email, _localizer["Confirm account registration"], _localizer["Click to confirm account registration:"] + " " + urlToResetPassword);
+      string t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+      _emailService.Send(RegisterMessageBuilder(model, _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t));
       await _userManager.AddToRoleAsync(user, UserRoles.EDITOR);
       return Ok(_localizer["Confirmation email sent"]);
+    }
+
+    private MimeMessage RegisterMessageBuilder(RegisterData model, string url) {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      message.To.Add(MailboxAddress.Parse(model.Email));
+      message.Subject = _localizer["Confirm account registration"];
+
+      BodyBuilder builder = new BodyBuilder ();
+
+      builder.TextBody = $@"{_localizer["Hello"]} {model.Username},
+      {_localizer["You have just created an account on the site. To activate your account, click on the link below."]}
+      {url}
+      {_localizer["Regards"]},
+      {_localizer["OsmIntegrator Team"]},
+      rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {model.Username},</h3>
+      <p>{_localizer["You have just created an account on the site. To activate your account, click on the link below."]}</p><br/>
+      <a href=""{url}"">{url}</a>
+      <p>{_localizer["Regards"]},</p>
+      <p>{_localizer["OsmIntegrator Team"]},</p>
+      <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      return message;
     }
 
     private async void RemoveUser(ApplicationUser user)
