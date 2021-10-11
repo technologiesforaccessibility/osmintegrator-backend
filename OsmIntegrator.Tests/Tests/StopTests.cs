@@ -14,11 +14,11 @@ namespace OsmIntegrator.Tests.Tests
 {
     public class StopTests : IntegrationTest
     {
-        private const int InitialStopQuantity = 20801;
+        private const int InitialStopQuantity = 10;
         private LoginData _defaultLoginData = new LoginData
         {
             Email = "supervisor1@abcd.pl",
-            Password = "12345678",
+            Password = "supervisor1#12345678",
         };
 
         [Fact]
@@ -35,10 +35,10 @@ namespace OsmIntegrator.Tests.Tests
             }
             var jsonResponse = await response.Content.ReadAsStringAsync();
             var list = JsonConvert.DeserializeObject<Stop[]>(jsonResponse).ToList();
-            var connectionCount = list.Count;
-            if (connectionCount != InitialStopQuantity)
+            var count = list.Count;
+            if (count != InitialStopQuantity)
             {
-                Assert.True(false, $"Connection quantity is {connectionCount} but should be {InitialStopQuantity}.");
+                Assert.True(false, $"Stop quantity is {count} but should be {InitialStopQuantity}.");
             }
             Assert.True(true);
         }

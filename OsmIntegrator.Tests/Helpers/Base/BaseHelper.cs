@@ -26,7 +26,6 @@ namespace OsmIntegrator.Tests.Helpers.Base
             return response;
         }
 
-
         public BaseHelper(HttpClient factoryClient)
         {
             GetClient(factoryClient);
