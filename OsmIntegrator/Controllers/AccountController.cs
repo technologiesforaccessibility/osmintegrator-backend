@@ -232,18 +232,18 @@ namespace OsmIntegrator.Controllers
       BodyBuilder builder = new BodyBuilder ();
 
       builder.TextBody = $@"{_localizer["Hello"]} {model.Username},
-      {_localizer["You have just created an account on the site. To activate your account, click on the link below."]}
-      {url}
-      {_localizer["Regards"]},
-      {_localizer["OsmIntegrator Team"]},
-      rozwiazaniadlaniewidomych.org
+{_localizer["You have just created an account on the site. To activate your account, click on the link below."]}
+{url}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
       ";
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {model.Username},</h3>
-      <p>{_localizer["You have just created an account on the site. To activate your account, click on the link below."]}</p><br/>
-      <a href=""{url}"">{url}</a>
-      <p>{_localizer["Regards"]},</p>
-      <p>{_localizer["OsmIntegrator Team"]},</p>
-      <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+<p>{_localizer["You have just created an account on the site. To activate your account, click on the link below."]}</p><br/>
+<a href=""{url}"">{url}</a>
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
       ";
 
       message.Body = builder.ToMessageBody();
