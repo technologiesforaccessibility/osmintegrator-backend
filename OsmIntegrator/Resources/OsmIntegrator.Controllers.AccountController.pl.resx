@@ -117,7 +117,6 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-        </data>
     <data name="Confirm account registration" xml:space="preserve">
         <value>Potwierdź rejestrację konta</value>
         <comment/>
@@ -126,20 +125,19 @@
         <value>Witaj</value>
         <comment/>
     </data>
-        <data name="You have just created an account on the site" xml:space="preserve">
+    <data name="You have just created an account on the site" xml:space="preserve">
         <value>Właśnie założyłeś konto na stronie</value>
         <comment/>
     </data>
-    </data>
-        <data name="To activate your account, click on the link below." xml:space="preserve">
+    <data name="To activate your account, click on the link below." xml:space="preserve">
         <value>Aby aktywować swoje konto kliknij w link poniżej.</value>
         <comment/>
     </data>
-        <data name="Regards" xml:space="preserve">
+    <data name="Regards" xml:space="preserve">
         <value>Pozdrawiamy</value>
         <comment/>
     </data>
-        <data name="OsmIntegrator Team" xml:space="preserve">
+    <data name="OsmIntegrator Team" xml:space="preserve">
         <value>Zespół OsmIntegrator</value>
         <comment/>
     </data>
