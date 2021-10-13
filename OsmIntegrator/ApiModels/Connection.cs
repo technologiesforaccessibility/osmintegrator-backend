@@ -5,6 +5,7 @@ namespace OsmIntegrator.ApiModels
 {
   public class Connection
   {
+    public Guid Id { get; set; }
     public Guid GtfsStopId { get; set; }
 
     public Guid OsmStopId { get; set; }
@@ -13,8 +14,8 @@ namespace OsmIntegrator.ApiModels
 
     public bool Imported { get; set; }
 
-    public bool Approved => ApprovedBy != null;
+    public bool Approved => ApprovedById != null;
 
-    private ApplicationUser ApprovedBy { get; set; }
+    public Guid? ApprovedById { get; set; }
   }
 }

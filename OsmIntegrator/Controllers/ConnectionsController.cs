@@ -227,7 +227,7 @@ namespace OsmIntegrator.Controllers
           "FROM \"Connections\" c " +
           "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
       ).ToListAsync();
-      List<DbConnections> result = _mapper.Map<List<DbConnections>>(connections);
+      List<Connection> result = _mapper.Map<List<Connection>>(connections);
       return Ok(result);
     }
 
@@ -246,6 +246,21 @@ namespace OsmIntegrator.Controllers
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Connection approved"]);
+    }
+    [HttpPut("Unapprove/{id}")]
+    [Authorize(Roles = UserRoles.SUPERVISOR)]
+    public async Task<ActionResult<string>> Unapprove(string id)
+    {
+
+      DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+      if (link == null)
+      {
+        throw new BadHttpRequestException(_localizer["Given connection does not exist"]);
+      }
+      link.ApprovedById = null;
+      _dbContext.SaveChanges();
+
+      return Ok(_localizer["Connection unapproved"]);
     }
   }
 
