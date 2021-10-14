@@ -14,8 +14,6 @@ namespace OsmIntegrator.ApiModels
 
     public bool Imported { get; set; }
 
-    public bool Approved => ApprovedById != null;
-
-    public Guid? ApprovedById { get; set; }
+    public bool Approved { get; set; }
   }
 }
