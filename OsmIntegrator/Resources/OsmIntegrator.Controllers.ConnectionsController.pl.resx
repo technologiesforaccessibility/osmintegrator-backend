@@ -146,7 +146,7 @@
     <comment/>
   </data>
   <data name="The connection have already been removed" xml:space="preserve">
-    <value>Pąłączenie już usunięto</value>
+    <value>Połączenie już usunięto</value>
     <comment/>
   </data>
   <data name="Connection successfully added" xml:space="preserve">
@@ -162,7 +162,7 @@
     <comment/>
   </data>
   <data name="The connection already exists" xml:space="preserve">
-    <value>Pąłączenie już istnieje</value>
+    <value>Połączenie już istnieje</value>
     <comment/>
   </data>
 </root>
