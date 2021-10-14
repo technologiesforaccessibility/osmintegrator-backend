@@ -38,6 +38,8 @@ namespace OsmIntegrator.Database.Models
         [Required]
         public DateTime CreatedAt { get; set; }
         
+        public Guid? ApprovedById { get; set; }
+        
         public ApplicationUser ApprovedBy {get; set;}
     }
 
