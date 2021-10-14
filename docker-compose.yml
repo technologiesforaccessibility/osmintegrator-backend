@@ -10,7 +10,7 @@ services:
             - .env.production # that does not exist in the repo, need to be adjusted for tahrget server
 
     nginx:
-        image: nginx
+        image: nginx:1.21
         restart: always
         # this is due to certbot renewal. we have to gracefull reload after certs are obtained again
         command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
@@ -39,7 +39,7 @@ services:
             - ./certbot/www:/var/www/certbot
 
     db:
-        image: postgres
+        image: postgres:14
         restart: always
         ports:
             - 5433:5432
