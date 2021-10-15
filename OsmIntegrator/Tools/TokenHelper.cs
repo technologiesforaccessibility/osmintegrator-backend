@@ -6,11 +6,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using OsmIntegrator.ApiModels.Auth;
-using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.Tools
@@ -41,7 +39,8 @@ namespace OsmIntegrator.Tools
                 new Claim(JwtRegisteredClaimNames.Sub, userId),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim("refreshToken", newRefreshToken)
+                new Claim("refreshToken", newRefreshToken),
+                new Claim(ClaimTypes.Name, user.UserName)
             };
             ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "Token");
             claimsIdentity.AddClaims(roles.Select(role => new Claim(ClaimTypes.Role, role)));
