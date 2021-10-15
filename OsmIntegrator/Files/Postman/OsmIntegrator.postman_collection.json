@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b5cf2da4-3e98-4d06-89ec-8443880f04b4",
+		"_postman_id": "1f606d99-3cdb-43c0-9b47-752a496c6d8d",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1498,6 +1498,41 @@
 								"api",
 								"Connections",
 								"Approve",
+								"e044ac55-294a-47a5-98de-971696146968"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unapprove",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Connections/Unapprove/e044ac55-294a-47a5-98de-971696146968",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Connections",
+								"Unapprove",
 								"e044ac55-294a-47a5-98de-971696146968"
 							]
 						}
