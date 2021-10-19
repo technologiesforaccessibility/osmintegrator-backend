@@ -19,6 +19,6 @@ namespace OsmIntegrator.ApiModels
 
     public Guid? ConversationId { get; set; }
 
-    public Conversation conversation { get; set; }
+    public Conversation Conversation { get; set; }
   }
 }

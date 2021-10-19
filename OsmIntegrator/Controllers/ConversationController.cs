@@ -65,7 +65,6 @@ namespace OsmIntegrator.Controllers
     /// Add new message.
     /// </summary>
     /// <param name="message">Message object.</param>
-    /// <param name="conversation">Conversation object.</param>
     /// <returns>Operation satuts.</returns>
     [HttpPost]
     [Authorize(Roles =
@@ -73,7 +72,7 @@ namespace OsmIntegrator.Controllers
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> AddMessage([FromBody] Message message, [FromBody] Conversation conversation)
+    public async Task<ActionResult> AddMessage([FromBody] Message message)
     {
       ApplicationUser user = await _userManager.GetUserAsync(User);
       message.UserId = user.Id;
@@ -81,36 +80,32 @@ namespace OsmIntegrator.Controllers
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
       dbMessage.Status = NoteStatus.Created;
 
-      if (conversation.Id == null)
+      if (message.ConversationId == null)
       {
-        DbConversation dbConversation = _mapper.Map<DbConversation>(conversation);
+        DbConversation dbConversation = _mapper.Map<DbConversation>(message.Conversation);
         await _dbContext.AddAsync(dbConversation);
 
         dbMessage.Conversation = dbConversation;
-      }
-      else
-      {
-        dbMessage.ConversationId = (Guid)conversation.Id;
       }
 
       await _dbContext.AddAsync(dbMessage);
       _dbContext.SaveChanges();
 
-      return Ok(_localizer["Note successfully added"]);
+      return Ok(_localizer["Message successfully added"]);
     }
 
     /// <summary>
-    /// It returns all notes situated at the specific tile including notes on the overlapped positions.
+    /// It returns all conversations situated at the specific tile including conversations on the overlapped positions.
     /// </summary>
     /// <param name="id">Tile id</param>
-    /// <returns>List with notes.</returns>
+    /// <returns>List with conversations.</returns>
     [HttpGet("{id}")]
     [Authorize(Roles =
         UserRoles.EDITOR + "," +
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult<List<NewNote>>> Get(string id)
+    public async Task<ActionResult<List<Conversation>>> Get(string id)
     {
       DbTile tile = await _dbContext.Tiles.
           FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
@@ -162,7 +157,7 @@ namespace OsmIntegrator.Controllers
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
       _dbContext.SaveChanges();
 
-      return Ok(_localizer["Note approved successfully"]);
+      return Ok(_localizer["Conversation approved successfully"]);
     }
 
     [HttpPut("Reject/{id}")]
@@ -194,7 +189,7 @@ namespace OsmIntegrator.Controllers
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
       _dbContext.SaveChanges();
 
-      return Ok(_localizer["Note rejected successfully"]);
+      return Ok(_localizer["Conversation rejected successfully"]);
     }
 
 
@@ -202,12 +197,13 @@ namespace OsmIntegrator.Controllers
     /// Approves conversation.
     /// </summary>
     /// <param name="message">Message object.</param>
-    /// <param name="conversation">Conversation object.</param>
     /// <returns>Operation satuts.</returns>
     [HttpPut("Approve")]
-    public async Task<ActionResult> Approve([FromBody] Message message, [FromBody] Conversation conversation)
+    public async Task<ActionResult> Approve([FromBody] Message message)
     {
-      DbConversation dbConversation = _mapper.Map<DbConversation>(conversation);
+      DbConversation dbConversation = await _dbContext.Conversations
+        .Include(x => x.Messages)
+        .FirstOrDefaultAsync(x => x.Id == message.ConversationId);
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -229,23 +225,24 @@ namespace OsmIntegrator.Controllers
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));
       _dbContext.SaveChanges();
 
-      return Ok(_localizer["Note approved successfully"]);
+      return Ok(_localizer["Conversation approved successfully"]);
     }
 
     /// <summary>
     /// Rejects conversation.
     /// </summary>
     /// <param name="message">Message object.</param>
-    /// <param name="conversation">Conversation object.</param>
     /// <returns>Operation satuts.</returns>
     [HttpPut("Reject")]
     [Authorize(Roles =
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> Reject([FromBody] Message message, [FromBody] Conversation conversation)
+    public async Task<ActionResult> Reject([FromBody] Message message)
     {
-      DbConversation dbConversation = _mapper.Map<DbConversation>(conversation);
+      DbConversation dbConversation = await _dbContext.Conversations
+        .Include(x => x.Messages)
+        .FirstOrDefaultAsync(x => x.Id == message.ConversationId);
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -267,7 +264,7 @@ namespace OsmIntegrator.Controllers
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));
       _dbContext.SaveChanges();
 
-      return Ok(_localizer["Note rejected successfully"]);
+      return Ok(_localizer["Conversation rejected successfully"]);
     }
   }
 }
