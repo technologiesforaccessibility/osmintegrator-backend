@@ -72,23 +72,39 @@ namespace OsmIntegrator.Controllers
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> AddMessage([FromBody] Message message)
+    public async Task<ActionResult> AddMessage([FromBody] MessageInput messageInput)
     {
       ApplicationUser user = await _userManager.GetUserAsync(User);
-      message.UserId = user.Id;
+      Message message = new Message()
+      {
+        UserId = user.Id,
+        Status = NoteStatus.Created,
+        Text = messageInput.Text,
+        CreatedAt = DateTime.Now
+      };
 
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
-      dbMessage.Status = NoteStatus.Created;
 
-      if (message.ConversationId == null)
+      if (messageInput.ConversationId == null)
       {
-        DbConversation dbConversation = _mapper.Map<DbConversation>(message.Conversation);
+        DbConversation dbConversation = _mapper.Map<DbConversation>(new Conversation()
+        {
+          StopId = messageInput.StopId,
+          Lat = messageInput.Lat,
+          Lon = messageInput.Lon,
+          TileId = messageInput.TileId,
+          Id = new Guid(),
+        });
         await _dbContext.AddAsync(dbConversation);
 
         dbMessage.Conversation = dbConversation;
       }
+      else
+      {
+        dbMessage.ConversationId = (Guid)messageInput.ConversationId;
+      }
+      await _dbContext.AddAsync(_mapper.Map<DbMessage>(dbMessage));
 
-      await _dbContext.AddAsync(dbMessage);
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Message successfully added"]);
@@ -105,7 +121,7 @@ namespace OsmIntegrator.Controllers
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult<List<Conversation>>> Get(string id)
+    public async Task<ActionResult<ConversationResponse>> Get(string id)
     {
       DbTile tile = await _dbContext.Tiles.
           FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
@@ -116,15 +132,24 @@ namespace OsmIntegrator.Controllers
       }
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
-      List<DbConversation> dbConversations = await _dbContext.Conversations
+      List<DbConversation> dbStopConversations = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .Where(x => x.TileId == tile.Id)
+        .Where(x => x.TileId == tile.Id && x.StopId != null)
         .ToListAsync();
 
-      List<Conversation> conversations = _mapper.Map<List<Conversation>>(dbConversations);
+      List<DbConversation> dbGeoConversations = await _dbContext.Conversations
+      .Include(x => x.Messages)
+      .Where(x => x.TileId == tile.Id && x.StopId == null)
+      .ToListAsync();
+
+      ConversationResponse response = new ConversationResponse()
+      {
+        GeoConversations = _mapper.Map<List<Conversation>>(dbGeoConversations),
+        StopConversations = _mapper.Map<List<Conversation>>(dbStopConversations),
+      };
 
 
-      return Ok(conversations);
+      return Ok(response);
     }
 
 
@@ -152,6 +177,7 @@ namespace OsmIntegrator.Controllers
         UserId = user.Id,
         ConversationId = dbConversation.Id,
         Status = NoteStatus.Approved,
+        CreatedAt = DateTime.Now
       };
 
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
@@ -178,15 +204,16 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
       }
 
-      Message approvalMessage = new Message()
+      Message rejectMessage = new Message()
       {
         Id = new Guid(),
         UserId = user.Id,
         ConversationId = dbConversation.Id,
         Status = NoteStatus.Rejected,
+        CreatedAt = DateTime.Now
       };
 
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
+      dbConversation.Messages.Add(_mapper.Map<DbMessage>(rejectMessage));
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation rejected successfully"]);
@@ -199,11 +226,11 @@ namespace OsmIntegrator.Controllers
     /// <param name="message">Message object.</param>
     /// <returns>Operation satuts.</returns>
     [HttpPut("Approve")]
-    public async Task<ActionResult> Approve([FromBody] Message message)
+    public async Task<ActionResult> Approve([FromBody] MessageInput messageInput)
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == message.ConversationId);
+        .FirstOrDefaultAsync(x => x.Id == messageInput.ConversationId);
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -211,15 +238,15 @@ namespace OsmIntegrator.Controllers
       {
         throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
       }
-
-      if (message.Id == null)
+      Message message = new Message()
       {
-        message.Id = new Guid();
-      }
-
-      message.ConversationId = dbConversation.Id;
-      message.UserId = user.Id;
-      message.Status = NoteStatus.Approved;
+        Id = new Guid(),
+        UserId = user.Id,
+        ConversationId = dbConversation.Id,
+        Status = NoteStatus.Approved,
+        CreatedAt = DateTime.Now,
+        Text = messageInput.Text,
+      };
 
 
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));
@@ -238,11 +265,11 @@ namespace OsmIntegrator.Controllers
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> Reject([FromBody] Message message)
+    public async Task<ActionResult> Reject([FromBody] MessageInput messageInput)
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == message.ConversationId);
+        .FirstOrDefaultAsync(x => x.Id == messageInput.ConversationId);
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -251,14 +278,15 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
       }
 
-      if (message.Id == null)
+      Message message = new Message()
       {
-        message.Id = new Guid();
-      }
-
-      message.ConversationId = dbConversation.Id;
-      message.UserId = user.Id;
-      message.Status = NoteStatus.Approved;
+        Id = new Guid(),
+        UserId = user.Id,
+        ConversationId = dbConversation.Id,
+        Status = NoteStatus.Rejected,
+        CreatedAt = DateTime.Now,
+        Text = messageInput.Text,
+      };
 
 
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));

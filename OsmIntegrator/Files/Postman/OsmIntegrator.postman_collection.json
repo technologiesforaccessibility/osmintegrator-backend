@@ -2000,6 +2000,215 @@
 			]
 		},
 		{
+			"name": "Conversation",
+			"item": [
+				{
+					"name": "Get",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();\r",
+									"pm.environment.set(\"conversationId\", data.geoConversations[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation/bbbcd45c-f059-4795-b18e-4ce4989b682d",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation",
+								"bbbcd45c-f059-4795-b18e-4ce4989b682d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddMessage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"lat\": 50.17689812200206,\r\n    \"lon\": 18.896484375,\r\n    \"tileId\": \"bbbcd45c-f059-4795-b18e-4ce4989b682d\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddMessageToBusStop",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"stopId\": \"b23d33da-39e1-447a-aee1-e634738b9e92\",\r\n    \"tileId\": \"bbbcd45c-f059-4795-b18e-4ce4989b682d\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ApproveConversation",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Conversation/Approve/{{conversationId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation",
+								"Approve",
+								"{{conversationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ApproveConversationWithText",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"conversationId\": \"{{conversationId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation/Approve",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation",
+								"Approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RejectConversation",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Conversation/Reject/{{conversationId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation",
+								"Reject",
+								"{{conversationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RejectConversationWithText",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"conversationId\": \"{{conversationId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation/Reject",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation",
+								"Reject"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints to handle reports",
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{token}}",
+						"type": "string"
+					}
+				]
+			}
+		},
+		{
 			"name": "Swagger",
 			"request": {
 				"method": "GET",
