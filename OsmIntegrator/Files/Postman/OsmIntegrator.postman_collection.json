@@ -2073,6 +2073,33 @@
 					"response": []
 				},
 				{
+					"name": "AddMessageToExistingConversation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"lat\": 50.17689812200206,\r\n    \"lon\": 18.896484375,\r\n    \"tileId\": \"bbbcd45c-f059-4795-b18e-4ce4989b682d\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Conversation",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Conversation"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "AddMessageToBusStop",
 					"request": {
 						"method": "POST",
