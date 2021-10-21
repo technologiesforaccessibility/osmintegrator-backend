@@ -30,7 +30,7 @@ namespace OsmIntegrator.Controllers
   [Produces(MediaTypeNames.Application.Json)]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  public class ConversationController : ControllerBase
+  public class ConversationController : Controller
   {
     private readonly ApplicationDbContext _dbContext;
 
@@ -84,6 +84,7 @@ namespace OsmIntegrator.Controllers
       };
 
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
+      dbMessage.User = user;
 
       if (messageInput.ConversationId == null)
       {
