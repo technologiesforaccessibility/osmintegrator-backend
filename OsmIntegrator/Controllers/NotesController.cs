@@ -140,7 +140,8 @@ namespace OsmIntegrator.Controllers
             Id = note.Id,
             Lat = (double)note.Lat,
             Lon = (double)note.Lon,
-            Text = note.Messages.Aggregate("", (x, y) => x + y.Text + Environment.NewLine)
+            Text = note.Messages.Aggregate("", (x, y) => x + y.Text + Environment.NewLine),
+            TileId = Guid.Parse(id)
           };
           DbMessage message = note.Messages.LastOrDefault();
 
@@ -170,7 +171,8 @@ namespace OsmIntegrator.Controllers
             Id = note.Id,
             Lat = (double)note.Lat,
             Lon = (double)note.Lon,
-            Text = note.Messages.Aggregate("", (x, y) => x + y.Text + Environment.NewLine)
+            Text = note.Messages.Aggregate("", (x, y) => x + y.Text + Environment.NewLine),
+            TileId = Guid.Parse(id)
           };
           DbMessage message = note.Messages.LastOrDefault();
 
