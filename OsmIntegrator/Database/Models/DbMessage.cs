@@ -20,7 +20,6 @@ namespace OsmIntegrator.Database.Models
     [Required]
     public Guid UserId { get; set; }
 
-    [Required]
     public ApplicationUser User { get; set; }
 
     [Required]

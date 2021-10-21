@@ -125,7 +125,7 @@ namespace OsmIntegrator.Controllers
       IList<string> roles = await _userManager.GetRolesAsync(user);
 
       List<DbConversation> notes = await _dbContext.Conversations
-        .Where(x => x.Id == Guid.Parse(id) && x.StopId == null)
+        .Where(x => x.TileId == Guid.Parse(id) && x.StopId == null)
         .Include(x => x.Messages)
         .ToListAsync();
       List<ExistingNote> result = new List<ExistingNote>();

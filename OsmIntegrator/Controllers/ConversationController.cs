@@ -103,7 +103,7 @@ namespace OsmIntegrator.Controllers
       {
         dbMessage.ConversationId = (Guid)messageInput.ConversationId;
       }
-      await _dbContext.AddAsync(_mapper.Map<DbMessage>(dbMessage));
+      await _dbContext.AddAsync(dbMessage);
 
       _dbContext.SaveChanges();
 
