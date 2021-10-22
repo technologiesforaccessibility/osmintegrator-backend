@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace OsmIntegrator.ApiModels
 {
@@ -13,6 +14,7 @@ namespace OsmIntegrator.ApiModels
 
     public Guid? StopId { get; set; }
 
+    [Required]
     public Guid TileId { get; set; }
 
     public List<Message> Messages { get; set; }

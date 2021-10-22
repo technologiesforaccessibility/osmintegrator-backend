@@ -1,11 +1,12 @@
 using System;
-using OsmIntegrator.Database.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace OsmIntegrator.ApiModels
 {
   public class MessageInput
   {
     public Guid? ConversationId { get; set; }
+
     public string Text { get; set; }
 
     public double? Lat { get; set; }
@@ -14,7 +15,7 @@ namespace OsmIntegrator.ApiModels
 
     public Guid? StopId { get; set; }
 
-
-  public Guid TileId { get; set; }
+    [Required]
+    public Guid TileId { get; set; }
   }
 }

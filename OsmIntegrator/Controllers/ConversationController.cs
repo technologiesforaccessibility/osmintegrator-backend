@@ -86,6 +86,11 @@ namespace OsmIntegrator.Controllers
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
       dbMessage.User = user;
 
+      if (messageInput.ConversationId == null && messageInput.StopId == null && (messageInput.Lat == null || messageInput.Lon == null))
+      {
+        throw new BadHttpRequestException(_localizer["Incorrect conversation data"]);
+      }
+
       if (messageInput.ConversationId == null)
       {
         DbConversation dbConversation = _mapper.Map<DbConversation>(new Conversation()
@@ -114,18 +119,18 @@ namespace OsmIntegrator.Controllers
     /// <summary>
     /// It returns all conversations situated at the specific tile including conversations on the overlapped positions.
     /// </summary>
-    /// <param name="id">Tile id</param>
+    /// <param name="tileId">Tile id</param>
     /// <returns>List with conversations.</returns>
-    [HttpGet("{id}")]
+    [HttpGet("{tileId}")]
     [Authorize(Roles =
         UserRoles.EDITOR + "," +
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult<ConversationResponse>> Get(string id)
+    public async Task<ActionResult<ConversationResponse>> Get(string tileId)
     {
       DbTile tile = await _dbContext.Tiles.
-          FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+          FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
 
       if (tile == null)
       {
@@ -140,7 +145,7 @@ namespace OsmIntegrator.Controllers
 
       List<DbConversation> dbGeoConversations = await _dbContext.Conversations
       .Include(x => x.Messages)
-      .Where(x => x.TileId == tile.Id && x.StopId == null)
+      .Where(x => x.TileId == tile.Id && x.Lat != null && x.Lon != null)
       .ToListAsync();
 
       ConversationResponse response = new ConversationResponse()
@@ -154,16 +159,16 @@ namespace OsmIntegrator.Controllers
     }
 
 
-    [HttpPut("Approve/{id}")]
+    [HttpPut("Approve/{conversationId}")]
     [Authorize(Roles =
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> Approve(string id)
+    public async Task<ActionResult> Approve(string conversationId)
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -187,16 +192,16 @@ namespace OsmIntegrator.Controllers
       return Ok(_localizer["Conversation approved successfully"]);
     }
 
-    [HttpPut("Reject/{id}")]
+    [HttpPut("Reject/{conversationId}")]
     [Authorize(Roles =
         UserRoles.SUPERVISOR + "," +
         UserRoles.COORDINATOR + "," +
         UserRoles.ADMIN)]
-    public async Task<ActionResult> Reject(string id)
+    public async Task<ActionResult> Reject(string conversationId)
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
+        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
