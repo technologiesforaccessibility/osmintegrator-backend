@@ -141,6 +141,26 @@
         <value>Zespół OsmIntegrator</value>
         <comment/>
     </data>
+    <data name="Confirm new email" xml:space="preserve">
+      <value>Potwierdź nowy email</value>
+      <comment/>
+    </data>
+    <data name="You have requested changing an email address on" xml:space="preserve">
+      <value>Otrzymaliśmy prośbę o zmianę adresu email przypisanego do konta na stronie</value>
+      <comment/>
+    </data>
+    <data name="Resset password" xml:space="preserve">
+      <value>Zresetuj hasło</value>
+      <comment/>
+    </data>
+    <data name="You have requested password reset on" xml:space="preserve">
+      <value>Otrzymaliśmy prośbę o zresetowanie hasła na stronie</value>
+      <comment/>
+    </data>
+    <data name="To do so, click on the link below." xml:space="preserve">
+      <value>Jeżeli to Ty, kliknij w link poniżej.</value>
+      <comment/>
+    </data>
     <data name="User registered. No email confirmation required" xml:space="preserve">
         <value>Rejestracja przebiegła pomyślnie</value>
         <comment/>

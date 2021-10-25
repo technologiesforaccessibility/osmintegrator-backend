@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
+using MimeKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -31,11 +32,9 @@ namespace OsmIntegrator.Controllers
   {
     private readonly ILogger<TileController> _logger;
     private readonly ApplicationDbContext _dbContext;
-
     private readonly UserManager<ApplicationUser> _userManager;
-
+    private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
-
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
@@ -53,6 +52,7 @@ namespace OsmIntegrator.Controllers
     {
       _logger = logger;
       _dbContext = dbContext;
+      _configuration = configuration;
       _mapper = mapper;
       _userManager = userManager;
       _roleManger = roleManager;
@@ -340,15 +340,39 @@ namespace OsmIntegrator.Controllers
             (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
       }
 
-      string message = _localizer["One of the tiles was approved"];
-      message += Environment.NewLine + $"X: {currentTile.X}, Y: {currentTile.Y}.";
-
       foreach (User user in usersInRole)
       {
-        Task task = Task.Run(() => _emailService.SendEmailAsync(
-            user.Email, _localizer["Tile approved"],
-            message));
+        Task task = Task.Run(() => _emailService.SendEmailAsync(TileApprovedMessageBuilder(user, currentTile)));
       }
+    }
+
+    private MimeMessage TileApprovedMessageBuilder(User user, DbTile tile)
+    {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      message.To.Add(MailboxAddress.Parse(user.Email));
+      message.Subject = _localizer["Tile approved"];
+
+      BodyBuilder builder = new BodyBuilder();
+
+      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
+{_localizer["One of the tiles was approved"]}
+X: {tile.X}, Y: {tile.Y}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
+<p>{_localizer["One of the tiles was approved"]}</p><br/>
+<p>X: {tile.X}, Y: {tile.Y}</p>
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      return message;
     }
 
     private async Task<DbTile> GetTileAsync(string tileId)

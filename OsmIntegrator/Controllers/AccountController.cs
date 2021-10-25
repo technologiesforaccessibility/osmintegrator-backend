@@ -265,11 +265,11 @@ rozwiazaniadlaniewidomych.org
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
     {
-      var user = await _userManager.FindByEmailAsync(model.Email);
+      ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
 
       if (user != null && await _userManager.IsEmailConfirmedAsync(user))
       {
-        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        string token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
         //Generate reset password link using url to frontend service, email and reset password token
         //for example:
@@ -277,13 +277,42 @@ rozwiazaniadlaniewidomych.org
         // to do: create function to generate email message and subject
         // containing instruction what to do and url link to reset password
 
-        _emailService.Send(model.Email, _localizer["Reset Password"], _localizer["Click to reset password:"] + urlToResetPassword);
+        _emailService.Send(ForgotPasswordMessageBuilder(model, user, urlToResetPassword));
         return Ok(_localizer["Reset password email has been sent"]);
       }
       else
       {
         return Unauthorized(new AuthorizationError() { Message = _localizer["User with this email does not exist or email was not confirmed"] });
       }
+    }
+
+    private MimeMessage ForgotPasswordMessageBuilder(ForgotPassword model, ApplicationUser user, string url)
+    {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      message.To.Add(MailboxAddress.Parse(model.Email));
+      message.Subject = _localizer["Resset password"];
+
+      BodyBuilder builder = new BodyBuilder();
+
+      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
+{_localizer["You have requested password reset on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
+{url}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
+<p>{_localizer["You have requested password reset on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
+<a href=""{url}"">{url}</a>
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      return message;
     }
 
     [HttpPost]
@@ -317,14 +346,43 @@ rozwiazaniadlaniewidomych.org
 
       model.Email = model.Email.ToLower().Trim();
 
-      var user = await _userManager.GetUserAsync(User);
-      var token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
+      ApplicationUser user = await _userManager.GetUserAsync(User);
+      string token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
 
       string urlToResetPassword =
           _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
 
-      _emailService.Send(model.Email, _localizer["Confirm email change"], _localizer["Click to confirm new email:"] + urlToResetPassword);
+      _emailService.Send(ChangeEmailMessageBuilder(model, user, urlToResetPassword));
       return Ok(_localizer["Confirmation email sent"]);
+    }
+
+    private MimeMessage ChangeEmailMessageBuilder(ResetEmail model, ApplicationUser user, string url)
+    {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      message.To.Add(MailboxAddress.Parse(model.Email));
+      message.Subject = _localizer["Confirm new email"];
+
+      BodyBuilder builder = new BodyBuilder();
+
+      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
+{_localizer["You have requested changing an email address on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
+{url}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
+<p>{_localizer["You have requested changing an email address on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
+<a href=""{url}"">{url}</a>
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      return message;
     }
 
     [HttpPost]
@@ -332,11 +390,11 @@ rozwiazaniadlaniewidomych.org
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPassword model)
     {
-      var user = await _userManager.FindByEmailAsync(model.Email);
+      ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
 
       if (user != null)
       {
-        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+        IdentityResult result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
 
         if (result.Succeeded)
         {

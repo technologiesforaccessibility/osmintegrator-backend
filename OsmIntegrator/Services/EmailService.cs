@@ -113,7 +113,7 @@ namespace OsmIntegrator.Services
       }
     }
 
-        public async Task SendEmailAsync(MimeMessage message)
+    public async Task SendEmailAsync(MimeMessage message)
     {
       try
       {
