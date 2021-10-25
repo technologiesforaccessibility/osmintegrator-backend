@@ -94,8 +94,10 @@ namespace OsmIntegrator.Controllers
         CreatedAt = DateTime.Now,
         ConversationId = dbConversation.Id
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(message);
+      dbMessage.User = user;
 
-      await _dbContext.AddAsync(_mapper.Map<DbMessage>(message));
+      await _dbContext.AddAsync(dbMessage);
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Note successfully added"]);
@@ -291,7 +293,10 @@ namespace OsmIntegrator.Controllers
         CreatedAt = DateTime.Now
       };
 
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
+      DbMessage dbMessage = _mapper.Map<DbMessage>(approvalMessage);
+      dbMessage.User = user;
+
+      dbConversation.Messages.Add(dbMessage);
 
       _dbContext.SaveChanges();
 
@@ -322,6 +327,10 @@ namespace OsmIntegrator.Controllers
         Status = NoteStatus.Rejected,
         CreatedAt = DateTime.Now
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(rejectMessage);
+      dbMessage.User = user;
+
+      dbConversation.Messages.Add(dbMessage);
 
       dbConversation.Messages.Add(_mapper.Map<DbMessage>(rejectMessage));
 

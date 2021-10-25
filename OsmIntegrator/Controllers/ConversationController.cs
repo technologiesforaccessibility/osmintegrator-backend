@@ -185,8 +185,12 @@ namespace OsmIntegrator.Controllers
         Status = NoteStatus.Approved,
         CreatedAt = DateTime.Now
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(approvalMessage);
+      dbMessage.User = user;
 
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(approvalMessage));
+      dbConversation.Messages.Add(dbMessage);
+      
+      _dbContext.SaveChanges();
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation approved successfully"]);
@@ -218,8 +222,12 @@ namespace OsmIntegrator.Controllers
         Status = NoteStatus.Rejected,
         CreatedAt = DateTime.Now
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(rejectMessage);
+      dbMessage.User = user;
 
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(rejectMessage));
+      dbConversation.Messages.Add(dbMessage);
+      
+      _dbContext.SaveChanges();
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation rejected successfully"]);
@@ -253,9 +261,11 @@ namespace OsmIntegrator.Controllers
         CreatedAt = DateTime.Now,
         Text = messageInput.Text,
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(message);
+      dbMessage.User = user;
 
-
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));
+      dbConversation.Messages.Add(dbMessage);
+      
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation approved successfully"]);
@@ -293,9 +303,11 @@ namespace OsmIntegrator.Controllers
         CreatedAt = DateTime.Now,
         Text = messageInput.Text,
       };
+      DbMessage dbMessage = _mapper.Map<DbMessage>(message);
+      dbMessage.User = user;
 
-
-      dbConversation.Messages.Add(_mapper.Map<DbMessage>(message));
+      dbConversation.Messages.Add(dbMessage);
+      
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation rejected successfully"]);
