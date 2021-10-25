@@ -98,7 +98,7 @@ namespace OsmIntegrator.Controllers
           StopId = messageInput.StopId,
           Lat = messageInput.Lat,
           Lon = messageInput.Lon,
-          TileId = messageInput.TileId,
+          TileId = (Guid)messageInput.TileId,
           Id = new Guid(),
         });
         await _dbContext.AddAsync(dbConversation);

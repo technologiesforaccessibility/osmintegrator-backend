@@ -16,6 +16,6 @@ namespace OsmIntegrator.ApiModels
     public Guid? StopId { get; set; }
 
     [Required]
-    public Guid TileId { get; set; }
+    public Guid? TileId { get; set; }
   }
 }
