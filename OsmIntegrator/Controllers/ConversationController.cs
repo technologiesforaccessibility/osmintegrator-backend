@@ -150,12 +150,12 @@ namespace OsmIntegrator.Controllers
 
       List<DbConversation> dbStopConversations = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .Where(x => x.TileId == tile.Id && x.StopId != null)
+        .Where(x => x.TileId == tile.Id && x.StopId != null && x.Messages.Count() != 0)
         .ToListAsync();
 
       List<DbConversation> dbGeoConversations = await _dbContext.Conversations
       .Include(x => x.Messages)
-      .Where(x => x.TileId == tile.Id && x.Lat != null && x.Lon != null)
+      .Where(x => x.TileId == tile.Id && x.Lat != null && x.Lon != null && x.Messages.Count() != 0)
       .ToListAsync();
 
       ConversationResponse response = new ConversationResponse()

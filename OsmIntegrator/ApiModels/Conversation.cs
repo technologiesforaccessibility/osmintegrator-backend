@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.ApiModels
 {
@@ -18,6 +19,8 @@ namespace OsmIntegrator.ApiModels
     public Guid TileId { get; set; }
 
     public List<Message> Messages { get; set; }
+
+    public NoteStatus? Status {get; set;}
 
   }
 }
