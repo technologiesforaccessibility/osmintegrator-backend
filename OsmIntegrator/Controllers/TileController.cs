@@ -285,14 +285,16 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Unable to assign. Tile has already been approved by editor"]);
       }
 
-      _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile));
+      ApplicationRole editorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First();
+
+      _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == editorRole));
 
       _dbContext.TileUsers.Add(new DbTileUser()
       {
         Id = new Guid(),
         User = user,
         Tile = currentTile,
-        Role = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First()
+        Role = editorRole
       });
 
       _dbContext.SaveChanges();
