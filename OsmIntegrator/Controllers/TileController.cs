@@ -276,12 +276,92 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Unable to assign. Tile has already been approved by editor"]);
       }
 
-      currentTile.Users.Clear();
-      currentTile.Users.Add(user);
+      _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile));
+
+      _dbContext.TileUsers.Add(new DbTileUser()
+      {
+        Id = new Guid(),
+        User = user,
+        Tile = currentTile,
+        Role = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First()
+      });
 
       _dbContext.SaveChanges();
 
       return Ok(_localizer["User has been added to the tile"]);
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<string>> UpdateUsers(string id, [FromBody] UpdateTileInput updateTileInput)
+    {
+      DbTile currentTile = await GetTileAsync(id);
+
+      if (updateTileInput.EditorId != null)
+      {
+        ApplicationUser editor = await _userManager.FindByIdAsync(updateTileInput.EditorId.ToString());
+        IList<string> roles = await _userManager.GetRolesAsync(editor);
+        ApplicationRole editorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First();
+        if (!roles.Contains(UserRoles.EDITOR))
+        {
+          throw new BadHttpRequestException(_localizer["This user is not an editor"]);
+        }
+
+        if (currentTile.EditorApproved != null)
+        {
+          throw new BadHttpRequestException(_localizer["Unable to assign. Tile has already been approved by editor"]);
+        }
+
+        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == editor).Count() != 0)
+        {
+          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
+        }
+
+        _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == editorRole));
+
+        _dbContext.TileUsers.Add(new DbTileUser()
+        {
+          Id = new Guid(),
+          User = editor,
+          Tile = currentTile,
+          Role = editorRole
+        });
+      }
+
+      if (updateTileInput.SupervisorId != null)
+      {
+        ApplicationUser supervisor = await _userManager.FindByIdAsync(updateTileInput.SupervisorId.ToString());
+        IList<string> roles = await _userManager.GetRolesAsync(supervisor);
+        ApplicationRole supervisorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.SUPERVISOR).First();
+        if (!roles.Contains(UserRoles.SUPERVISOR))
+        {
+          throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
+        }
+
+        if (currentTile.SupervisorApproved != null)
+        {
+          throw new BadHttpRequestException(_localizer["Unable to assign. Tile has already been approved by supervisor"]);
+        }
+
+        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor).Count() != 0)
+        {
+          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
+        }
+
+        _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == supervisorRole));
+
+        _dbContext.TileUsers.Add(new DbTileUser()
+        {
+          Id = new Guid(),
+          User = supervisor,
+          Tile = currentTile,
+          Role = supervisorRole
+        });
+      }
+
+      _dbContext.SaveChanges();
+
+      return Ok(_localizer["Users has been added to the tile"]);
     }
 
     [HttpPut("{id}")]

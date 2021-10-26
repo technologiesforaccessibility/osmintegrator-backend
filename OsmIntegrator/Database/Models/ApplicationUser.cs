@@ -5,11 +5,14 @@ using Microsoft.AspNetCore.Identity;
 
 namespace OsmIntegrator.Database.Models
 {
-    public class ApplicationUser : IdentityUser<Guid>
-    {
-        public List<DbTile> Tiles { get; set; }
+  public class ApplicationUser : IdentityUser<Guid>
+  {
+    public List<DbTile> Tiles { get; set; }
 
-        [NotMapped]
-        public IList<string> Roles { get; set; }
-    }
+    [NotMapped]
+    public List<DbTileUser> TileUsers { get; set; }
+
+    [NotMapped]
+    public IList<string> Roles { get; set; }
+  }
 }

@@ -28,6 +28,8 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbMessage> Messages { get; set; }
 
+    public DbSet<DbTileUser> TileUsers { get; set; }
+
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
