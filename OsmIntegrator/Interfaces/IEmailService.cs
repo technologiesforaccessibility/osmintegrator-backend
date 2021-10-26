@@ -9,5 +9,9 @@ namespace OsmIntegrator.Interfaces
         void Send(MimeMessage message);
         Task SendEmailAsync(string to, string subject, string message);
         Task SendEmailAsync(MimeMessage message);
+
+        string BuildSubject(string subject);
+
+        string BuildServerName(bool useHtml);
     }
 }

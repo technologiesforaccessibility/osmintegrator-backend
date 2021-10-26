@@ -351,13 +351,14 @@ namespace OsmIntegrator.Controllers
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
       message.To.Add(MailboxAddress.Parse(user.Email));
-      message.Subject = _localizer["Tile approved"];
+      message.Subject = _emailService.BuildSubject(_localizer["Tile approved"]);
 
       BodyBuilder builder = new BodyBuilder();
 
       builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
 {_localizer["One of the tiles was approved"]}
 X: {tile.X}, Y: {tile.Y}
+{_emailService.BuildServerName(false)}
 {_localizer["Regards"]},
 {_localizer["OsmIntegrator Team"]},
 rozwiazaniadlaniewidomych.org
@@ -365,6 +366,7 @@ rozwiazaniadlaniewidomych.org
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
 <p>{_localizer["One of the tiles was approved"]}</p><br/>
 <p>X: {tile.X}, Y: {tile.Y}</p>
+{_emailService.BuildServerName(true)}
 <p>{_localizer["Regards"]},</p>
 <p>{_localizer["OsmIntegrator Team"]},</p>
 <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>

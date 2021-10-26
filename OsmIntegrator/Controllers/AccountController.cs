@@ -228,13 +228,14 @@ namespace OsmIntegrator.Controllers
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
       message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _localizer["Confirm account registration"];
+      message.Subject = _emailService.BuildSubject(_localizer["Confirm account registration"]);
 
       BodyBuilder builder = new BodyBuilder();
 
       builder.TextBody = $@"{_localizer["Hello"]} {model.Username},
 {_localizer["You have just created an account on the site"]} www.osmintegrator.pl. {_localizer["To activate your account, click on the link below."]}
 {url}
+{_emailService.BuildServerName(false)}
 {_localizer["Regards"]},
 {_localizer["OsmIntegrator Team"]},
 rozwiazaniadlaniewidomych.org
@@ -242,6 +243,7 @@ rozwiazaniadlaniewidomych.org
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {model.Username},</h3>
 <p>{_localizer["You have just created an account on the site"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To activate your account, click on the link below."]}</p><br/>
 <a href=""{url}"">{url}</a>
+{_emailService.BuildServerName(true)}
 <p>{_localizer["Regards"]},</p>
 <p>{_localizer["OsmIntegrator Team"]},</p>
 <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
@@ -291,13 +293,14 @@ rozwiazaniadlaniewidomych.org
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
       message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _localizer["Resset password"];
+      message.Subject = _emailService.BuildSubject(_localizer["Resset password"]);
 
       BodyBuilder builder = new BodyBuilder();
 
       builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
 {_localizer["You have requested password reset on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
 {url}
+{_emailService.BuildServerName(false)}
 {_localizer["Regards"]},
 {_localizer["OsmIntegrator Team"]},
 rozwiazaniadlaniewidomych.org
@@ -305,6 +308,7 @@ rozwiazaniadlaniewidomych.org
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
 <p>{_localizer["You have requested password reset on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
 <a href=""{url}"">{url}</a>
+{_emailService.BuildServerName(true)}
 <p>{_localizer["Regards"]},</p>
 <p>{_localizer["OsmIntegrator Team"]},</p>
 <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
@@ -361,13 +365,14 @@ rozwiazaniadlaniewidomych.org
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
       message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _localizer["Confirm new email"];
+      message.Subject = _emailService.BuildSubject(_localizer["Confirm new email"]);
 
       BodyBuilder builder = new BodyBuilder();
 
       builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
 {_localizer["You have requested changing an email address on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
 {url}
+{_emailService.BuildServerName(false)}
 {_localizer["Regards"]},
 {_localizer["OsmIntegrator Team"]},
 rozwiazaniadlaniewidomych.org
@@ -375,6 +380,7 @@ rozwiazaniadlaniewidomych.org
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
 <p>{_localizer["You have requested changing an email address on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
 <a href=""{url}"">{url}</a>
+{_emailService.BuildServerName(true)}
 <p>{_localizer["Regards"]},</p>
 <p>{_localizer["OsmIntegrator Team"]},</p>
 <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
