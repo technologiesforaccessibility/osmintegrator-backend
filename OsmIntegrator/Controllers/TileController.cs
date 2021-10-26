@@ -188,7 +188,7 @@ namespace OsmIntegrator.Controllers
 
     [HttpGet("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Tile>> GetUsers(string id)
+    public async Task<ActionResult<TileWithUsers>> GetUsers(string id)
     {
       Guid tileId;
       if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
@@ -196,7 +196,7 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Invalid tile"]);
       }
 
-      List<ApplicationUser> allUsers = await _userManager.Users.ToListAsync();
+      List<ApplicationUser> allUsers = await _userManager.Users.OrderBy(x => x.UserName).ToListAsync();
 
       // Remove other users than editors
       List<ApplicationUser> editors = new List<ApplicationUser>();
@@ -205,14 +205,18 @@ namespace OsmIntegrator.Controllers
         IList<string> roles = await _userManager.GetRolesAsync(user);
         // add roles to user
         user.Roles = roles;
-        if (roles.Contains(UserRoles.EDITOR))
+        if (roles.Any(x => x == UserRoles.EDITOR || x == UserRoles.SUPERVISOR))
           editors.Add(user);
       }
 
       // Get current tile by id
       DbTile currentTile =
-          await _dbContext.Tiles.Include(
-              tile => tile.Users).SingleOrDefaultAsync(x => x.Id == tileId);
+          await _dbContext.Tiles
+            .Include(tile => tile.TileUsers)
+              .ThenInclude(y => y.User)
+            .Include(tile => tile.TileUsers)
+              .ThenInclude(y => y.Role)
+            .SingleOrDefaultAsync(x => x.Id == tileId);
 
       TileWithUsers result = new TileWithUsers
       {
@@ -224,15 +228,17 @@ namespace OsmIntegrator.Controllers
       {
         TileUser tileUser = new TileUser { Id = user.Id, UserName = user.UserName };
         result.Users.Add(tileUser);
-        tileUser.IsAssigned = currentTile.Users.Any(x => x.Id == user.Id);
+        tileUser.IsAssigned = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.EDITOR);
+        tileUser.IsAssignedAsSupervisor = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.SUPERVISOR);
       }
-
-      result.Users.Sort((x, y) => x.UserName.CompareTo(y.UserName));
 
       return Ok(result);
 
     }
 
+    /// <summary>
+    /// DEPRECATED
+    /// </summary>
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<string>> RemoveUser(string id)
@@ -257,6 +263,9 @@ namespace OsmIntegrator.Controllers
       return Ok(_localizer["User successfully removed from the tile"]);
     }
 
+    /// <summary>
+    /// DEPRECATED
+    /// </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User userBody)

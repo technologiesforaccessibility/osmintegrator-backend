@@ -13,5 +13,8 @@ namespace OsmIntegrator.ApiModels
 
         [Required]
         public bool IsAssigned{ get; set; }
+
+        [Required]
+        public bool IsAssignedAsSupervisor{ get; set; }
     }
 }
