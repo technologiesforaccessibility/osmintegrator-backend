@@ -435,7 +435,7 @@ namespace OsmIntegrator.Controllers
 
       if (currentTile.EditorApproved != null && userRoles.Contains(UserRoles.SUPERVISOR))
       {
-        if (currentTile.TileUsers.Any(x => x.Id == user.Id))
+        if (currentTile.TileUsers.Any(x => x.Id == user.Id && x.Role.Name == UserRoles.EDITOR))
         {
           throw new BadHttpRequestException(_localizer["Supervisor cannot approve tile edited by himself"]);
         }
@@ -462,25 +462,29 @@ namespace OsmIntegrator.Controllers
 
     private async Task SendEmails(DbTile currentTile)
     {
-      List<User> usersInRole = new List<User>();
-      if (User.IsInRole(UserRoles.EDITOR))
+      List<ApplicationUser> usersInRole = new List<ApplicationUser>();
+
+      if (currentTile.SupervisorApproved != null)
       {
-        usersInRole = _mapper.Map<List<User>>(
-            (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.SUPERVISOR));
+        usersInRole = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.COORDINATOR);
       }
-      else if (User.IsInRole(UserRoles.SUPERVISOR))
+      else if (currentTile.EditorApproved != null)
       {
-        usersInRole = _mapper.Map<List<User>>(
-            (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.ADMIN));
+        usersInRole = currentTile.TileUsers.Where(x => x.Role.Name == UserRoles.SUPERVISOR).Select(x => x.User).ToList();
       }
 
-      foreach (User user in usersInRole)
+      if (!Boolean.Parse(_configuration["SendEmails"]))
+      {
+        return;
+      }
+  
+      foreach (ApplicationUser user in usersInRole)
       {
         Task task = Task.Run(() => _emailService.SendEmailAsync(TileApprovedMessageBuilder(user, currentTile)));
       }
     }
 
-    private MimeMessage TileApprovedMessageBuilder(User user, DbTile tile)
+    private MimeMessage TileApprovedMessageBuilder(ApplicationUser user, DbTile tile)
     {
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
