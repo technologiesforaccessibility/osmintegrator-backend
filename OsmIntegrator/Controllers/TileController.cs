@@ -71,7 +71,7 @@ namespace OsmIntegrator.Controllers
 
       if (roles.Contains(UserRoles.SUPERVISOR))
       {
-        List<DbTile> supervisorTiles = await _dbContext.Tiles.Include(x => x.Users)
+        List<DbTile> supervisorTiles = await _dbContext.Tiles
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.SupervisorApprovedId == null)
           .ToListAsync();
@@ -80,7 +80,7 @@ namespace OsmIntegrator.Controllers
 
       if (roles.Contains(UserRoles.COORDINATOR))
       {
-        List<DbTile> coordinatorTiles = await _dbContext.Tiles.Include(x => x.Users)
+        List<DbTile> coordinatorTiles = await _dbContext.Tiles
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
         tiles.AddRange(coordinatorTiles);
@@ -100,26 +100,32 @@ namespace OsmIntegrator.Controllers
 
       if (roles.Contains(UserRoles.SUPERVISOR))
       {
-        List<DbTile> supervisorTiles = await _dbContext.Tiles.Include(x => x.Users)
+        List<DbTile> supervisorTiles = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
+            .ThenInclude(y => y.User)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId == null)
-          .Where(x => !x.Users.Any(x => x.Id == user.Id))
+          .Where(x => !x.TileUsers.Any(x => x.User.Id == user.Id))
           .ToListAsync();
         tiles.AddRange(supervisorTiles);
       }
 
       if (roles.Contains(UserRoles.COORDINATOR))
       {
-        List<DbTile> coordinatorTiles = await _dbContext.Tiles.Include(x => x.Users).Where(
-          x => x.GtfsStopsCount > 0 && x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
+        List<DbTile> coordinatorTiles = await _dbContext.Tiles
+          .Where(
+            x => x.GtfsStopsCount > 0 && x.EditorApprovedId != null && x.SupervisorApprovedId != null)
+          .ToListAsync();
         tiles.AddRange(coordinatorTiles);
       }
 
       if (roles.Contains(UserRoles.EDITOR))
       {
-        List<DbTile> editorTiles = await _dbContext.Tiles.Include(x => x.Users)
+        List<DbTile> editorTiles = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
+            .ThenInclude(y => y.User)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.Users.Any(x => x.Id == user.Id))
+          .Where(x => x.TileUsers.Any(x => x.User.Id == user.Id))
           .Where(x => x.EditorApprovedId == null && x.SupervisorApprovedId == null)
           .ToListAsync();
         tiles.AddRange(editorTiles);
@@ -141,7 +147,7 @@ namespace OsmIntegrator.Controllers
 
       // Check if tile exists
       var tile =
-          await _dbContext.Tiles.Include(x => x.Users).SingleOrDefaultAsync(x => x.Id == tileId);
+          await _dbContext.Tiles.Include(x => x.TileUsers).ThenInclude(y => y.User).SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
         throw new BadHttpRequestException(_localizer["Unable to find tile"]);
@@ -156,7 +162,7 @@ namespace OsmIntegrator.Controllers
       if (
         !roles.Contains(UserRoles.SUPERVISOR) &&
         !roles.Contains(UserRoles.COORDINATOR) &&
-        (roles.Contains(UserRoles.EDITOR) && !tile.Users.Any(x => x.Id == user.Id)))
+        (roles.Contains(UserRoles.EDITOR) && !tile.TileUsers.Any(x => x.User.Id == user.Id)))
       {
         throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
       }
@@ -243,9 +249,7 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<string>> RemoveUser(string id)
     {
-      DbTile currentTile =
-          await _dbContext.Tiles.Include(
-              tile => tile.Users).SingleOrDefaultAsync(x => x.Id == Guid.Parse(id));
+      DbTile currentTile = await GetTileAsync(id);
 
       if (currentTile == null)
       {
@@ -257,7 +261,7 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Unable to remove user from already approved tile"]);
       }
 
-      currentTile.Users.Clear();
+      currentTile.TileUsers.Clear();
       _dbContext.SaveChanges();
 
       return Ok(_localizer["User successfully removed from the tile"]);
@@ -392,7 +396,7 @@ namespace OsmIntegrator.Controllers
 
       if (currentTile.EditorApproved != null && userRoles.Contains(UserRoles.SUPERVISOR))
       {
-        if (currentTile.Users.Any(x => x.Id == user.Id))
+        if (currentTile.TileUsers.Any(x => x.Id == user.Id))
         {
           throw new BadHttpRequestException(_localizer["Supervisor cannot approve tile edited by himself"]);
         }
@@ -470,7 +474,7 @@ rozwiazaniadlaniewidomych.org
 
     private async Task<DbTile> GetTileAsync(string tileId)
     {
-      DbTile currentTile = await _dbContext.Tiles.Include(tile => tile.Users)
+      DbTile currentTile = await _dbContext.Tiles.Include(tile => tile.TileUsers).ThenInclude(y => y.User)
           .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
       if (currentTile == null)
       {
