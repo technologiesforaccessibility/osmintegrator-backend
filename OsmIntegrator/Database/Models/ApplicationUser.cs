@@ -9,7 +9,6 @@ namespace OsmIntegrator.Database.Models
   {
     public List<DbTile> Tiles { get; set; }
 
-    [NotMapped]
     public List<DbTileUser> TileUsers { get; set; }
 
     [NotMapped]

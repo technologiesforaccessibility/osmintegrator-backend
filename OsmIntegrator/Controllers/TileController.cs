@@ -232,7 +232,12 @@ namespace OsmIntegrator.Controllers
 
       foreach (ApplicationUser user in editors)
       {
-        TileUser tileUser = new TileUser { Id = user.Id, UserName = user.UserName };
+        TileUser tileUser = new TileUser {
+          Id = user.Id,
+          UserName = user.UserName,
+          IsSupervisor = user.Roles.Contains(UserRoles.SUPERVISOR),
+          IsEditor = user.Roles.Contains(UserRoles.EDITOR)
+        };
         result.Users.Add(tileUser);
         tileUser.IsAssigned = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.EDITOR);
         tileUser.IsAssignedAsSupervisor = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.SUPERVISOR);
@@ -342,6 +347,20 @@ namespace OsmIntegrator.Controllers
           Role = editorRole
         });
       }
+      else
+      {
+        _dbContext.TileUsers
+          .RemoveRange(
+            _dbContext.TileUsers
+              .Where(x =>
+                x.Tile == currentTile
+                && x.Role == _roleManger
+                  .Roles.Where(x =>
+                    x.Name == UserRoles.EDITOR)
+                  .First()
+              )
+            );
+      }
 
       if (updateTileInput.SupervisorId != null)
       {
@@ -372,6 +391,20 @@ namespace OsmIntegrator.Controllers
           Tile = currentTile,
           Role = supervisorRole
         });
+      }
+      else
+      {
+        _dbContext.TileUsers
+          .RemoveRange(
+            _dbContext.TileUsers
+              .Where(x =>
+                x.Tile == currentTile
+                && x.Role == _roleManger
+                  .Roles.Where(x =>
+                    x.Name == UserRoles.SUPERVISOR)
+                  .First()
+              )
+            );
       }
 
       _dbContext.SaveChanges();
