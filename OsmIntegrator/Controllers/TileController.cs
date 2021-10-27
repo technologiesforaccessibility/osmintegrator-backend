@@ -343,7 +343,7 @@ namespace OsmIntegrator.Controllers
           throw new BadHttpRequestException(_localizer["This user is not an editor"]);
         }
 
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == editor).Count() != 0)
+        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == editor && x.Role != editorRole).Count() != 0)
         {
           throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
         }
@@ -383,7 +383,7 @@ namespace OsmIntegrator.Controllers
           throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
         }
 
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor).Count() != 0)
+        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
         {
           throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
         }
