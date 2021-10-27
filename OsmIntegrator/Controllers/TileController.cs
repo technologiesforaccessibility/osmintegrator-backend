@@ -103,9 +103,17 @@ namespace OsmIntegrator.Controllers
         List<DbTile> supervisorTiles = await _dbContext.Tiles
           .Include(x => x.TileUsers)
             .ThenInclude(y => y.User)
+          .Include(x => x.TileUsers)
+            .ThenInclude(y => y.Role)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId == null)
-          .Where(x => !x.TileUsers.Any(x => x.User.Id == user.Id))
+          .Where(x =>
+            x.EditorApprovedId != null
+            && x.SupervisorApprovedId == null
+            && x.TileUsers.Any(y =>
+              y.User.Id == user.Id
+              && y.Role.Name == UserRoles.SUPERVISOR
+            )
+          )
           .ToListAsync();
         tiles.AddRange(supervisorTiles);
       }
@@ -126,7 +134,14 @@ namespace OsmIntegrator.Controllers
             .ThenInclude(y => y.User)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.TileUsers.Any(x => x.User.Id == user.Id))
-          .Where(x => x.EditorApprovedId == null && x.SupervisorApprovedId == null)
+          .Where(x =>
+            x.EditorApprovedId == null
+            && x.SupervisorApprovedId == null
+            && x.TileUsers.Any(y =>
+              y.User.Id == user.Id
+              && y.Role.Name == UserRoles.EDITOR
+            )
+          )
           .ToListAsync();
         tiles.AddRange(editorTiles);
       }
@@ -232,7 +247,8 @@ namespace OsmIntegrator.Controllers
 
       foreach (ApplicationUser user in editors)
       {
-        TileUser tileUser = new TileUser {
+        TileUser tileUser = new TileUser
+        {
           Id = user.Id,
           UserName = user.UserName,
           IsSupervisor = user.Roles.Contains(UserRoles.SUPERVISOR),
