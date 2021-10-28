@@ -141,4 +141,12 @@
     <value>Konwersacja odrzucona</value>
     <comment/>
   </data>
+  <data name="Report resolved" xml:space="preserve">
+    <value>Zgłoszenie zostało rozwiązane</value>
+    <comment/>
+  </data>
+  <data name="Report that you submitted was resolved" xml:space="preserve">
+    <value>Zgłoszony przez Ciebie problem został rozpatrzony</value>
+    <comment/>
+  </data>
 </root>

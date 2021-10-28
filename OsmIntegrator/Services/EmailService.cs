@@ -113,7 +113,7 @@ namespace OsmIntegrator.Services
       }
     }
 
-        public async Task SendEmailAsync(MimeMessage message)
+    public async Task SendEmailAsync(MimeMessage message)
     {
       try
       {
@@ -138,6 +138,30 @@ namespace OsmIntegrator.Services
       {
         _logger.LogError(e, "Unknown problem with sending email async.");
       }
+    }
+
+    public string BuildSubject(string subject)
+    {
+      if (_configuration["FrontendUrl"].Contains("localhost"))
+      {
+        return $"[LOCAL] {subject}";
+      }
+
+      if (_configuration["FrontendUrl"] != "https://osmintegrator.eu")
+      {
+        return $"[TEST] {subject}";
+      }
+      
+      return subject;
+    }
+
+    public string BuildServerName(bool useHtml)
+    {
+      return _configuration["FrontendUrl"] != "https://osmintegrator.eu"
+        ? (useHtml
+          ? $"<p>Server: {_configuration["FrontendUrl"]}</p>"
+          : "Server: " + _configuration["FrontendUrl"] + Environment.NewLine)
+        : string.Empty;
     }
   }
 }

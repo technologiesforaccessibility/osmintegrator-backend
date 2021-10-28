@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
+using MimeKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Localization;
 using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
@@ -15,7 +18,7 @@ using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
-using Microsoft.Extensions.Localization;
+using OsmIntegrator.Interfaces;
 
 namespace OsmIntegrator.Controllers
 {
@@ -43,14 +46,19 @@ namespace OsmIntegrator.Controllers
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<ConversationController> _localizer;
 
+    private readonly IEmailService _emailService;
+
+    private readonly IConfiguration _configuration;
+
     public ConversationController(
         ILogger<ConversationController> logger,
         IMapper mapper,
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         ApplicationDbContext dbContext,
-        IStringLocalizer<ConversationController> localizer
-
+        IStringLocalizer<ConversationController> localizer,
+        IEmailService emailService,
+        IConfiguration configuration
     )
     {
       _logger = logger;
@@ -59,6 +67,8 @@ namespace OsmIntegrator.Controllers
       _roleManager = roleManager;
       _dbContext = dbContext;
       _localizer = localizer;
+      _emailService = emailService;
+      _configuration = configuration;
     }
 
     /// <summary>
@@ -140,12 +150,12 @@ namespace OsmIntegrator.Controllers
 
       List<DbConversation> dbStopConversations = await _dbContext.Conversations
         .Include(x => x.Messages)
-        .Where(x => x.TileId == tile.Id && x.StopId != null)
+        .Where(x => x.TileId == tile.Id && x.StopId != null && x.Messages.Count() != 0)
         .ToListAsync();
 
       List<DbConversation> dbGeoConversations = await _dbContext.Conversations
       .Include(x => x.Messages)
-      .Where(x => x.TileId == tile.Id && x.Lat != null && x.Lon != null)
+      .Where(x => x.TileId == tile.Id && x.Lat != null && x.Lon != null && x.Messages.Count() != 0)
       .ToListAsync();
 
       ConversationResponse response = new ConversationResponse()
@@ -168,6 +178,7 @@ namespace OsmIntegrator.Controllers
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
+          .ThenInclude(y => y.User)
         .FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
@@ -189,11 +200,52 @@ namespace OsmIntegrator.Controllers
       dbMessage.User = user;
 
       dbConversation.Messages.Add(dbMessage);
-      
-      _dbContext.SaveChanges();
+
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation approved successfully"]);
+    }
+
+    private void SendApprovedTileEmail(DbConversation conversation)
+    {
+      List<ApplicationUser> users = conversation.Messages
+        .FindAll(x => x.Status == NoteStatus.Created)
+        .Select(x => x.User)
+        .ToList();
+
+      foreach (ApplicationUser user in users)
+      {
+        Task task = Task.Run(() => _emailService.SendEmailAsync(ConversationResolvedMessageBuilder(user)));
+      }
+    }
+
+    private MimeMessage ConversationResolvedMessageBuilder(ApplicationUser user)
+    {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      message.To.Add(MailboxAddress.Parse(user.Email));
+      message.Subject = _emailService.BuildSubject(_localizer["Report resolved"]);
+
+      BodyBuilder builder = new BodyBuilder();
+
+      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
+{_localizer["Report that you submitted was resolved"]}
+{_emailService.BuildServerName(false)}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
+<p>{_localizer["Report that you submitted was resolved"]}</p><br/>
+{_emailService.BuildServerName(true)}
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      return message;
     }
 
     [HttpPut("Reject/{conversationId}")]
@@ -226,7 +278,7 @@ namespace OsmIntegrator.Controllers
       dbMessage.User = user;
 
       dbConversation.Messages.Add(dbMessage);
-      
+
       _dbContext.SaveChanges();
       _dbContext.SaveChanges();
 
@@ -244,6 +296,7 @@ namespace OsmIntegrator.Controllers
     {
       DbConversation dbConversation = await _dbContext.Conversations
         .Include(x => x.Messages)
+          .ThenInclude(y => y.User)
         .FirstOrDefaultAsync(x => x.Id == messageInput.ConversationId);
 
       ApplicationUser user = await _userManager.GetUserAsync(User);
@@ -265,7 +318,7 @@ namespace OsmIntegrator.Controllers
       dbMessage.User = user;
 
       dbConversation.Messages.Add(dbMessage);
-      
+
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation approved successfully"]);
@@ -307,7 +360,7 @@ namespace OsmIntegrator.Controllers
       dbMessage.User = user;
 
       dbConversation.Messages.Add(dbMessage);
-      
+
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation rejected successfully"]);
