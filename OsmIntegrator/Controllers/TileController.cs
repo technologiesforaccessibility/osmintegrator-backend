@@ -151,7 +151,7 @@ namespace OsmIntegrator.Controllers
 
     [HttpGet("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Stop>> GetStops(string id)
+    public async Task<ActionResult<List<Stop>>> GetStops(string id)
     {
       // Validate tile id
       Guid tileId;
