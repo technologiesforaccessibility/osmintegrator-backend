@@ -151,7 +151,9 @@ namespace osmintegrator
                 typeof(ApplicationUserProfile),
                 typeof(ConnectionProfile),
                 typeof(ExistingNoteProfile),
-                typeof(NewNoteProfile));
+                typeof(NewNoteProfile),
+                typeof(ConversationProfile),
+                typeof(MessageProfile));
                 
             services.AddSingleton<IEmailService, EmailService>();
             services.AddSingleton<ITokenHelper, TokenHelper>();
