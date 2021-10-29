@@ -44,7 +44,7 @@ namespace osmintegrator
       services.AddApiVersioning(config =>
       {
         config.DefaultApiVersion = new ApiVersion(0, 9); // global default version all controlers fit it
-              config.AssumeDefaultVersionWhenUnspecified = true;
+        config.AssumeDefaultVersionWhenUnspecified = true;
         config.ReportApiVersions = true;
         config.ApiVersionReader = new HeaderApiVersionReader("Api-Version");
         config.ErrorResponses = new ApiVersioningErrorResponseProvider();
@@ -84,11 +84,11 @@ namespace osmintegrator
         options.RequestCultureProviders.Clear();
         options.RequestCultureProviders.Add(new CustomRequestCultureProvider(context =>
               {
-            var userLangs = context.Request.Headers["Accept-Language"].ToString();
-            var firstLang = userLangs.Split(',').FirstOrDefault();
-            var defaultLang = string.IsNullOrEmpty(firstLang) ? "en" : firstLang;
-            return Task.FromResult(new ProviderCultureResult(defaultLang, defaultLang));
-          }));
+                var userLangs = context.Request.Headers["Accept-Language"].ToString();
+                var firstLang = userLangs.Split(',').FirstOrDefault();
+                var defaultLang = string.IsNullOrEmpty(firstLang) ? "en" : firstLang;
+                return Task.FromResult(new ProviderCultureResult(defaultLang, defaultLang));
+              }));
 
       });
 
@@ -110,8 +110,8 @@ namespace osmintegrator
       // https://stackoverflow.com/a/42389162/1816687
       services.Configure<SecurityStampValidatorOptions>(options =>
       {
-              // enables immediate logout, after updating the user's stat.
-              options.ValidationInterval = TimeSpan.Zero;
+        // enables immediate logout, after updating the user's stat.
+        options.ValidationInterval = TimeSpan.Zero;
       });
 
       // ===== Add Jwt Authentication ========
@@ -134,7 +134,7 @@ namespace osmintegrator
               ValidAudience = Configuration["JwtIssuer"],
               IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
               ClockSkew = TimeSpan.Zero // remove delay of token when expire
-                  };
+            };
           });
 
       services.AddAuthorization();

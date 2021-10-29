@@ -9,6 +9,7 @@ using NLog.Web;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Services;
+using OsmIntegrator.Interfaces;
 
 namespace osmintegrator
 {
@@ -59,6 +60,7 @@ namespace osmintegrator
             })
             .ConfigureServices(services =>
             {
+              services.AddSingleton<IOsmRefresherHelper, OsmRefresherHelper>();
               services.AddHttpClient();
               services.AddHostedService<OsmRefresher>();
             })
