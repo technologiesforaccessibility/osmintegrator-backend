@@ -4,7 +4,6 @@ using System.Net.Http;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Linq;
 using System.Xml.Serialization;
 using OsmIntegrator.Database.Models;
@@ -57,7 +56,7 @@ namespace OsmIntegrator.Services
         .SendAsync(
         new HttpRequestMessage(HttpMethod.Get, "https://lz4.overpass-api.de/api/interpreter")
         {
-          Content = new StringContent($"node [~'highway|railway'~'tram_stop|bus_stop'] (49.558915859179, 18.212585449219, 50.496783462923, 19.951171875); out meta;", Encoding.UTF8)
+          Content = content
         },
         cancelationToken
         );
