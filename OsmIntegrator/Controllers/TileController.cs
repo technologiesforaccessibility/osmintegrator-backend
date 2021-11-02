@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
@@ -533,7 +534,7 @@ rozwiazaniadlaniewidomych.org
     {
       DbTile tile = await GetTileAsync(id);
       Osm osm = await _osmRefresherHelper.GetContent(new StringContent(
-            $"node [~'highway|railway'~'tram_stop|bus_stop'] ({tile.MinLat}, {tile.MinLon}, {tile.MaxLat}, {tile.MaxLon}); out meta;",
+            $"node [~'highway|railway'~'tram_stop|bus_stop'] ({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, {tile.MinLon.ToString(CultureInfo.InvariantCulture)}, {tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, {tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;",
             Encoding.UTF8));
       await _osmRefresherHelper.Refresh(tile, _dbContext, osm);
 
@@ -543,7 +544,10 @@ rozwiazaniadlaniewidomych.org
         .Where(x => x.OsmStop.IsDeleted == true)
         .ToList();
 
-      SendDeletedConnectionsEmail(tile, connectionsToDelete);
+      if (Boolean.Parse(_configuration["SendEmails"]))
+      {
+        SendDeletedConnectionsEmail(tile, connectionsToDelete);
+      }
 
       _dbContext.Connections.RemoveRange(connectionsToDelete);
       _dbContext.SaveChanges();
@@ -592,6 +596,7 @@ rozwiazaniadlaniewidomych.org
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.TileUsers).ThenInclude(y => y.User)
         .Include(tile => tile.TileUsers).ThenInclude(y => y.Role)
+        .Include(tile => tile.Stops)
         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
       if (currentTile == null)
       {
