@@ -1233,6 +1233,26 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "UpdateStopsOnTile",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/UpdateStops/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"UpdateStops",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
