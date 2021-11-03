@@ -1077,6 +1077,50 @@
 					"response": []
 				},
 				{
+					"name": "UpdateUsers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"supervisorId\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\",\n    \"editorId\": \"9815ba57-e990-4f91-a8e9-17abe977d681\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Tile/UpdateUsers/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"UpdateUsers",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Approve FirstTile",
 					"request": {
 						"auth": {

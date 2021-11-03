@@ -31,6 +31,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
       Initialize(db, gtfsStops, osmStops);
       MigrateNotes(db);
+      MigrateTileUsers(db);
     }
 
     public void Initialize(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
@@ -223,6 +224,41 @@ namespace OsmIntegrator.Database.DataInitialization
               });
             }
           }
+          db.SaveChanges();
+          transaction.Commit();
+        }
+        catch (Exception e)
+        {
+          Console.WriteLine(e);
+          transaction.Rollback();
+          throw;
+        }
+      }
+    }
+    public void MigrateTileUsers(ApplicationDbContext db)
+    {
+      using (var transaction = db.Database.BeginTransaction())
+      {
+        if (db.TileUsers.Count() > 0)
+        {
+          return;
+        }
+        try
+        {
+          foreach (ApplicationUser user in db.Users.Include(x => x.Tiles).ToList())
+          {
+            foreach (DbTile tile in user.Tiles)
+            {
+              db.TileUsers.Add(new DbTileUser()
+              {
+                Id = new Guid(),
+                User = user,
+                Tile = tile,
+                Role = db.Roles.Where(x => x.Name == UserRoles.EDITOR).First()
+              });
+            }
+          }
+
           db.SaveChanges();
           transaction.Commit();
         }
