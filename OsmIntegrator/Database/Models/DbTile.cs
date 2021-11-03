@@ -69,6 +69,8 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbConversation> Conversations { get; set; }
 
+    public List<DbTileUser> TileUsers { get; set; }
+
     public DbTile()
     {
 
