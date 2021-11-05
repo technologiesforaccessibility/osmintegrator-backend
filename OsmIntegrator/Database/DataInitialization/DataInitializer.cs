@@ -245,6 +245,8 @@ namespace OsmIntegrator.Database.DataInitialization
         }
         try
         {
+          ApplicationUser supervisor = db.Users.First(x => x.UserName == "supervisor1");
+
           foreach (ApplicationUser user in db.Users.Include(x => x.Tiles).ToList())
           {
             foreach (DbTile tile in user.Tiles)
@@ -255,6 +257,14 @@ namespace OsmIntegrator.Database.DataInitialization
                 User = user,
                 Tile = tile,
                 Role = db.Roles.Where(x => x.Name == UserRoles.EDITOR).First()
+              });
+
+              db.TileUsers.Add(new DbTileUser()
+              {
+                Id = new Guid(),
+                User = supervisor,
+                Tile = tile,
+                Role = db.Roles.Where(x => x.Name == UserRoles.SUPERVISOR).First()
               });
             }
           }
