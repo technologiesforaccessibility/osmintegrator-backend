@@ -72,6 +72,7 @@ namespace OsmIntegrator.Controllers
       if (roles.Contains(UserRoles.SUPERVISOR))
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.SupervisorApprovedId == null)
           .ToListAsync();
@@ -81,6 +82,7 @@ namespace OsmIntegrator.Controllers
       if (roles.Contains(UserRoles.COORDINATOR))
       {
         List<DbTile> coordinatorTiles = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
         tiles.AddRange(coordinatorTiles);
