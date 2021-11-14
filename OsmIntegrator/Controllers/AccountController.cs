@@ -228,7 +228,7 @@ namespace OsmIntegrator.Controllers
     {
       string slackInvitation = "https://join.slack.com/t/techforaccessibility/shared_invite/zt-y7auomk3-iFugUKhN_Qz6_8Y37jySNw";
       string slackDownload = "https://slack.com/downloads";
-      string userManualLink = "https://drive.google.com/file/d/147oQ0nPozaHM0O4OKTLPSIBpMFvB9bWM/view?usp=sharing";
+      string userManualLink = "https://drive.google.com/file/d/14IfcF7DjK6fvD6V8GaOd7xAyUPWpCrZh/view?usp=sharing";
       string facebookGroupLink = "https://www.facebook.com/groups/282362010475827";
 
       MimeMessage message = new MimeMessage();
