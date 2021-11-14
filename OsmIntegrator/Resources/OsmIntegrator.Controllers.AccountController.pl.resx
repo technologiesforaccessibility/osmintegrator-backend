@@ -133,6 +133,34 @@
         <value>Aby aktywować swoje konto kliknij w link poniżej.</value>
         <comment/>
     </data>
+    <data name="Information for new users" xml:space="preserve">
+        <value>Informacje dla nowych użytkowników</value>
+        <comment/>
+    </data>
+    <data name="You have successfully created an account on" xml:space="preserve">
+        <value>Gratulacje! Właśnie utworzyłeś konto na portalu</value>
+        <comment/>
+    </data>
+    <data name="Next steps:" xml:space="preserve">
+        <value>Następne kroki:</value>
+        <comment/>
+    </data>
+    <data name="Join our community on Slack. Click on this link to create new account:" xml:space="preserve">
+        <value>Dołącz do naszej społeczności na komunikatorze Slack. Kliknij w link po prawej, aby utworzyć konto:</value>
+        <comment/>
+    </data>
+    <data name="Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:" xml:space="preserve">
+        <value>Pobierz aplikację Slack i napisz do nas na kanale #główny. Wyjaśnimy Ci jak używać naszej aplikacji. Link do aplikacji:</value>
+        <comment/>
+    </data>
+    <data name="Read user manual available at this link:" xml:space="preserve">
+        <value>Zapoznaj się z instrukcją użytkownika:</value>
+        <comment/>
+    </data>
+    <data name="Join our Facebook group:" xml:space="preserve">
+        <value>Dołącz do grupy na Facebooku:</value>
+        <comment/>
+    </data>
     <data name="Regards" xml:space="preserve">
         <value>Pozdrawiamy</value>
         <comment/>
