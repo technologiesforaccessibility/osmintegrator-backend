@@ -252,7 +252,7 @@ namespace OsmIntegrator.Controllers
 rozwiazaniadlaniewidomych.org
       ";
       builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["You have successfully created an account on "]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>.</p><br/>
+<p>{_localizer["You have successfully created an account on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>.</p><br/>
 <p>{_localizer["Next steps:"]}</p>
 <ul>
   <li>{_localizer["Join our community on Slack. Click on this link to create new account:"]} <a href=""{slackInvitation}"">LINK</a></li>
