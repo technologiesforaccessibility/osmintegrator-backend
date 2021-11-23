@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
+using System.Net.Http;
 using System.Threading.Tasks;
+using System.Text;
 using AutoMapper;
 using MimeKit;
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +22,7 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
+using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Controllers
 {
@@ -39,6 +43,8 @@ namespace OsmIntegrator.Controllers
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
 
+    readonly IOsmRefresherHelper _osmRefresherHelper;
+
     public TileController(
         ILogger<TileController> logger,
         IConfiguration configuration,
@@ -47,7 +53,8 @@ namespace OsmIntegrator.Controllers
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IStringLocalizer<TileController> localizer,
-        IEmailService emailService
+        IEmailService emailService,
+        IOsmRefresherHelper refresherHelper
     )
     {
       _logger = logger;
@@ -58,6 +65,7 @@ namespace OsmIntegrator.Controllers
       _roleManger = roleManager;
       _localizer = localizer;
       _emailService = emailService;
+      _osmRefresherHelper = refresherHelper;
     }
 
     [HttpGet]
@@ -163,8 +171,10 @@ namespace OsmIntegrator.Controllers
       }
 
       // Check if tile exists
-      var tile =
-          await _dbContext.Tiles.Include(x => x.TileUsers).ThenInclude(y => y.User).SingleOrDefaultAsync(x => x.Id == tileId);
+      var tile = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
+            .ThenInclude(y => y.User)
+          .SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
         throw new BadHttpRequestException(_localizer["Unable to find tile"]);
@@ -185,9 +195,12 @@ namespace OsmIntegrator.Controllers
       }
 
       // Get all stops in selected tile + stops around that tile
-      var stops = await _dbContext.Stops.Where(x =>
+      var stops = await _dbContext.Stops
+        .Where(x =>
           x.Lon > tile.OverlapMinLon && x.Lon <= tile.OverlapMaxLon &&
-          x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat).ToListAsync();
+          x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat)
+        .Where(x => !x.IsDeleted)
+        .ToListAsync();
 
       foreach (DbStop stop in stops)
       {
@@ -479,7 +492,7 @@ namespace OsmIntegrator.Controllers
       {
         return;
       }
-  
+
       foreach (ApplicationUser user in usersInRole)
       {
         Task task = Task.Run(() => _emailService.SendEmailAsync(TileApprovedMessageBuilder(user, currentTile)));
@@ -517,11 +530,81 @@ rozwiazaniadlaniewidomych.org
       return message;
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<Tile>> UpdateStops(string id)
+    {
+      DbTile tile = await GetTileAsync(id);
+
+      string overpassQuery = $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
+            $"({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MinLon.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;";
+
+      Osm osm = await _osmRefresherHelper.GetContent(new StringContent(overpassQuery,
+            Encoding.UTF8));
+      await _osmRefresherHelper.Refresh(tile, _dbContext, osm);
+
+      List<DbConnections> connectionsToDelete = _dbContext.Connections
+        .Include(x => x.OsmStop)
+        .Include(x => x.GtfsStop)
+        .Where(x => x.OsmStop.IsDeleted == true)
+        .ToList();
+
+      if (Boolean.Parse(_configuration["SendEmails"]))
+      {
+        SendDeletedConnectionsEmail(tile, connectionsToDelete);
+      }
+
+      _dbContext.Connections.RemoveRange(connectionsToDelete);
+      _dbContext.SaveChanges();
+
+      return Ok(_mapper.Map<Tile>(tile));
+    }
+
+    private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)
+    {
+      MimeMessage message = new MimeMessage();
+      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
+      foreach (DbTileUser user in tile.TileUsers)
+      {
+        message.To.Add(MailboxAddress.Parse(user.User.Email));
+      }
+      message.Subject = _emailService.BuildSubject(_localizer["Connections has been deleted"]);
+
+      BodyBuilder builder = new BodyBuilder();
+
+      builder.TextBody = $@"{_localizer["Hello"]},
+{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}
+X: {tile.X}, Y: {tile.Y}
+{String.Join(Environment.NewLine, connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}
+{_emailService.BuildServerName(false)}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+      builder.HtmlBody = $@"<h3>{_localizer["Hello"]},</h3>
+<p>{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}</p><br/>
+<p>X: {tile.X}, Y: {tile.Y}</p>
+<p>{String.Join("<br/>", connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}</p>
+{_emailService.BuildServerName(true)}
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+      message.Body = builder.ToMessageBody();
+
+      Task task = Task.Run(() => _emailService.SendEmailAsync(message));
+    }
+
     private async Task<DbTile> GetTileAsync(string tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.TileUsers).ThenInclude(y => y.User)
         .Include(tile => tile.TileUsers).ThenInclude(y => y.Role)
+        .Include(tile => tile.Stops)
         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
       if (currentTile == null)
       {

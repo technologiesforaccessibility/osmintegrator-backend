@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,59 +8,66 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
-using OsmIntegrator.Database.Models;
+using OsmIntegrator.Services;
+using OsmIntegrator.Interfaces;
 
 namespace osmintegrator
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
-            try
-            {
-                logger.Debug("init main");
-                IHost host = CreateHostBuilder(args).Build();
-                InitializeData(host);
-                host.Run();
-            }
-            catch (Exception exception)
-            {
-                logger.Error(exception, "Stopped program because of exception");
-                throw;
-            }
-            finally
-            {
-                NLog.LogManager.Shutdown();
-            }
-        }
-
-        public static void InitializeData(IHost host)
-        {
-            using (var scope = host.Services.CreateScope())
-            {
-                ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-                db.Database.Migrate();
-                DataInitializer _dataInitializer = host.Services.GetService<DataInitializer>();
-
-                _dataInitializer.Initialize(db);
-            }
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddEnvironmentVariables(prefix: "OsmIntegrator_");
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                })
-                .ConfigureLogging(logging =>
-                {
-                    logging.ClearProviders();
-                    logging.SetMinimumLevel(LogLevel.Trace);
-                }).UseNLog();
+      var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+      try
+      {
+        logger.Debug("init main");
+        IHost host = CreateHostBuilder(args).Build();
+        InitializeData(host);
+        host.Run();
+      }
+      catch (Exception exception)
+      {
+        logger.Error(exception, "Stopped program because of exception");
+        throw;
+      }
+      finally
+      {
+        NLog.LogManager.Shutdown();
+      }
     }
+
+    public static void InitializeData(IHost host)
+    {
+      using (var scope = host.Services.CreateScope())
+      {
+        ApplicationDbContext db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+        DataInitializer _dataInitializer = host.Services.GetService<DataInitializer>();
+
+        _dataInitializer.Initialize(db);
+      }
+    }
+
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureAppConfiguration((hostingContext, config) =>
+            {
+              config.AddEnvironmentVariables(prefix: "OsmIntegrator_");
+            })
+            .ConfigureWebHostDefaults(webBuilder =>
+            {
+              webBuilder.UseStartup<Startup>();
+            })
+            .ConfigureServices(services =>
+            {
+              services.AddSingleton<IOsmRefresherHelper, OsmRefresherHelper>();
+              services.AddHttpClient();
+              services.AddHostedService<OsmRefresher>();
+            })
+            .ConfigureLogging(logging =>
+            {
+              logging.ClearProviders();
+              logging.SetMinimumLevel(LogLevel.Trace);
+            }).UseNLog();
+  }
 }

@@ -178,4 +178,10 @@
   <data name="This user is not a supervisor" xml:space="preserve">
     <value>Użytkownik nie jest superwizorem</value>
   </data>
+  <data name="Connections has been deleted" xml:space="preserve">
+    <value>Połączenia zostały usunięte</value>
+  </data>
+  <data name="Due to deleting of some stops in OSM systems, connections on your tile has beed deleted" xml:space="preserve">
+    <value>Z powodu usunięcia niektórych przystanków w systemach OSM, połączenia na przypisanym kafelku zostały usunięte</value>
+  </data>
 </root>
