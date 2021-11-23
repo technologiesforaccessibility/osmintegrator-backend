@@ -149,7 +149,7 @@ namespace OsmIntegrator.Services
       }
     }
 
-    void PopulateTags(DbStop stop, Node node)
+    private void PopulateTags(DbStop stop, Node node)
     {
       List<Tag> tempTags = new List<Tag>();
 

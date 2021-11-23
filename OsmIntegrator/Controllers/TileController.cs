@@ -533,8 +533,14 @@ rozwiazaniadlaniewidomych.org
     public async Task<ActionResult<Tile>> UpdateStops(string id)
     {
       DbTile tile = await GetTileAsync(id);
-      Osm osm = await _osmRefresherHelper.GetContent(new StringContent(
-            $"node [~'highway|railway'~'tram_stop|bus_stop'] ({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, {tile.MinLon.ToString(CultureInfo.InvariantCulture)}, {tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, {tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;",
+
+      string overpassQuery = $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
+            $"({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MinLon.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;";
+
+      Osm osm = await _osmRefresherHelper.GetContent(new StringContent(overpassQuery,
             Encoding.UTF8));
       await _osmRefresherHelper.Refresh(tile, _dbContext, osm);
 

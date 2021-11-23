@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1f606d99-3cdb-43c0-9b47-752a496c6d8d",
+		"_postman_id": "ac4e2b83-48dd-4a4f-a5a0-55ea6ec0bd4b",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -1237,6 +1237,21 @@
 				{
 					"name": "UpdateStopsOnTile",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "PUT",
 						"header": [],
 						"url": {
