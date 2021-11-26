@@ -6,6 +6,8 @@ services:
         restart: always
         depends_on:
             - db
+        volumes:
+            - ./logs:/app/logs
         env_file:
             - .env.production # that does not exist in the repo, need to be adjusted for tahrget server
 
