@@ -529,12 +529,13 @@ rozwiazaniadlaniewidomych.org
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<Tile>> UpdateStops(string id)
     {
       DbTile tile = await GetTileAsync(id);
 
-      string overpassQuery = $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
+      string overpassQuery = 
+            $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
             $"({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, " + 
             $"{tile.MinLon.ToString(CultureInfo.InvariantCulture)}, " + 
             $"{tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, " + 

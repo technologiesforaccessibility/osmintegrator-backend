@@ -28,7 +28,7 @@ namespace OsmIntegrator.Services
       {
         result = await _httpClient
           .SendAsync(
-          new HttpRequestMessage(HttpMethod.Get, "https://lz4.overpass-api.de/api/interpreter")
+          new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
           {
             Content = content
           }
@@ -54,7 +54,7 @@ namespace OsmIntegrator.Services
       {
         result = await _httpClient
         .SendAsync(
-        new HttpRequestMessage(HttpMethod.Get, "https://lz4.overpass-api.de/api/interpreter")
+        new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
         {
           Content = content
         },
@@ -101,7 +101,8 @@ namespace OsmIntegrator.Services
           // node is outside boundary of current tile
           continue;
         }
-        DbStop existingStop = tile.Stops.FirstOrDefault(x => x.StopId == long.Parse(node.Id));
+        DbStop existingStop = tile.Stops.FirstOrDefault(
+          x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
 
         if (existingStop != null)
         {
@@ -160,17 +161,17 @@ namespace OsmIntegrator.Services
       }));
       stop.Tags = tempTags;
 
-      var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "name");
+      var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
       stop.Name = nameTag?.Value;
 
-      var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "ref");
+      var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
       long refVal;
       if (refTag != null && long.TryParse(refTag.Value, out refVal))
       {
         stop.Ref = refVal;
       }
 
-      var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "local_ref");
+      var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
       if (localRefTag != null && !string.IsNullOrEmpty(localRefTag.Value))
       {
         stop.Number = localRefTag.Value;
