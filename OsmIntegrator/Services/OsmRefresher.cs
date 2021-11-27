@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -18,42 +17,52 @@ using NCrontab;
 
 namespace OsmIntegrator.Services
 {
-  public class OsmRefresher : IOsmRefresher
+  public class OsmScheduler : IOsmScheduler
   {
-    readonly IConfiguration _configuration;
-    CancellationToken _cancelationToken;
-    readonly ILogger<OsmRefresher> _logger;
+    private readonly IConfiguration _configuration;
+    private CancellationToken _cancellationToken;
+    private readonly ILogger<OsmScheduler> _logger;
 
-    readonly CrontabSchedule _schedule;
-    DateTime _nextRun;
+    private readonly CrontabSchedule _schedule;
+    private DateTime _nextRun;
 
-    readonly IServiceScopeFactory _scopeFactory;
-    readonly IOsmRefresherHelper _osmRefresherHelper;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IOsmRefresherHelper _osmRefresherHelper;
 
-    public OsmRefresher(ILogger<OsmRefresher> logger, IServiceScopeFactory serviceScopeFactory, HttpClient httpClient, IConfiguration configuration, IOsmRefresherHelper osmRefresherHelper)
+    private readonly IOverpass _overpass;
+
+    public OsmScheduler(
+      ILogger<OsmScheduler> logger, 
+      IServiceScopeFactory serviceScopeFactory, 
+      HttpClient httpClient, 
+      IConfiguration configuration, 
+      IOsmRefresherHelper osmRefresherHelper,
+      IOverpass overpass)
     {
       _logger = logger;
       _configuration = configuration;
-      _schedule = CrontabSchedule.Parse("0 0 2 * * *", new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
+      _schedule = CrontabSchedule.Parse(_configuration["OsmCronInterval"], 
+        new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
       _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
       _scopeFactory = serviceScopeFactory;
       _osmRefresherHelper = osmRefresherHelper;
+      _overpass = overpass;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-      _cancelationToken = cancellationToken;
+      _cancellationToken = cancellationToken;
 
       Task.Run(async () =>
       {
-        while (!_cancelationToken.IsCancellationRequested)
+        while (!_cancellationToken.IsCancellationRequested)
         {
-          await Task.Delay(UntilNextExecution(), _cancelationToken);
+          await Task.Delay(UntilNextExecution(), _cancellationToken);
           await Refresh();
 
           _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
         }
-      }, _cancelationToken);
+      }, _cancellationToken);
 
       return Task.CompletedTask;
     }
@@ -63,28 +72,24 @@ namespace OsmIntegrator.Services
       return Task.CompletedTask;
     }
 
-    int UntilNextExecution() => Math.Max(0, (int)_nextRun.Subtract(DateTime.Now).TotalMilliseconds);
+    private int UntilNextExecution() => 
+      Math.Max(0, (int)_nextRun.Subtract(DateTime.Now).TotalMilliseconds);
 
-    async Task Refresh()
+    public async Task Refresh()
     {
       try
       {
-        Osm result = await _osmRefresherHelper.GetContent(
-          new StringContent(
-            $"node [~'highway|railway'~'tram_stop|bus_stop'] (49.558915859179, 18.212585449219, 50.496783462923, 19.951171875); out meta;",
-            Encoding.UTF8),
-          _cancelationToken
-        );
         using (IServiceScope scope = _scopeFactory.CreateScope())
         {
           ApplicationDbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+          Osm result = await _overpass.GetFullArea(dbContext, _cancellationToken);
+
           List<DbTile> tilesToRefresh = dbContext.Tiles
             .Include(x => x.Stops)
             .Include(x => x.TileUsers)
             .Where(x => x.TileUsers.Count() == 0)
-            .Where(x => x.Stops.Count() != 0)
             .ToList();
-
 
           await _osmRefresherHelper.Refresh(tilesToRefresh, dbContext, result);
         }
@@ -94,6 +99,5 @@ namespace OsmIntegrator.Services
         _logger.LogError(e.Message);
       }
     }
-
   }
 }

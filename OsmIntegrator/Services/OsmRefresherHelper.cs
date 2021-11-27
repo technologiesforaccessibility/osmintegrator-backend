@@ -1,11 +1,7 @@
-using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Xml.Serialization;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.Interfaces;
@@ -16,64 +12,6 @@ namespace OsmIntegrator.Services
 {
   public class OsmRefresherHelper : IOsmRefresherHelper
   {
-    readonly HttpClient _httpClient;
-    public OsmRefresherHelper(HttpClient httpClient)
-    {
-      _httpClient = httpClient;
-    }
-    public async Task<Osm> GetContent(HttpContent content)
-    {
-      HttpResponseMessage result = new HttpResponseMessage();
-      for (int i = 0; i < 5; i++)
-      {
-        result = await _httpClient
-          .SendAsync(
-          new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
-          {
-            Content = content
-          }
-          );
-
-        if (result.IsSuccessStatusCode)
-        {
-          Stream responseStream = result.Content.ReadAsStream();
-
-          XmlSerializer serializer = new XmlSerializer(typeof(Osm));
-
-          return (Osm)serializer.Deserialize(responseStream);
-        }
-      }
-
-      throw new HttpRequestException();
-    }
-
-    public async Task<Osm> GetContent(HttpContent content, CancellationToken cancelationToken)
-    {
-      HttpResponseMessage result = new HttpResponseMessage();
-      for (int i = 0; i < 5; i++)
-      {
-        result = await _httpClient
-        .SendAsync(
-        new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
-        {
-          Content = content
-        },
-        cancelationToken
-        );
-
-        if (result.IsSuccessStatusCode)
-        {
-          Stream responseStream = result.Content.ReadAsStream();
-
-          XmlSerializer serializer = new XmlSerializer(typeof(Osm));
-
-          return (Osm)serializer.Deserialize(responseStream);
-        }
-      }
-
-      throw new HttpRequestException();
-    }
-
     public async Task Refresh(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       ProcessTile(tile, dbContext, osmRoot);

@@ -10,9 +10,6 @@ namespace OsmIntegrator.Interfaces
 {
   public interface IOsmRefresherHelper
   {
-    Task<Osm> GetContent(HttpContent content);
-    Task<Osm> GetContent(HttpContent content, CancellationToken cancellationToken);
-
     Task Refresh(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
 
     Task Refresh(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);

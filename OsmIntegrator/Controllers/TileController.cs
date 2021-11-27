@@ -42,6 +42,7 @@ namespace OsmIntegrator.Controllers
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
+    private readonly IOverpass _overpass;
 
     readonly IOsmRefresherHelper _osmRefresherHelper;
 
@@ -54,7 +55,8 @@ namespace OsmIntegrator.Controllers
         RoleManager<ApplicationRole> roleManager,
         IStringLocalizer<TileController> localizer,
         IEmailService emailService,
-        IOsmRefresherHelper refresherHelper
+        IOsmRefresherHelper refresherHelper,
+        IOverpass overpass
     )
     {
       _logger = logger;
@@ -66,6 +68,7 @@ namespace OsmIntegrator.Controllers
       _localizer = localizer;
       _emailService = emailService;
       _osmRefresherHelper = refresherHelper;
+      _overpass = overpass;
     }
 
     [HttpGet]
@@ -536,15 +539,8 @@ rozwiazaniadlaniewidomych.org
     {
       DbTile tile = await GetTileAsync(id);
 
-      string overpassQuery = 
-            $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
-            $"({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MinLon.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;";
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      Osm osm = await _osmRefresherHelper.GetContent(new StringContent(overpassQuery,
-            Encoding.UTF8));
       await _osmRefresherHelper.Refresh(tile, _dbContext, osm);
 
       List<DbConnections> connectionsToDelete = _dbContext.Connections

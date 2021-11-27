@@ -60,9 +60,10 @@ namespace osmintegrator
             })
             .ConfigureServices(services =>
             {
-              services.AddSingleton<IOsmRefresherHelper, OsmRefresherHelper>();
               services.AddHttpClient();
-              services.AddHostedService<OsmRefresher>();
+              services.AddSingleton<IOverpass, Overpass>();
+              services.AddSingleton<IOsmRefresherHelper, OsmRefresherHelper>();
+              services.AddHostedService<OsmScheduler>();
             })
             .ConfigureLogging(logging =>
             {

@@ -68,10 +68,10 @@ namespace OsmIntegrator.Tests.Tests
         }
 
         [Theory]
-        [InlineData(1,  2, 1, HttpStatusCode.OK)]               // two stops of differen types inside the left tile - GTFS, OSM, active left tile
+        [InlineData(1,  2, 1, HttpStatusCode.OK)]               // two stops of different types inside the left tile - GTFS, OSM, active left tile
         [InlineData(1,  3, 1, HttpStatusCode.BadRequest)]       // two stops of the same type inside the left tile - GTFS, GTFS, active left tile
         [InlineData(2,  4, 1, HttpStatusCode.BadRequest)]       // two stops of the same type inside the left tile - OSM, OSM, active left tile
-        [InlineData(1,  2, 2, HttpStatusCode.BadRequest)]       // two stops of differen types inside the left tile - GTFS, OSM, active right tile - wrong Tile because both stops are on left Tile 
+        [InlineData(1,  2, 2, HttpStatusCode.BadRequest)]       // two stops of different types inside the left tile - GTFS, OSM, active right tile - wrong Tile because both stops are on left Tile 
         
         [InlineData(1,  6, 1, HttpStatusCode.BadRequest)]       // GTFS inside the left tile and OSM inside the right in acceptable distance, active left tile
         [InlineData(1,  6, 2, HttpStatusCode.OK)]               // GTFS inside the left tile and OSM inside the right in acceptable distance, active right tile
