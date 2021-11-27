@@ -63,7 +63,7 @@ namespace osmintegrator
             {
               services.AddHttpClient();
               services.AddSingleton<IOverpass, Overpass>();
-              services.AddSingleton<IOsmRefresherHelper, OsmRefresherHelper>();
+              services.AddSingleton<IOsmUpdater, OsmUpdater>();
               services.AddHostedService<OsmScheduler>();
             })
             .ConfigureLogging(logging =>

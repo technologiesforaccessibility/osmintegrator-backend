@@ -8,11 +8,11 @@ using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Interfaces
 {
-  public interface IOsmRefresherHelper
+  public interface IOsmUpdater
   {
-    Task Refresh(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
+    Task Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
 
-    Task Refresh(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
+    Task Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
 
   }
 }

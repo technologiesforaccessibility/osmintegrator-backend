@@ -10,15 +10,15 @@ using Tag = OsmIntegrator.Database.Models.Tag;
 
 namespace OsmIntegrator.Services
 {
-  public class OsmRefresherHelper : IOsmRefresherHelper
+  public class OsmUpdater : IOsmUpdater
   {
-    public async Task Refresh(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
+    public async Task Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       ProcessTile(tile, dbContext, osmRoot);
       await dbContext.SaveChangesAsync();
     }
 
-    public async Task Refresh(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
+    public async Task Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
     {
       foreach (DbTile tile in tiles)
       {

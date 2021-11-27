@@ -35,7 +35,7 @@ namespace OsmIntegrator.Controllers
         private readonly IMapper _mapper;
         private readonly IStringLocalizer<StopController> _localizer;
         private IOverpass _overpass;
-        private IOsmRefresherHelper _osmRefreshHelper;
+        private IOsmUpdater _osmRefreshHelper;
 
         public StopController(
             ILogger<StopController> logger,
@@ -44,7 +44,7 @@ namespace OsmIntegrator.Controllers
             IMapper mapper,
             IStringLocalizer<StopController> localizer,
             IOverpass overpass,
-            IOsmRefresherHelper osmRefresherHelper
+            IOsmUpdater osmRefresherHelper
         )
         {
             _logger = logger;
@@ -78,7 +78,7 @@ namespace OsmIntegrator.Controllers
 
           foreach(DbTile tile in tilesToRefresh)
           {
-            await _osmRefreshHelper.Refresh(tile, _dbContext, osm);
+            await _osmRefreshHelper.Update(tile, _dbContext, osm);
           }
 
           return Ok();

@@ -27,7 +27,7 @@ namespace OsmIntegrator.Services
     private DateTime _nextRun;
 
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IOsmRefresherHelper _osmRefresherHelper;
+    private readonly IOsmUpdater _osmRefresherHelper;
 
     private readonly IOverpass _overpass;
 
@@ -36,7 +36,7 @@ namespace OsmIntegrator.Services
       IServiceScopeFactory serviceScopeFactory, 
       HttpClient httpClient, 
       IConfiguration configuration, 
-      IOsmRefresherHelper osmRefresherHelper,
+      IOsmUpdater osmRefresherHelper,
       IOverpass overpass)
     {
       _logger = logger;
@@ -91,7 +91,7 @@ namespace OsmIntegrator.Services
             .Where(x => x.TileUsers.Count() == 0)
             .ToList();
 
-          await _osmRefresherHelper.Refresh(tilesToRefresh, dbContext, result);
+          await _osmRefresherHelper.Update(tilesToRefresh, dbContext, result);
         }
       }
       catch (Exception e)
