@@ -4,9 +4,13 @@ using OsmIntegrator.Tools;
 using System.Threading;
 using System.Threading.Tasks;
 
-public interface IOverpass
+namespace OsmIntegrator.Interfaces
 {
-  Task<Osm> GetArea(double minLat, double minLong, double maxLat, double maxLong);
-  
-  Task<Osm> GetFullArea(ApplicationDbContext dbContext, CancellationToken cancelationToken);
+
+  public interface IOverpass
+  {
+    Task<Osm> GetArea(double minLat, double minLong, double maxLat, double maxLong);
+
+    Task<Osm> GetFullArea(ApplicationDbContext dbContext, CancellationToken cancelationToken);
+  }
 }

@@ -10,6 +10,7 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Services;
 using OsmIntegrator.Interfaces;
+using System.Reflection;
 
 namespace osmintegrator
 {
@@ -20,7 +21,7 @@ namespace osmintegrator
       var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
       try
       {
-        logger.Debug("init main");
+        logger.Debug($"Starting application. Version: {Assembly.GetExecutingAssembly().GetName().Version.ToString()}");
         IHost host = CreateHostBuilder(args).Build();
         InitializeData(host);
         host.Run();
