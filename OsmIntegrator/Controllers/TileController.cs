@@ -44,7 +44,7 @@ namespace OsmIntegrator.Controllers
     private readonly IEmailService _emailService;
     private readonly IOverpass _overpass;
 
-    readonly IOsmUpdater _osmRefresherHelper;
+    readonly IOsmUpdater _osmUpdater;
 
     public TileController(
         ILogger<TileController> logger,
@@ -67,7 +67,7 @@ namespace OsmIntegrator.Controllers
       _roleManger = roleManager;
       _localizer = localizer;
       _emailService = emailService;
-      _osmRefresherHelper = refresherHelper;
+      _osmUpdater = refresherHelper;
       _overpass = overpass;
     }
 
@@ -541,7 +541,7 @@ rozwiazaniadlaniewidomych.org
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      await _osmRefresherHelper.Update(tile, _dbContext, osm);
+      await _osmUpdater.Update(tile, _dbContext, osm);
 
       List<DbConnections> connectionsToDelete = _dbContext.Connections
         .Include(x => x.OsmStop)

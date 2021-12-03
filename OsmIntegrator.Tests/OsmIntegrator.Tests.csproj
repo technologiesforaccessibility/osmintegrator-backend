@@ -2,14 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.0.4.0</Version>
+    <Version>0.0.5.0</Version>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="integrationsettings.json" />
-    <None Remove="xunit.runner.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
@@ -28,19 +23,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="integrationsettings.json">
+    <ProjectReference Include="..\OsmIntegrator\osmintegrator.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\OsmIntegrator\osmintegrator.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="xunit.runner.json">
+    <Content Include="Data\ConnectionTest\GtfsStops.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\ConnectionTest\OsmStops.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+    <ItemGroup>
+    <Content Include="Data\StopTest\GtfsStops.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\StopTest\OsmStops.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

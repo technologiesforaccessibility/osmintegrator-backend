@@ -3,22 +3,18 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using osmintegrator;
 
 namespace OsmIntegrator.Tests.Fixtures
 {
-    public class ApiWebApplicationFactory : WebApplicationFactory<Startup>
+  public class ApiWebApplicationFactory : WebApplicationFactory<Startup>
+  {
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureAppConfiguration(config =>
-            {
-                var integrationConfig = new ConfigurationBuilder()
-                  .AddJsonFile("integrationsettings.json")
-                  .Build();
-
-                config.AddConfiguration(integrationConfig);
-            });
-        }
+      // Set ASPNETCORE to Test
+      // Thanks to this program will read appsettings.Test.json config file
+      builder.UseEnvironment("Test");
     }
+  }
 }

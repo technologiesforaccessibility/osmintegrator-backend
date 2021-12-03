@@ -49,9 +49,24 @@ namespace OsmIntegrator.Services
             continue;
           }
 
-          existingStop.Lat = double.Parse(node.Lat, CultureInfo.InvariantCulture);
-          existingStop.Lon = double.Parse(node.Lon, CultureInfo.InvariantCulture);
+          double nodeLat = double.Parse(node.Lat, CultureInfo.InvariantCulture);
+          if (existingStop.Lat != nodeLat)
+          {
+            // Update lat
+            existingStop.Lat = nodeLat;
+          }
+
+          double nodeLong = double.Parse(node.Lon, CultureInfo.InvariantCulture);
+          if (existingStop.Lon != nodeLong)
+          {
+            // Update long
+            existingStop.Lon = nodeLong;
+          }
+
+          // Update version
           existingStop.Version = node.Version;
+
+          // Update changeset
           existingStop.Changeset = node.Changeset;
 
           PopulateTags(existingStop, node);
@@ -90,31 +105,69 @@ namespace OsmIntegrator.Services
 
     private void PopulateTags(DbStop stop, Node node)
     {
-      List<Tag> tempTags = new List<Tag>();
+      List<Tag> nodeTags = new List<Tag>();
 
-      node.Tag.ForEach(x => tempTags.Add(new Tag()
+      node.Tag.ForEach(x => nodeTags.Add(new Tag()
       {
         Key = x.K,
         Value = x.V
       }));
-      stop.Tags = tempTags;
 
-      var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
-      stop.Name = nameTag?.Value;
+      List<Tag> newTags = new List<Tag>();
 
-      var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
-      long refVal;
-      if (refTag != null && long.TryParse(refTag.Value, out refVal))
+      // Check for new and updated tags
+      foreach (Tag nodeTag in nodeTags)
       {
+        Tag dbTag = stop.Tags.FirstOrDefault(
+          dbTag => nodeTag.Key.ToLower() == dbTag.Key.ToLower());
+
+        if (dbTag == null)
+        {
+          // New tag added
+          newTags.Add(nodeTag);
+          continue;
+        }
+
+        if (nodeTag.Value != dbTag.Value)
+        {
+          // Value updated
+          newTags.Add(nodeTag);
+        }
+      };
+
+      // Check for removed tags
+      foreach(Tag dbTag in stop.Tags)
+      {
+        Tag nodeTag = nodeTags.FirstOrDefault(x => x.Key.ToLower() == dbTag.Key.ToLower());
+        if(nodeTag == null)
+        {
+          // Tag removed
+        }
+      }
+
+      stop.Tags = newTags;
+
+      Tag nameTag = stop.Tags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
+      if(stop.Name != nameTag?.Value)
+      {
+        // Name updated
+        stop.Name = nameTag?.Value;
+      }
+
+      Tag refTag = stop.Tags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
+      long refVal = long.Parse(refTag?.Value);
+      if (refVal != stop.Ref)
+      {
+        // Ref updated
         stop.Ref = refVal;
       }
 
-      var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
-      if (localRefTag != null && !string.IsNullOrEmpty(localRefTag.Value))
+      Tag localRefTag = stop.Tags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
+      if (localRefTag?.Value != stop.Number)
       {
+        // Update local ref
         stop.Number = localRefTag.Value;
       }
     }
-
   }
 }
