@@ -111,6 +111,11 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
       }
 
+      if(osmStop.StopType == gtfsStop.StopType)
+      {
+        throw new BadHttpRequestException(_localizer["Stops cannot have the same type"]);
+      }
+
       DbConnections osmConnection = osmStop.OsmConnections
           .OrderByDescending(link => link.CreatedAt)
           .FirstOrDefault();

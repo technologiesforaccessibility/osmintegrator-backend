@@ -1,9 +1,11 @@
+using FluentAssertions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
+using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;
-using OsmIntegrator.Tests.Helpers;
-using OsmIntegrator.Tests.Tests.Base;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,39 +14,40 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests
 {
-    public class StopTests : IntegrationTest
+  public class StopTest : IntegrationTest
+  {
+    private LoginData _defaultLoginData = new LoginData
     {
-        private const int InitialStopQuantity = 10;
-        private LoginData _defaultLoginData = new LoginData
-        {
-            Email = "supervisor1@abcd.pl",
-            Password = "supervisor1#12345678",
-        };
+      Email = "supervisor1@abcd.pl",
+      Password = "supervisor1#12345678",
+    };
 
-        [Fact]
-        public async Task Get_GetAllTestAsync()
-        {
-            TestHelper.RefillDatabase();
+    public StopTest(ApiWebApplicationFactory fixture)
+      : base(fixture)
+    {
+      List<DbStop> gtfsStops = _dataInitializer.GetGtfsStopsList($"Data/{nameof(StopTest)}/GtfsStops.txt").ToList();
+      List<DbStop> osmStops = _dataInitializer.GetOsmStopsList($"Data/{nameof(StopTest)}/OsmStops.xml").ToList();
 
-            HttpResponseMessage response;
-            var helper = new StopHelper(_factory.CreateClient(), _defaultLoginData);
-            response = await helper.Get_GetAllTestAsync();
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                Assert.True(false, "Can't create a new connection.");
-            }
-            var jsonResponse = await response.Content.ReadAsStringAsync();
-            var list = JsonConvert.DeserializeObject<Stop[]>(jsonResponse).ToList();
-            var count = list.Count;
-            if (count != InitialStopQuantity)
-            {
-                Assert.True(false, $"Stop quantity is {count} but should be {InitialStopQuantity}.");
-            }
-            Assert.True(true);
-        }
+      using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
+      _dataInitializer.ClearDatabase(_dbContext);
+      _dataInitializer.InitializeUsers(_dbContext);
+      _dataInitializer.InitializeStopsAndTiles(_dbContext, gtfsStops, osmStops);
 
-
-        public StopTests(ApiWebApplicationFactory fixture)
-          : base(fixture) { }
+      transaction.Commit();
     }
+
+    [Fact]
+    public async Task GetAllTestAsync()
+    {
+      await LoginAndAssignTokenAsync(_defaultLoginData);
+      HttpResponseMessage response = await _client.GetAsync("/api/Stop");
+      response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      List<Stop> list = JsonConvert.DeserializeObject<Stop[]>(jsonResponse).ToList();
+      int actual = list.Count;
+      int expected = 10;
+      Assert.Equal(expected, actual);
+    }
+  }
 }

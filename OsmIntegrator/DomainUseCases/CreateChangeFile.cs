@@ -96,7 +96,7 @@ namespace OsmIntegrator.DomainUseCases
             };
             foreach (var apiTag in osmStop.Tags)
             {
-                if (apiTag.Key == "ref")
+                if (apiTag.Key == Constants.NAME)
                 {
                     node.Tag.Add(new Tools.Tag()
                     {
@@ -104,7 +104,7 @@ namespace OsmIntegrator.DomainUseCases
                         V = osmStop.StopId.ToString()
                     });
                 }
-                else if (apiTag.Key == "local_ref")
+                else if (apiTag.Key == Constants.LOCAL_REF)
                 {
                     node.Tag.Add(new Tools.Tag()
                     {
@@ -112,7 +112,7 @@ namespace OsmIntegrator.DomainUseCases
                         V = osmStop.Number
                     });
                 }
-                else if (apiTag.Key == "name")
+                else if (apiTag.Key == Constants.NAME)
                 {
                     node.Tag.Add(new Tools.Tag()
                     {

@@ -165,7 +165,7 @@ namespace osmintegrator
         IWebHostEnvironment env,
         ApplicationDbContext dbContext)
     {
-      if (env.IsDevelopment())
+      if (env.IsDevelopment() || env.EnvironmentName == "Test")
       {
         app.UseExceptionHandler("/error-local-development");
         app.UseSwagger();

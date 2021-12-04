@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Files\GtfsStops.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Files\GtfsStops.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

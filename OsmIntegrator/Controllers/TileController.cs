@@ -42,8 +42,9 @@ namespace OsmIntegrator.Controllers
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
+    private readonly IOverpass _overpass;
 
-    readonly IOsmRefresherHelper _osmRefresherHelper;
+    readonly IOsmUpdater _osmUpdater;
 
     public TileController(
         ILogger<TileController> logger,
@@ -54,7 +55,8 @@ namespace OsmIntegrator.Controllers
         RoleManager<ApplicationRole> roleManager,
         IStringLocalizer<TileController> localizer,
         IEmailService emailService,
-        IOsmRefresherHelper refresherHelper
+        IOsmUpdater refresherHelper,
+        IOverpass overpass
     )
     {
       _logger = logger;
@@ -65,7 +67,8 @@ namespace OsmIntegrator.Controllers
       _roleManger = roleManager;
       _localizer = localizer;
       _emailService = emailService;
-      _osmRefresherHelper = refresherHelper;
+      _osmUpdater = refresherHelper;
+      _overpass = overpass;
     }
 
     [HttpGet]
@@ -531,20 +534,14 @@ rozwiazaniadlaniewidomych.org
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<Tile>> UpdateStops(string id)
     {
       DbTile tile = await GetTileAsync(id);
 
-      string overpassQuery = $"node [~'highway|railway'~'tram_stop|bus_stop'] " + 
-            $"({tile.MinLat.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MinLon.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MaxLat.ToString(CultureInfo.InvariantCulture)}, " + 
-            $"{tile.MaxLon.ToString(CultureInfo.InvariantCulture)}); out meta;";
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      Osm osm = await _osmRefresherHelper.GetContent(new StringContent(overpassQuery,
-            Encoding.UTF8));
-      await _osmRefresherHelper.Refresh(tile, _dbContext, osm);
+      await _osmUpdater.Update(tile, _dbContext, osm);
 
       List<DbConnections> connectionsToDelete = _dbContext.Connections
         .Include(x => x.OsmStop)
