@@ -12,7 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests
+namespace OsmIntegrator.Tests.Tests.Connections
 {
   public class ConnectionTest : IntegrationTest
   {
