@@ -11,6 +11,7 @@ using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Services;
 using OsmIntegrator.Interfaces;
 using System.Reflection;
+using OsmIntegrator.Tools;
 
 namespace osmintegrator
 {
@@ -62,6 +63,7 @@ namespace osmintegrator
             .ConfigureServices(services =>
             {
               services.AddHttpClient();
+              services.AddSingleton<IReportsFactory, ReportsFactory>();
               services.AddSingleton<IOverpass, Overpass>();
               services.AddSingleton<IOsmUpdater, OsmUpdater>();
               services.AddHostedService<OsmScheduler>();

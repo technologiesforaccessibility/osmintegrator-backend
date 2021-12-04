@@ -6,29 +6,43 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tools;
+using OsmIntegrator.ApiModels.Reports;
 using Tag = OsmIntegrator.Database.Models.Tag;
 
 namespace OsmIntegrator.Services
 {
   public class OsmUpdater : IOsmUpdater
   {
-    public async Task Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
+    private readonly IReportsFactory _reportsFactory;
+
+    public OsmUpdater(IReportsFactory reportsFactory)
     {
-      ProcessTile(tile, dbContext, osmRoot);
-      await dbContext.SaveChangesAsync();
+      _reportsFactory = reportsFactory;
     }
 
-    public async Task Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
+    public async Task<TileReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
+      TileReport result = ProcessTile(tile, dbContext, osmRoot);
+      await dbContext.SaveChangesAsync();
+      return result;
+    }
+
+    public async Task<List<TileReport>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
+    {
+      List<TileReport> result = new();
       foreach (DbTile tile in tiles)
       {
-        ProcessTile(tile, dbContext, osmRoot);
+        result.Add(ProcessTile(tile, dbContext, osmRoot));
       }
       await dbContext.SaveChangesAsync();
+      return result;
     }
 
-    private void ProcessTile(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
+    private TileReport ProcessTile(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
+      // Report - init
+      TileReport report = _reportsFactory.Create(tile);
+
       foreach (Node node in osmRoot.Node)
       {
         if (tile.MinLat > double.Parse(node.Lat, CultureInfo.InvariantCulture)
@@ -49,27 +63,31 @@ namespace OsmIntegrator.Services
             continue;
           }
 
+          // Report - new stop
+          ReportStop reportStop = _reportsFactory.CreateStop(report, node, existingStop, ChangeAction.Modified);
+
+          existingStop.Version = node.Version;
+          existingStop.Changeset = node.Changeset;
+
           double nodeLat = double.Parse(node.Lat, CultureInfo.InvariantCulture);
           if (existingStop.Lat != nodeLat)
           {
-            // Update lat
+            _reportsFactory.AddField(reportStop,
+              nameof(existingStop.Lat), nodeLat.ToString(), existingStop.Lat.ToString(), ChangeAction.Modified);
+
             existingStop.Lat = nodeLat;
           }
 
           double nodeLong = double.Parse(node.Lon, CultureInfo.InvariantCulture);
           if (existingStop.Lon != nodeLong)
           {
-            // Update long
+            _reportsFactory.AddField(reportStop,
+              nameof(existingStop.Lon), nodeLong.ToString(), existingStop.Lon.ToString(), ChangeAction.Added);
+
             existingStop.Lon = nodeLong;
           }
 
-          // Update version
-          existingStop.Version = node.Version;
-
-          // Update changeset
-          existingStop.Changeset = node.Changeset;
-
-          PopulateTags(existingStop, node);
+          PopulateTags(existingStop, node, reportStop);
           dbContext.Stops.Update(existingStop);
         }
         else
@@ -87,7 +105,9 @@ namespace OsmIntegrator.Services
             Tile = tile,
           };
 
-          PopulateTags(stop, node);
+          ReportStop reportStop = _reportsFactory.CreateStop(report, node, stop, ChangeAction.Added);
+
+          PopulateTags(stop, node, reportStop);
 
           tile.Stops.Add(stop);
         }
@@ -97,60 +117,79 @@ namespace OsmIntegrator.Services
       {
         if (stop.StopType == StopType.Osm && !osmRoot.Node.Exists(x => long.Parse(x.Id) == stop.StopId))
         {
+          _reportsFactory.CreateStop(report, null, stop, ChangeAction.Added);
+
           stop.IsDeleted = true;
           dbContext.Stops.Update(stop);
         }
       }
+
+      return report;
     }
 
-    private void PopulateTags(DbStop stop, Node node)
+    private List<Tag> FillTags(Node node)
     {
-      List<Tag> nodeTags = new List<Tag>();
+      List<Tag> result = new List<Tag>();
 
-      node.Tag.ForEach(x => nodeTags.Add(new Tag()
+      node.Tag.ForEach(x => result.Add(new Tag()
       {
         Key = x.K,
         Value = x.V
       }));
 
+      return result;
+    }
+
+    private void PopulateTags(DbStop stop, Node node, ReportStop reportStop)
+    {
+      List<Tag> nodeTags = FillTags(node);
       List<Tag> newTags = new List<Tag>();
 
       // Check for new and updated tags
       foreach (Tag nodeTag in nodeTags)
       {
+        string tagName = nodeTag.Key.ToLower();
+
         Tag dbTag = stop.Tags.FirstOrDefault(
-          dbTag => nodeTag.Key.ToLower() == dbTag.Key.ToLower());
+          x => tagName == x.Key.ToLower());
 
         if (dbTag == null)
         {
-          // New tag added
+          // Report new tag
+          _reportsFactory.AddField(reportStop, tagName, nodeTag.Value, null, ChangeAction.Added);
+
           newTags.Add(nodeTag);
           continue;
         }
 
         if (nodeTag.Value != dbTag.Value)
         {
-          // Value updated
+          // Report tag modified
+          _reportsFactory.AddField(reportStop, tagName, nodeTag.Value, dbTag.Value, ChangeAction.Modified);
+
           newTags.Add(nodeTag);
         }
       };
 
       // Check for removed tags
-      foreach(Tag dbTag in stop.Tags)
+      foreach (Tag dbTag in stop.Tags)
       {
         Tag nodeTag = nodeTags.FirstOrDefault(x => x.Key.ToLower() == dbTag.Key.ToLower());
-        if(nodeTag == null)
+        if (nodeTag == null)
         {
-          // Tag removed
+          // Report tag deleted
+          _reportsFactory.AddField(reportStop, dbTag.Key.ToLower(), null, null, ChangeAction.Removed);
         }
       }
 
       stop.Tags = newTags;
 
       Tag nameTag = stop.Tags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
-      if(stop.Name != nameTag?.Value)
+      if (stop.Name != nameTag?.Value)
       {
-        // Name updated
+        _reportsFactory.UpdateName(reportStop, nameTag?.Value);
+
+        // Set or update OSM stop name
         stop.Name = nameTag?.Value;
       }
 
