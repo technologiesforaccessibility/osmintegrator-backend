@@ -64,7 +64,7 @@ namespace OsmIntegrator.Tests.Tests
       // Get current connection quantity
       List<Connection> connectionList = await _connectionHelper.GetConnectionListAsync(0);
 
-      Assert.Equal(connectionList.Count, 1);
+      Assert.Equal(1, connectionList.Count);
     }
 
     [Theory]
@@ -103,7 +103,7 @@ namespace OsmIntegrator.Tests.Tests
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
       List<Connection> connectionList = await _connectionHelper.GetConnectionListAsync(0);
-      Assert.Equal(connectionList.Count, 1);
+      Assert.Equal(1, connectionList.Count);
 
       // Delete a new created connection
       var connectionAction = new ConnectionAction()
@@ -117,7 +117,7 @@ namespace OsmIntegrator.Tests.Tests
       // Get current connection quantity
       connectionList = await _connectionHelper.GetConnectionListAsync(0);
 
-      Assert.Equal(connectionList.Count, 0);
+      Assert.Equal(0, connectionList.Count);
     }
   }
 }
