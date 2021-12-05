@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Database.Models.Enums;
 using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace OsmIntegrator.Services
 {
@@ -26,12 +27,26 @@ namespace OsmIntegrator.Services
       _logger = logger;
     }
 
+    private void RemoveConnections(ApplicationDbContext dbContext)
+    {
+      List<DbConnections> connectionsToDelete = dbContext.Connections
+        .Include(x => x.OsmStop)
+        .Include(x => x.GtfsStop)
+        .Where(x => x.OsmStop.IsDeleted == true)
+        .ToList();
+
+      dbContext.Connections.RemoveRange(connectionsToDelete);
+    }
+
     public async Task<ReportTile> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
       {
         ReportTile report = ProcessTile(tile, dbContext, osmRoot);
+
+        RemoveConnections(dbContext);
+
         dbContext.ChangeReports.Add(new DbChangeReport
         {
           CreatedAt = DateTime.Now,
@@ -43,7 +58,7 @@ namespace OsmIntegrator.Services
         await transaction.CommitAsync();
         return report;
       }
-      catch
+      catch (Exception e)
       {
         await transaction.RollbackAsync();
         throw;
@@ -57,6 +72,9 @@ namespace OsmIntegrator.Services
       try
       {
         tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
+
+        RemoveConnections(dbContext);
+
         reports.ForEach(x => dbContext.ChangeReports.Add(new DbChangeReport
         {
           CreatedAt = DateTime.Now,
@@ -239,11 +257,10 @@ namespace OsmIntegrator.Services
       }
 
       Tag refTag = newTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
-      long refVal = long.Parse(refTag?.Value);
-      if (refVal != stop.Ref)
+      if (refTag?.Value != stop.Ref)
       {
         // Ref updated
-        stop.Ref = refVal;
+        stop.Ref = refTag?.Value;
       }
 
       Tag localRefTag = newTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);

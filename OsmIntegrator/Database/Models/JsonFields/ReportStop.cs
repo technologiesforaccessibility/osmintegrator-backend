@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
 
@@ -18,5 +19,18 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public Guid? DatabaseStopId { get; set; }
     public List<ReportField> Fields { get; set; }
     public ChangeAction Action { get; set; }
+
+    public override string ToString()
+    {
+      StringBuilder sb = new StringBuilder();
+      string version = Version.ToString();
+      if(PreviousVersion is null)
+      {
+        
+      }
+      sb.AppendLine($"\tName: {Name} ");
+
+      return base.ToString();
+    }
   }
 }

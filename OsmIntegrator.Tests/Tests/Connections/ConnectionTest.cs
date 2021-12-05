@@ -32,7 +32,6 @@ namespace OsmIntegrator.Tests.Tests.Connections
       _dataInitializer.ClearDatabase(_dbContext);
       _dataInitializer.InitializeUsers(_dbContext);
       _dataInitializer.InitializeStopsAndTiles(_dbContext, gtfsStops, osmStops);
-
       transaction.Commit();
 
       _connectionHelper = new ConnectionHelper(_client, _dbContext);

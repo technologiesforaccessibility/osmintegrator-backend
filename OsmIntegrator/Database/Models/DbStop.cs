@@ -46,7 +46,7 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbConnections> OsmConnections { get; set; }
 
-    public long Ref { get; set; }
+    public string Ref { get; set; }
 
     public int Version { get; set; }
 
