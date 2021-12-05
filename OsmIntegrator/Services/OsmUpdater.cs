@@ -47,18 +47,21 @@ namespace OsmIntegrator.Services
 
         RemoveConnections(dbContext);
 
-        dbContext.ChangeReports.Add(new DbChangeReport
+        if (report.Stops.Count > 0)
         {
-          CreatedAt = DateTime.Now,
-          TileId = tile.Id,
-          TileReport = report
-        });
+          dbContext.ChangeReports.Add(new DbChangeReport
+          {
+            CreatedAt = DateTime.Now,
+            TileId = tile.Id,
+            TileReport = report
+          });
+        }
 
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
         return report;
       }
-      catch (Exception e)
+      catch
       {
         await transaction.RollbackAsync();
         throw;
@@ -75,12 +78,18 @@ namespace OsmIntegrator.Services
 
         RemoveConnections(dbContext);
 
-        reports.ForEach(x => dbContext.ChangeReports.Add(new DbChangeReport
+        reports.ForEach(x =>
         {
-          CreatedAt = DateTime.Now,
-          TileId = x.TileId, // Tile id was saved during the report creation
-          TileReport = x
-        }));
+          if (x.Stops.Count > 0)
+          {
+            dbContext.ChangeReports.Add(new DbChangeReport
+            {
+              CreatedAt = DateTime.Now,
+              TileId = x.TileId, // Tile id was saved during the report creation
+              TileReport = x
+            });
+          }
+        });
 
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
@@ -159,7 +168,7 @@ namespace OsmIntegrator.Services
       if (existingStop.Lon != nodeLong)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(existingStop.Lon), nodeLong.ToString(), existingStop.Lon.ToString(), ChangeAction.Added);
+          nameof(existingStop.Lon), nodeLong.ToString(), existingStop.Lon.ToString(), ChangeAction.Modified);
 
         existingStop.Lon = nodeLong;
       }

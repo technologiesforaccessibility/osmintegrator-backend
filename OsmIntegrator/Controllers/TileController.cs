@@ -550,7 +550,10 @@ rozwiazaniadlaniewidomych.org
       //   SendDeletedConnectionsEmail(tile, connectionsToDelete);
       // }
 
-      return Ok(new Report { Value = tileReport.ToString() });
+      return Ok(
+        tileReport.Stops.Count > 0 ? 
+        new Report { Value = tileReport.ToString() } : 
+        null);
     }
 
     private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)

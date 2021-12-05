@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,7 +7,9 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using OsmIntegrator.ApiModels.Auth;
+using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tests.Fixtures;
@@ -53,8 +56,12 @@ namespace OsmIntegrator.Tests.Tests.Imports
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == 2264 && x.Y == 1385);
       HttpResponseMessage response = await UpdateTileAsync(tile.Id.ToString());
-
       response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      Report list = JsonConvert.DeserializeObject<Report>(jsonResponse);
+
+      Console.WriteLine("End");
     }
 
     public async Task<HttpResponseMessage> UpdateTileAsync(string tileId)

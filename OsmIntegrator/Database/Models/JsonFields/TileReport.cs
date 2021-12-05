@@ -14,7 +14,7 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder();
-      sb.AppendLine($"Tile X: {TileX}, Y: {TileY}, Id: {TileId}");
+      sb.AppendLine($"[TILE] X: {TileX}, Y: {TileY}, Id: {TileId}");
       Stops.ForEach(x => sb.AppendLine(x.ToString()));
       return sb.ToString();
     }

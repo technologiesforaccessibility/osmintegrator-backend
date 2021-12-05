@@ -20,6 +20,7 @@ namespace OsmIntegrator.Tests.Mocks
     {
       _dataInitializer = dataInitializer;
     }
+    
     public async Task<Osm> GetArea(double minLat, double minLong, double maxLat, double maxLong)
     {
       Osm osm = DeserializeFile(OsmFileName);
@@ -46,8 +47,8 @@ namespace OsmIntegrator.Tests.Mocks
 
     private Osm DeserializeFile(string fileName)
     {
-      using Stream reader = new FileStream(fileName, FileMode.Open);
-      XmlSerializer serializer = new XmlSerializer(typeof(Osm));
+      using FileStream reader = new(fileName, FileMode.Open);
+      XmlSerializer serializer = new(typeof(Osm));
       return (Osm)serializer.Deserialize(reader);
     }
   }

@@ -19,16 +19,17 @@ namespace OsmIntegrator.Tests.Helpers
 
     private readonly Dictionary<int, int> _stops = new Dictionary<int, int>()
     {
-      { 159541, 1 }, // 1
-      { 1831941739, 0}, // 1
-      { 159542, 1 }, // 1
-      { 1905028012, 0 }, // 1
-      { 159077, 1 }, // 2
-      { 1831944331, 0 }, // 2
-      { 1905039171, 0 }, // 2
-      { 159076, 1 }, // 2
-      { 159061, 1 }, // 2
-      { 1584594015, 0} // 2
+      // Stop id / Stop type
+      { 159541, 1 }, // Tile: 1
+      { 1831941739, 0}, // Tile: 1
+      { 159542, 1 }, // Tile: 1
+      { 1905028012, 0 }, // Tile: 1
+      { 159077, 1 }, // Tile: 2
+      { 1831944331, 0 }, // Tile: 2
+      { 1905039171, 0 }, // Tile: 2
+      { 159076, 1 }, // Tile: 2
+      { 159061, 1 }, // Tile: 2
+      { 1584594015, 0} // Tile: 2
     };
 
     public Dictionary<int, DbStop> Stops { get; private set; }

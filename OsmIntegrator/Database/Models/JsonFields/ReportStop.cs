@@ -23,14 +23,14 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder();
-      string version = Version.ToString();
-      if(PreviousVersion is null)
-      {
-        
-      }
-      sb.AppendLine($"\tName: {Name} ");
+      string previousName = !string.IsNullOrEmpty(PreviousName) ? $", ({PreviousName})" : "";
+      string previousVersion = PreviousVersion is not null ? $", ({PreviousVersion.ToString()})" : "";
 
-      return base.ToString();
+      sb.AppendLine($"    [STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}");
+
+      Fields?.ForEach(x => sb.AppendLine(x.ToString()));
+
+      return sb.ToString();
     }
   }
 }
