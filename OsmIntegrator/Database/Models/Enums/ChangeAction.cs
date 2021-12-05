@@ -1,4 +1,4 @@
-namespace OsmIntegrator.ApiModels.Reports
+namespace OsmIntegrator.Database.Models.Enums
 {
   public enum ChangeAction
   {

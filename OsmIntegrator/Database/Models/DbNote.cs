@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.Models
 {

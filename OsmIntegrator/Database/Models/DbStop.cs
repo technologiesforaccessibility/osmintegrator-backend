@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace OsmIntegrator.Database.Models
 {

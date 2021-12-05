@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace osmintegrator.Migrations
 {

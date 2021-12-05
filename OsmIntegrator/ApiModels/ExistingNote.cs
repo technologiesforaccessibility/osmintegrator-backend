@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
 
 public class ExistingNote
 {

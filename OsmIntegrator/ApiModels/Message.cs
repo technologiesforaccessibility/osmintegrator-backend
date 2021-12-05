@@ -1,5 +1,6 @@
 using System;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.ApiModels
 {

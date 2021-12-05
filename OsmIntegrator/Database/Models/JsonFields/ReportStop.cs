@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
 
-namespace OsmIntegrator.ApiModels.Reports
+namespace OsmIntegrator.Database.Models.JsonFields
 {
   public class ReportStop
   {

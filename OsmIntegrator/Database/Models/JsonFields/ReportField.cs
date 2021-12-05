@@ -1,4 +1,6 @@
-namespace OsmIntegrator.ApiModels.Reports
+using OsmIntegrator.Database.Models.Enums;
+
+namespace OsmIntegrator.Database.Models.JsonFields
 {
   public class ReportField
   {

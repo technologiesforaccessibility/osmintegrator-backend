@@ -16,6 +16,7 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
 using Microsoft.Extensions.Localization;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Controllers
 {

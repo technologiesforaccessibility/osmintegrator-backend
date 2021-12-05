@@ -1,13 +1,15 @@
 using System.Collections.Generic;
-using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Interfaces;
 
 namespace OsmIntegrator.Tools
 {
   public class ReportsFactory : IReportsFactory
   {
-    public TileReport Create(DbTile tile)
+    public ReportTile Create(DbTile tile)
     {
       return new()
       {
@@ -17,7 +19,7 @@ namespace OsmIntegrator.Tools
       };
     }
 
-    public ReportStop CreateStop(TileReport report, Node node, DbStop stop, ChangeAction action)
+    public ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action)
     {
       ReportStop reportStop;
       if (action == ChangeAction.Modified)

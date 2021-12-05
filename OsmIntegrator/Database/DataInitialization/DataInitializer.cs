@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
@@ -386,9 +387,9 @@ namespace OsmIntegrator.Database.DataInitialization
             Changeset = node.Changeset
           };
 
-          List<Models.Tag> tempTags = new List<Models.Tag>();
+          List<Models.JsonFields.Tag> tempTags = new();
 
-          node.Tag.ForEach(x => tempTags.Add(new Models.Tag()
+          node.Tag.ForEach(x => tempTags.Add(new Models.JsonFields.Tag()
           {
             Key = x.K,
             Value = x.V

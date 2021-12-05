@@ -1,5 +1,6 @@
-using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Interfaces
@@ -7,8 +8,8 @@ namespace OsmIntegrator.Interfaces
   public interface IReportsFactory
   {
     void UpdateName(ReportStop reportStop, string name);
-    TileReport Create(DbTile tile);
-    ReportStop CreateStop(TileReport report, Node node, DbStop stop, ChangeAction action);
+    ReportTile Create(DbTile tile);
+    ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action);
     void AddField(ReportStop reportStop, string name, string actualValue, string previousValue, ChangeAction action);
   }
 }

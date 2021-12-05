@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace OsmIntegrator.ApiModels.Reports
+namespace OsmIntegrator.Database.Models.JsonFields
 {
-  public class TileReport
+  public class ReportTile
   {
     public List<ReportStop> Stops { get; set; } = new();
     public Guid TileId { get; set; }
