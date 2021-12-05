@@ -22,7 +22,7 @@ namespace OsmIntegrator.Database.Models
 
     [Required]
     [Column(TypeName = "jsonb")]
-    public List<ReportTile> TileReport { get; set; }
+    public ReportTile TileReport { get; set; }
 
     public Guid TileId { get; set; }
     public DbTile Tile { get; set; }

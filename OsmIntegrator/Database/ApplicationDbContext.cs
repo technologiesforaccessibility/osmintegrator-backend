@@ -30,6 +30,8 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTileUser> TileUsers { get; set; }
 
+    public DbSet<DbChangeReport> ChangeReports { get; set; }
+
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

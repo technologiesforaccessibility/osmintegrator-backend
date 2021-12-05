@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Database.Models.Enums;
+using System;
 
 namespace OsmIntegrator.Services
 {
@@ -30,11 +31,17 @@ namespace OsmIntegrator.Services
       using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
       {
-        ReportTile result = ProcessTile(tile, dbContext, osmRoot);
+        ReportTile report = ProcessTile(tile, dbContext, osmRoot);
+        dbContext.ChangeReports.Add(new DbChangeReport
+        {
+          CreatedAt = DateTime.Now,
+          TileId = tile.Id,
+          TileReport = report
+        });
 
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
-        return result;
+        return report;
       }
       catch
       {
@@ -46,16 +53,20 @@ namespace OsmIntegrator.Services
     public async Task<List<ReportTile>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
     {
       using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
-      List<ReportTile> result = new();
+      List<ReportTile> reports = new();
       try
       {
-        foreach (DbTile tile in tiles)
+        tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
+        reports.ForEach(x => dbContext.ChangeReports.Add(new DbChangeReport
         {
-          result.Add(ProcessTile(tile, dbContext, osmRoot));
-        }
+          CreatedAt = DateTime.Now,
+          TileId = x.TileId, // Tile id was saved during the report creation
+          TileReport = x
+        }));
+
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
-        return result;
+        return reports;
       }
       catch
       {
