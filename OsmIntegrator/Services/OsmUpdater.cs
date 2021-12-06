@@ -70,35 +70,37 @@ namespace OsmIntegrator.Services
 
     public async Task<List<ReportTile>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
     {
-      using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
-      List<ReportTile> reports = new();
-      try
+      using (IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync())
       {
-        tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
-
-        RemoveConnections(dbContext);
-
-        reports.ForEach(x =>
+        List<ReportTile> reports = new();
+        try
         {
-          if (x.Stops.Count > 0)
-          {
-            dbContext.ChangeReports.Add(new DbChangeReport
-            {
-              CreatedAt = DateTime.Now,
-              TileId = x.TileId, // Tile id was saved during the report creation
-              TileReport = x
-            });
-          }
-        });
+          tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
 
-        await dbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
-        return reports;
-      }
-      catch
-      {
-        await transaction.RollbackAsync();
-        throw;
+          RemoveConnections(dbContext);
+
+          reports.ForEach(x =>
+          {
+            if (x.Stops.Count > 0)
+            {
+              dbContext.ChangeReports.Add(new DbChangeReport
+              {
+                CreatedAt = DateTime.Now,
+                TileId = x.TileId, // Tile id was saved during the report creation
+                TileReport = x
+              });
+            }
+          });
+
+          await dbContext.SaveChangesAsync();
+          await transaction.CommitAsync();
+          return reports;
+        }
+        catch
+        {
+          await transaction.RollbackAsync();
+          throw;
+        }
       }
     }
 
@@ -257,23 +259,23 @@ namespace OsmIntegrator.Services
     private void UpdateStopProperties(DbStop stop, List<Tag> newTags, ReportStop reportStop)
     {
       Tag nameTag = newTags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
-      if (stop.Name != nameTag?.Value)
+      if (nameTag != null && stop.Name != nameTag.Value)
       {
         _reportsFactory.UpdateName(reportStop, nameTag?.Value);
 
         // Set or update OSM stop name
-        stop.Name = nameTag?.Value;
+        stop.Name = nameTag.Value;
       }
 
       Tag refTag = newTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
-      if (refTag?.Value != stop.Ref)
+      if (refTag != null && refTag.Value != stop.Ref)
       {
         // Ref updated
-        stop.Ref = refTag?.Value;
+        stop.Ref = refTag.Value;
       }
 
       Tag localRefTag = newTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
-      if (localRefTag?.Value != stop.Number)
+      if (localRefTag != null && localRefTag.Value != stop.Number)
       {
         // Update local ref
         stop.Number = localRefTag.Value;

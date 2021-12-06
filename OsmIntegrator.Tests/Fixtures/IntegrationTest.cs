@@ -1,12 +1,16 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using ObjectsComparer;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -31,6 +35,16 @@ namespace OsmIntegrator.Tests.Fixtures
       _client = _factory.CreateClient();
       _dbContext = _factory.Services.GetService<ApplicationDbContext>();
       _dataInitializer = _factory.Services.GetService<DataInitializer>();
+
+      // Remove tracking db changes https://stackoverflow.com/a/53099150
+      // _dbContext.ChangeTracker.QueryTrackingBehavior =
+      //    Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
+    }
+
+    protected void RefreshDb()
+    {
+      _dbContext.Database.CloseConnection();
+      _dbContext.Database.OpenConnection();
     }
 
     /// <summary>
@@ -67,6 +81,24 @@ namespace OsmIntegrator.Tests.Fixtures
         string json = await response.Content.ReadAsStringAsync();
       }
     }
-  }
 
+    protected List<Difference> Compare<T>(T expected, T actual,
+      List<string> ignoredFields = null)
+    {
+      var comparer = new ObjectsComparer.Comparer<T>();
+
+      ignoredFields ??= new List<string>();
+      ignoredFields.ForEach(x => comparer.IgnoreMember(x));
+
+      IEnumerable<Difference> differences;
+      comparer.Compare(expected, actual, out differences);
+      return differences.ToList();
+    }
+
+    protected T Deserialize<T>(string fileName)
+    {
+      string file = File.ReadAllText(fileName);
+      return JsonConvert.DeserializeObject<T>(file);
+    }
+  }
 }
