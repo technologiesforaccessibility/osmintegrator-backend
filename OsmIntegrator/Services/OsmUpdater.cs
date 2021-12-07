@@ -177,6 +177,7 @@ namespace OsmIntegrator.Services
 
       List<Tag> newTags = PopulateTags(existingStop, node, reportStop);
       UpdateStopProperties(existingStop, newTags, reportStop);
+      existingStop.Tags = newTags;
       dbContext.Stops.Update(existingStop);
     }
 
@@ -240,7 +241,9 @@ namespace OsmIntegrator.Services
           _reportsFactory.AddField(reportStop, tagName, nodeTag.Value, dbTag.Value, ChangeAction.Modified);
 
           newTags.Add(nodeTag);
+          continue;
         }
+        newTags.Add(nodeTag);
       };
 
       // Check for removed tags

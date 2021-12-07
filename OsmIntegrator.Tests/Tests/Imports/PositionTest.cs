@@ -1,21 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
-using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tests.Fixtures;
-using OsmIntegrator.Tests.Mocks;
 using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Imports
@@ -38,13 +28,14 @@ namespace OsmIntegrator.Tests.Tests.Imports
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       Report report = await UpdateTileAsync(tile.Id.ToString());
+
       string actualTxtReport = report.Value;
       string expectedTxtReport =
         File.ReadAllText($"{OSM_UPDATE_FOLDER}{nameof(PositionTest)}/Report.txt");
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      RefreshDb();
+      TurnOffDbTracking();
 
       DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == STOP_ID_1);
       Assert.Equal(expectedStop1.Lat, actualStop1.Lat);

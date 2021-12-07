@@ -36,16 +36,13 @@ namespace OsmIntegrator.Tests.Fixtures
       _client = _factory.CreateClient();
       _dbContext = _factory.Services.GetService<ApplicationDbContext>();
       _dataInitializer = _factory.Services.GetService<DataInitializer>();
-
+      _configuration = _factory.Services.GetService<IConfiguration>();
     }
 
-    protected void RefreshDb()
+    protected void TurnOffDbTracking()
     {
-
-      _dbContext.Database.CloseConnection();
-
-      _dbContext.Database.OpenConnection();
-
+      _dbContext.ChangeTracker.QueryTrackingBehavior =
+        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
     }
 
     /// <summary>
