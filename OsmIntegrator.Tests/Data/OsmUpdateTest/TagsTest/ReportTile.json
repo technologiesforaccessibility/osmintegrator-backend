@@ -3,18 +3,30 @@
       {
           "Action": 1,
           "Changeset": "82493028",
-          "DatabaseStopId": "9dfe42ae-5db9-485d-8701-68c9add038d7",
+          "DatabaseStopId": "7db01dcf-a629-4930-8ac5-474ed2fdca54",
           "Fields": [
               {
                   "Action": 1,
-                  "ActualValue": "50,2313803",
-                  "Name": "Lat",
-                  "PreviousValue": "50,2313802"
+                  "ActualValue": "Brynów Orkana n/ż",
+                  "Name": "name",
+                  "PreviousValue": "Brynów Orkana"
+              },
+              {
+                  "Action": 0,
+                  "ActualValue": "12345",
+                  "Name": "ref",
+                  "PreviousValue": null
+              },
+              {
+                  "Action": 0,
+                  "ActualValue": "2t",
+                  "Name": "local_ref",
+                  "PreviousValue": null
               }
           ],
-          "Name": "Brynów Orkana",
+          "Name": "Brynów Orkana n/ż",
           "PreviousChangeset": "82493028",
-          "PreviousName": null,
+          "PreviousName": "Brynów Orkana",
           "PreviousVersion": 4,
           "StopId": "1831944331",
           "StopType": 0,
@@ -23,13 +35,19 @@
       {
           "Action": 1,
           "Changeset": "82493028",
-          "DatabaseStopId": "acc3459f-23c5-489d-84aa-fbaf561f3054",
+          "DatabaseStopId": "21ba8218-30d0-47d8-89c4-6620b59707fd",
           "Fields": [
               {
-                  "Action": 1,
-                  "ActualValue": "18,9893557",
-                  "Name": "Lon",
-                  "PreviousValue": "18,9893556"
+                  "Action": 0,
+                  "ActualValue": "stop_position",
+                  "Name": "very_public_transport",
+                  "PreviousValue": null
+              },
+              {
+                  "Action": 2,
+                  "ActualValue": null,
+                  "Name": "public_transport",
+                  "PreviousValue": null
               }
           ],
           "Name": "Brynów Orkana",
@@ -39,35 +57,9 @@
           "StopId": "1905039171",
           "StopType": 0,
           "Version": 4
-      },
-      {
-          "Action": 1,
-          "Changeset": "82493028",
-          "DatabaseStopId": "1d7dcc9a-16e7-4e84-a937-e0fddbde0e5a",
-          "Fields": [
-              {
-                  "Action": 1,
-                  "ActualValue": "50,2326754",
-                  "Name": "Lat",
-                  "PreviousValue": "50,2326753"
-              },
-              {
-                  "Action": 1,
-                  "ActualValue": "18,9956495",
-                  "Name": "Lon",
-                  "PreviousValue": "18,9956494"
-              }
-          ],
-          "Name": "Brynów Dworska",
-          "PreviousChangeset": "82493028",
-          "PreviousName": null,
-          "PreviousVersion": 5,
-          "StopId": "1584594015",
-          "StopType": 0,
-          "Version": 6
       }
   ],
-  "TileId": "d4c2e8ff-6277-4051-a3da-62b02babd380",
+  "TileId": "f5a5a96b-8d92-4c3a-9425-4dc4dfcdf7d7",
   "TileX": 2264,
   "TileY": 1385
 }

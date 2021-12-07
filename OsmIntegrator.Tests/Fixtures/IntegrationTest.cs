@@ -15,6 +15,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -23,28 +24,28 @@ namespace OsmIntegrator.Tests.Fixtures
   public abstract class IntegrationTest : IClassFixture<ApiWebApplicationFactory>
   {
     protected readonly ApiWebApplicationFactory _factory;
-    protected readonly HttpClient _client;
+    protected HttpClient _client;
     protected readonly IConfiguration _configuration;
 
     protected ApplicationDbContext _dbContext;
     protected DataInitializer _dataInitializer;
 
-    public IntegrationTest(ApiWebApplicationFactory fixture)
+    public IntegrationTest(ApiWebApplicationFactory factory)
     {
-      _factory = fixture;
+      _factory = factory;
       _client = _factory.CreateClient();
       _dbContext = _factory.Services.GetService<ApplicationDbContext>();
       _dataInitializer = _factory.Services.GetService<DataInitializer>();
 
-      // Remove tracking db changes https://stackoverflow.com/a/53099150
-      // _dbContext.ChangeTracker.QueryTrackingBehavior =
-      //    Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
     }
 
     protected void RefreshDb()
     {
+
       _dbContext.Database.CloseConnection();
+
       _dbContext.Database.OpenConnection();
+
     }
 
     /// <summary>
