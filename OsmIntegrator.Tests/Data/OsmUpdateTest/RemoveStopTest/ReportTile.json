@@ -1,0 +1,73 @@
+{
+  "Stops": [
+      {
+          "Action": 1,
+          "Changeset": "82493028",
+          "DatabaseStopId": "9dfe42ae-5db9-485d-8701-68c9add038d7",
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "50,2313803",
+                  "Name": "Lat",
+                  "PreviousValue": "50,2313802"
+              }
+          ],
+          "Name": "Brynów Orkana",
+          "PreviousChangeset": "82493028",
+          "PreviousName": null,
+          "PreviousVersion": 4,
+          "StopId": "1831944331",
+          "StopType": 0,
+          "Version": 5
+      },
+      {
+          "Action": 1,
+          "Changeset": "82493028",
+          "DatabaseStopId": "acc3459f-23c5-489d-84aa-fbaf561f3054",
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "18,9893557",
+                  "Name": "Lon",
+                  "PreviousValue": "18,9893556"
+              }
+          ],
+          "Name": "Brynów Orkana",
+          "PreviousChangeset": "82493028",
+          "PreviousName": null,
+          "PreviousVersion": 3,
+          "StopId": "1905039171",
+          "StopType": 0,
+          "Version": 4
+      },
+      {
+          "Action": 1,
+          "Changeset": "82493028",
+          "DatabaseStopId": "1d7dcc9a-16e7-4e84-a937-e0fddbde0e5a",
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "50,2326754",
+                  "Name": "Lat",
+                  "PreviousValue": "50,2326753"
+              },
+              {
+                  "Action": 1,
+                  "ActualValue": "18,9956495",
+                  "Name": "Lon",
+                  "PreviousValue": "18,9956494"
+              }
+          ],
+          "Name": "Brynów Dworska",
+          "PreviousChangeset": "82493028",
+          "PreviousName": null,
+          "PreviousVersion": 5,
+          "StopId": "1584594015",
+          "StopType": 0,
+          "Version": 6
+      }
+  ],
+  "TileId": "d4c2e8ff-6277-4051-a3da-62b02babd380",
+  "TileX": 2264,
+  "TileY": 1385
+}

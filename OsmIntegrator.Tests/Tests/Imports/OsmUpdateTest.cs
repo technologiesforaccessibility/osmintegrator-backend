@@ -32,6 +32,10 @@ namespace OsmIntegrator.Tests.Tests.Imports
     private const double EXPECTED_LON_2 = 18.9893557;
     private const double EXPECTED_LAT_3 = 50.2326754;
     private const double EXPECTED_LON_3 = 18.9956495;
+    private static readonly string OSM_UPDATE_FOLDER = $"Data/{nameof(OsmUpdateTest)}/";
+
+    private readonly IOverpass _overpass;
+    private readonly OverpassMock _overpassMock;
 
     private LoginData _defaultLoginData = new LoginData
     {
@@ -40,13 +44,14 @@ namespace OsmIntegrator.Tests.Tests.Imports
     };
     public OsmUpdateTest(ApiWebApplicationFactory fixture) : base(fixture)
     {
-
+      _overpass = _factory.Services.GetService<IOverpass>();
+      _overpassMock = (OverpassMock)_overpass;
     }
 
     private void InitializeDb(string testName)
     {
       List<DbStop> osmStops =
-        _dataInitializer.GetOsmStopsList($"Data/{nameof(OsmUpdateTest)}/{testName}/OsmStopsInit.xml").ToList();
+        _dataInitializer.GetOsmStopsList($"{OSM_UPDATE_FOLDER}{testName}/OsmStopsInit.xml").ToList();
 
       using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
       _dataInitializer.ClearDatabase(_dbContext);
@@ -74,47 +79,73 @@ namespace OsmIntegrator.Tests.Tests.Imports
       return stop;
     }
 
-    [Fact]
-    public async Task PositionTest()
+    private async Task InitTest(string testName)
     {
-      InitializeDb(nameof(PositionTest));
+      InitializeDb(testName);
 
       await LoginAndAssignTokenAsync(_defaultLoginData);
       await AssignUsersToAllTiles("supervisor2", "supervisor1");
 
-      IOverpass overpass = _factory.Services.GetService<IOverpass>();
-      OverpassMock overpassMock = (OverpassMock)overpass;
-      overpassMock.OsmFileName = $"Data/{nameof(OsmUpdateTest)}/{nameof(PositionTest)}/OsmStopsNew.xml";
+      _overpassMock.OsmFileName = $"{OSM_UPDATE_FOLDER}{testName}/OsmStopsNew.xml";
+    }
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+    [Fact]
+    public async Task AddStopTest()
+    {
+
+    }
+
+    [Fact]
+    public async Task RemoveStopTest()
+    {
+
+    }
+
+    [Fact]
+    public async Task TagsTest()
+    {
+      await InitTest(nameof(TagsTest));
+
+
+    }
+
+    [Fact]
+    public async Task PositionTest()
+    {
+      await InitTest(nameof(PositionTest));
 
       DbStop expectedStop1 = GetExpectedStop(STOP_ID_1, EXPECTED_LAT_1);
       DbStop expectedStop2 = GetExpectedStop(STOP_ID_2, null, EXPECTED_LON_2);
       DbStop expectedStop3 = GetExpectedStop(STOP_ID_3, EXPECTED_LAT_3, EXPECTED_LON_3);
 
-      Report report = await UpdateTileAsync(tile.Id.ToString()); 
-      string actualTxtReport  = report.Value;
-      string expectedTxtReport = 
-        File.ReadAllText($"Data/{nameof(OsmUpdateTest)}/{nameof(PositionTest)}/Report.txt");
+      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      Report report = await UpdateTileAsync(tile.Id.ToString());
+      string actualTxtReport = report.Value;
+      string expectedTxtReport =
+        File.ReadAllText($"{OSM_UPDATE_FOLDER}{nameof(PositionTest)}/Report.txt");
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
       RefreshDb();
 
       DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == STOP_ID_1);
-      Assert.Empty(Compare<DbStop>(expectedStop1, actualStop1));
+      Assert.Equal(expectedStop1.Lat, actualStop1.Lat);
+      Assert.Equal(expectedStop1.Version, actualStop1.Version);
 
       DbStop actualStop2 = _dbContext.Stops.First(x => x.StopId == STOP_ID_2);
-      Assert.Empty(Compare<DbStop>(expectedStop2, actualStop2));
+      Assert.Equal(expectedStop2.Lon, actualStop2.Lon);
+      Assert.Equal(expectedStop2.Version, actualStop2.Version);
 
       DbStop actualStop3 = _dbContext.Stops.First(x => x.StopId == STOP_ID_3);
-      Assert.Empty(Compare<DbStop>(expectedStop3, actualStop3));
+      Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
+      Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
+      Assert.Equal(expectedStop3.Version, actualStop3.Version);
 
       ReportTile actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"Data/{nameof(OsmUpdateTest)}/{nameof(PositionTest)}/ReportTile.json");
+        Deserialize<ReportTile>($"{OSM_UPDATE_FOLDER}{nameof(PositionTest)}/ReportTile.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));

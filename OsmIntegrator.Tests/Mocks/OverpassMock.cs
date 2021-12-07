@@ -23,6 +23,12 @@ namespace OsmIntegrator.Tests.Mocks
     
     public async Task<Osm> GetArea(double minLat, double minLong, double maxLat, double maxLong)
     {
+
+      return await Task.Run(() => GetOsm(minLat, minLong, maxLat, maxLong));
+    }
+
+    private Osm GetOsm(double minLat, double minLong, double maxLat, double maxLong)
+    {
       Osm osm = DeserializeFile(OsmFileName);
 
       List<Node> nodes = new();
@@ -42,7 +48,7 @@ namespace OsmIntegrator.Tests.Mocks
 
     public async Task<Osm> GetFullArea(ApplicationDbContext dbContext, CancellationToken cancelationToken)
     {
-      return new Osm();
+      return await Task.Run(() => new Osm());
     }
 
     private Osm DeserializeFile(string fileName)
