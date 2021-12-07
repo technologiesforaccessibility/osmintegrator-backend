@@ -193,6 +193,7 @@ namespace OsmIntegrator.Services
         Changeset = node.Changeset,
         TileId = tile.Id,
         Tile = tile,
+        Tags = new List<Tag>()
       };
 
       ReportStop reportStop = _reportsFactory.CreateStop(report, node, stop, ChangeAction.Added);
