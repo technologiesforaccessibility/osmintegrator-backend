@@ -10,7 +10,7 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Imports
 {
-  public class PositionTest : OsmUpdateTest
+  public class PositionTest : ImportTestBase
   {
     public PositionTest(ApiWebApplicationFactory fixture) : base(fixture)
     {

@@ -53,85 +53,85 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\PositionTest\OsmStopsNew.xml">
+    <Content Include="Data\Imports\PositionTest\OsmStopsNew.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\PositionTest\OsmStopsInit.xml">
+    <Content Include="Data\Imports\PositionTest\OsmStopsInit.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\PositionTest\ReportTile.json">
+    <Content Include="Data\Imports\PositionTest\ReportTile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
     <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\PositionTest\Report.txt">
+    <Content Include="Data\Imports\PositionTest\Report.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\AddStopTest\OsmStopsNew.xml">
+    <Content Include="Data\Imports\AddStopTest\OsmStopsNew.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\AddStopTest\OsmStopsInit.xml">
+    <Content Include="Data\Imports\AddStopTest\OsmStopsInit.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\AddStopTest\ReportTile.json">
+    <Content Include="Data\Imports\AddStopTest\ReportTile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
     <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\AddStopTest\Report.txt">
+    <Content Include="Data\Imports\AddStopTest\Report.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\RemoveStopTest\OsmStopsNew.xml">
+    <Content Include="Data\Imports\RemoveStopTest\OsmStopsNew.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\RemoveStopTest\OsmStopsInit.xml">
+    <Content Include="Data\Imports\RemoveStopTest\OsmStopsInit.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\RemoveStopTest\ReportTile.json">
+    <Content Include="Data\Imports\RemoveStopTest\ReportTile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
     <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\RemoveStopTest\Report.txt">
+    <Content Include="Data\Imports\RemoveStopTest\Report.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\TagsTest\OsmStopsNew.xml">
+    <Content Include="Data\Imports\TagsTest\OsmStopsNew.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\TagsTest\OsmStopsInit.xml">
+    <Content Include="Data\Imports\TagsTest\OsmStopsInit.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\TagsTest\ReportTile.json">
+    <Content Include="Data\Imports\TagsTest\ReportTile.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
     <ItemGroup>
-    <Content Include="Data\OsmUpdateTest\TagsTest\Report.txt">
+    <Content Include="Data\Imports\TagsTest\Report.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

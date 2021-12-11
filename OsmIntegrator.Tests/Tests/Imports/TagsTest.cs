@@ -14,7 +14,7 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Imports
 {
-  public class TagsTest : OsmUpdateTest
+  public class TagsTest : ImportTestBase
   {
     public TagsTest(ApiWebApplicationFactory fixture) : base(fixture)
     {

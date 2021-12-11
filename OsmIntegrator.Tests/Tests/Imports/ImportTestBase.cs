@@ -20,7 +20,7 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Imports
 {
-  public class OsmUpdateTest : IntegrationTest
+  public class ImportTestBase : IntegrationTest
   {
     protected const int RIGHT_TILE_X = 2264;
     protected const int RIGHT_TILE_Y = 1385;
@@ -33,7 +33,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     protected const double EXPECTED_LON_2 = 18.9893557;
     protected const double EXPECTED_LAT_3 = 50.2326754;
     protected const double EXPECTED_LON_3 = 18.9956495;
-    protected static readonly string OSM_UPDATE_FOLDER = $"Data/{nameof(OsmUpdateTest)}/";
+    protected static readonly string OSM_UPDATE_FOLDER = $"Data/Import/";
 
     protected readonly IOverpass _overpass;
     protected readonly OverpassMock _overpassMock;
@@ -43,7 +43,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       Email = "supervisor2@abcd.pl",
       Password = "supervisor2#12345678",
     };
-    public OsmUpdateTest(ApiWebApplicationFactory fixture) : base(fixture)
+    public ImportTestBase(ApiWebApplicationFactory fixture) : base(fixture)
     {
       _overpass = _factory.Services.GetService<IOverpass>();
       _overpassMock = (OverpassMock)_overpass;
