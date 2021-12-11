@@ -200,7 +200,7 @@ namespace OsmIntegrator.Services
       ReportStop reportStop = _reportsFactory.CreateStop(report, node, stop, ChangeAction.Added);
       List<Tag> newTags = PopulateTags(stop, node, reportStop);
       UpdateStopProperties(stop, newTags, reportStop);
-
+      stop.Tags = newTags;
       tile.Stops.Add(stop);
     }
 
