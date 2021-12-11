@@ -1,11 +1,3 @@
 [TILE] X: 2264, Y: 1385
-    [STOP-Modified] Brynów Orkana, Id: 1831944331, Osm, Ver: 5, (4)
-        [FIELD-Modified] Lat: 50,2313803, (50,2313802)
-
-    [STOP-Modified] Brynów Orkana, Id: 1905039171, Osm, Ver: 4, (3)
-        [FIELD-Modified] Lon: 18,9893557, (18,9893556)
-
-    [STOP-Modified] Brynów Dworska, Id: 1584594015, Osm, Ver: 6, (5)
-        [FIELD-Modified] Lat: 50,2326754, (50,2326753)
-        [FIELD-Modified] Lon: 18,9956495, (18,9956494)
+    [STOP-Removed] Brynów Dworska, Id: 1584594015, Osm, Ver: 5
 
