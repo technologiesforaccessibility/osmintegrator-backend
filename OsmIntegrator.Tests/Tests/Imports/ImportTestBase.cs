@@ -33,7 +33,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     protected const double EXPECTED_LON_2 = 18.9893557;
     protected const double EXPECTED_LAT_3 = 50.2326754;
     protected const double EXPECTED_LON_3 = 18.9956495;
-    protected static readonly string OSM_UPDATE_FOLDER = $"Data/Import/";
+    protected static readonly string OSM_UPDATE_FOLDER = $"Data/Imports/";
 
     protected readonly IOverpass _overpass;
     protected readonly OverpassMock _overpassMock;

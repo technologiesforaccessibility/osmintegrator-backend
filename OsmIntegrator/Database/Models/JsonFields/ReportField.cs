@@ -12,7 +12,7 @@ namespace OsmIntegrator.Database.Models.JsonFields
 
     public override string ToString()
     {
-      string previousValue = !string.IsNullOrEmpty(PreviousValue) ? $", ({PreviousValue})" : "";
+      string previousValue = !string.IsNullOrEmpty(PreviousValue) ? $" ({PreviousValue})" : "";
       return $"        [FIELD-{Action.ToString()}] {Name}: {ActualValue}{previousValue}";
     }
   }
