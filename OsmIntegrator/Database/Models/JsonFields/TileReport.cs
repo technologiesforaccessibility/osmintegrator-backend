@@ -15,6 +15,11 @@ namespace OsmIntegrator.Database.Models.JsonFields
     {
       StringBuilder sb = new StringBuilder();
       sb.AppendLine($"[TILE] X: {TileX}, Y: {TileY}");
+      if(Stops.Count == 0)
+      {
+        sb.Append("No changes");
+        return sb.ToString();
+      }
       Stops.ForEach(x => sb.AppendLine(x.ToString()));
       return sb.ToString();
     }

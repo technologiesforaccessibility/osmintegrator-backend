@@ -22,7 +22,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     }
 
     [Fact]
-    public async Task Test()
+    public async Task RemoveSingleStopTest()
     {
       await InitTest(nameof(RemoveStopTest));
 
@@ -47,6 +47,18 @@ namespace OsmIntegrator.Tests.Tests.Imports
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
+    }
+
+    [Fact]
+    public async Task RemoveStopTwiceTest()
+    {
+      await InitTest(nameof(RemoveStopTest));
+
+      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      Report report = await UpdateTileAsync(tile.Id.ToString());
+      report = await UpdateTileAsync(tile.Id.ToString());
+
+      Assert.Contains("No changes", report.Value);
     }
   }
 }

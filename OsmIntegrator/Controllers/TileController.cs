@@ -537,7 +537,7 @@ rozwiazaniadlaniewidomych.org
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Tile>> UpdateStops(string id)
+    public async Task<ActionResult<Report>> UpdateStops(string id)
     {
       DbTile tile = await GetTileAsync(id);
 
@@ -550,10 +550,7 @@ rozwiazaniadlaniewidomych.org
       //   SendDeletedConnectionsEmail(tile, connectionsToDelete);
       // }
 
-      return Ok(
-        tileReport.Stops.Count > 0 ? 
-        new Report { Value = tileReport.ToString() } : 
-        null);
+      return Ok(new Report { Value = tileReport.ToString() });
     }
 
     private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)

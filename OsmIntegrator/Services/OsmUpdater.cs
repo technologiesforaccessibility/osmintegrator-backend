@@ -206,6 +206,7 @@ namespace OsmIntegrator.Services
 
     private void RemoveStop(DbStop stop, ApplicationDbContext dbContext, ReportTile report)
     {
+      if(stop.IsDeleted) return;
       _reportsFactory.CreateStop(report, null, stop, ChangeAction.Removed);
       stop.IsDeleted = true;
       dbContext.Stops.Update(stop);
