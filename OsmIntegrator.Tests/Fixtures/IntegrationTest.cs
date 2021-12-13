@@ -45,6 +45,12 @@ namespace OsmIntegrator.Tests.Fixtures
         Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
     }
 
+    protected void TurnOnDbTracking()
+    {
+      _dbContext.ChangeTracker.QueryTrackingBehavior =
+        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.TrackAll;
+    }
+
     /// <summary>
     /// Generate token and assign it to the HttpClient
     /// </summary>

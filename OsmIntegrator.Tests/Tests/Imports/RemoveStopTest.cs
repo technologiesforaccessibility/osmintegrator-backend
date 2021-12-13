@@ -30,7 +30,6 @@ namespace OsmIntegrator.Tests.Tests.Imports
       Report report = await UpdateTileAsync(tile.Id.ToString());
 
       string actualTxtReport = report.Value;
-      // File.WriteAllText("Report.txt", actualTxtReport);
       string expectedTxtReport =
         File.ReadAllText($"{OSM_UPDATE_FOLDER}{nameof(RemoveStopTest)}/Report.txt");
 
@@ -47,6 +46,8 @@ namespace OsmIntegrator.Tests.Tests.Imports
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
+
+      TurnOnDbTracking();
     }
 
     [Fact]

@@ -89,18 +89,6 @@ namespace OsmIntegrator.Tests.Tests.Imports
 
       _overpassMock.OsmFileName = $"{OSM_UPDATE_FOLDER}{testName}/OsmStopsNew.xml";
     }
-
-    // [Fact]
-    // public async Task AddStopTest()
-    // {
-
-    // }
-
-    // [Fact]
-    // public async Task RemoveStopTest()
-    // {
-
-    // }
   }
 }
 
