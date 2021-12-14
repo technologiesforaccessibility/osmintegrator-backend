@@ -11,11 +11,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests
+namespace OsmIntegrator.Tests.Tests.Authentications
 {
-  public class AuthenticationTests : IntegrationTest
+  public class AuthenticationTest : IntegrationTest
   {
-    public AuthenticationTests(ApiWebApplicationFactory fixture) : base(fixture)
+    public AuthenticationTest(ApiWebApplicationFactory fixture) : base(fixture)
     {
       using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
       _dataInitializer.ClearDatabase(_dbContext);

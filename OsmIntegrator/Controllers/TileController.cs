@@ -23,6 +23,8 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
 using OsmIntegrator.Tools;
+using OsmIntegrator.Database.Models.JsonFields;
+using OsmIntegrator.ApiModels.Reports;
 
 namespace OsmIntegrator.Controllers
 {
@@ -535,29 +537,20 @@ rozwiazaniadlaniewidomych.org
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Tile>> UpdateStops(string id)
+    public async Task<ActionResult<Report>> UpdateStops(string id)
     {
       DbTile tile = await GetTileAsync(id);
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      await _osmUpdater.Update(tile, _dbContext, osm);
+      ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
 
-      List<DbConnections> connectionsToDelete = _dbContext.Connections
-        .Include(x => x.OsmStop)
-        .Include(x => x.GtfsStop)
-        .Where(x => x.OsmStop.IsDeleted == true)
-        .ToList();
+      // if (Boolean.Parse(_configuration["SendEmails"]))
+      // {
+      //   SendDeletedConnectionsEmail(tile, connectionsToDelete);
+      // }
 
-      if (Boolean.Parse(_configuration["SendEmails"]))
-      {
-        SendDeletedConnectionsEmail(tile, connectionsToDelete);
-      }
-
-      _dbContext.Connections.RemoveRange(connectionsToDelete);
-      _dbContext.SaveChanges();
-
-      return Ok(_mapper.Map<Tile>(tile));
+      return Ok(new Report { Value = tileReport.ToString() });
     }
 
     private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)

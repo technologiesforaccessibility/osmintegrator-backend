@@ -19,6 +19,7 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.Interfaces;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Controllers
 {

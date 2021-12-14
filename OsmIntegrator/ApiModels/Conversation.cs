@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.ApiModels
 {

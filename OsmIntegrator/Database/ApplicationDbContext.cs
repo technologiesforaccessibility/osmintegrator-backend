@@ -30,6 +30,8 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTileUser> TileUsers { get; set; }
 
+    public DbSet<DbChangeReport> ChangeReports { get; set; }
+
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -79,11 +81,7 @@ namespace OsmIntegrator.Database
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      _ = optionsBuilder.UseNpgsql(GetConnectionString());
-    }
-    public string GetConnectionString()
-    {
-      return _configuration["DBConnectionString"].ToString();
+      _ = optionsBuilder.UseNpgsql(_configuration["DBConnectionString"]);
     }
   }
 }

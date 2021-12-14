@@ -27,7 +27,7 @@ namespace OsmIntegrator.Services
     private DateTime _nextRun;
 
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IOsmUpdater _osmRefresherHelper;
+    private readonly IOsmUpdater _osmUpdater;
 
     private readonly IOverpass _overpass;
 
@@ -45,7 +45,7 @@ namespace OsmIntegrator.Services
         new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
       _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
       _scopeFactory = serviceScopeFactory;
-      _osmRefresherHelper = osmRefresherHelper;
+      _osmUpdater = osmRefresherHelper;
       _overpass = overpass;
     }
 
@@ -91,7 +91,7 @@ namespace OsmIntegrator.Services
             .Where(x => x.TileUsers.Count() == 0)
             .ToList();
 
-          await _osmRefresherHelper.Update(tilesToRefresh, dbContext, result);
+          await _osmUpdater.Update(tilesToRefresh, dbContext, result);
         }
       }
       catch (Exception e)

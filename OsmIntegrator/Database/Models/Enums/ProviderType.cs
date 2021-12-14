@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OsmIntegrator.Database.Models
+namespace OsmIntegrator.Database.Models.Enums
 {
-    public enum StopType
+    public enum ProviderType
     {
-        Osm = 0, 
-        Gtfs = 1
+        None = 0,
+        Ztm = 1,
     }
 }

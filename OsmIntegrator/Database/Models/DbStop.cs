@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace OsmIntegrator.Database.Models
 {
@@ -44,7 +46,7 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbConnections> OsmConnections { get; set; }
 
-    public long Ref { get; set; }
+    public string Ref { get; set; }
 
     public int Version { get; set; }
 

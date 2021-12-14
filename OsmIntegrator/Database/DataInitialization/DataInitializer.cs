@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
@@ -60,8 +61,12 @@ namespace OsmIntegrator.Database.DataInitialization
       db.SaveChanges();
     }
 
-    public void InitializeStopsAndTiles(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
+    public void InitializeStopsAndTiles(
+      ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
     {
+      gtfsStops ??= new();
+      osmStops ??= new();
+
       List<DbStop> allStops = new List<DbStop>();
       allStops.AddRange(osmStops);
       allStops.AddRange(gtfsStops);
@@ -158,15 +163,20 @@ namespace OsmIntegrator.Database.DataInitialization
 
       foreach (DbStop osmStop in osmStops)
       {
-        DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == osmStop.Ref);
-        if (gtfsStop != null)
+        long @ref;
+        if (long.TryParse(osmStop.Ref, out @ref))
         {
-          connections.Add(new DbConnections()
+          DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == @ref);
+
+          if (gtfsStop != null)
           {
-            GtfsStop = gtfsStop,
-            OsmStop = osmStop,
-            Imported = true
-          });
+            connections.Add(new DbConnections()
+            {
+              GtfsStop = gtfsStop,
+              OsmStop = osmStop,
+              Imported = true
+            });
+          }
         }
       }
 
@@ -386,9 +396,9 @@ namespace OsmIntegrator.Database.DataInitialization
             Changeset = node.Changeset
           };
 
-          List<Models.Tag> tempTags = new List<Models.Tag>();
+          List<Models.JsonFields.Tag> tempTags = new();
 
-          node.Tag.ForEach(x => tempTags.Add(new Models.Tag()
+          node.Tag.ForEach(x => tempTags.Add(new Models.JsonFields.Tag()
           {
             Key = x.K,
             Value = x.V
@@ -399,17 +409,10 @@ namespace OsmIntegrator.Database.DataInitialization
           stop.Name = nameTag?.Value;
 
           var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
-          long refVal;
-          if (refTag != null && long.TryParse(refTag.Value, out refVal))
-          {
-            stop.Ref = refVal;
-          }
+          stop.Ref = refTag?.Value;
 
           var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
-          if (localRefTag != null && !string.IsNullOrEmpty(localRefTag.Value))
-          {
-            stop.Number = localRefTag.Value;
-          }
+          stop.Number = localRefTag?.Value;
 
           result.Add(stop);
         }
@@ -486,6 +489,8 @@ namespace OsmIntegrator.Database.DataInitialization
       db.Roles.RemoveRange(db.Roles);
       db.Users.RemoveRange(db.Users);
       db.UserRoles.RemoveRange(db.UserRoles);
+
+      db.ChangeReports.RemoveRange(db.ChangeReports);
 
       db.SaveChanges();
     }

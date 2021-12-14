@@ -1,4 +1,4 @@
-namespace OsmIntegrator.Database.Models
+namespace OsmIntegrator.Database.Models.JsonFields
 {
     public class Tag
     {
