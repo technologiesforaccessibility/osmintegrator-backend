@@ -15,5 +15,6 @@ namespace OsmIntegrator.Interfaces
 
     Task<List<ReportTile>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
 
+    bool ContainsChanges(DbTile tile, Osm osmRoot);
   }
 }

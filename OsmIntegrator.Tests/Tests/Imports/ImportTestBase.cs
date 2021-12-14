@@ -69,6 +69,14 @@ namespace OsmIntegrator.Tests.Tests.Imports
       return JsonConvert.DeserializeObject<Report>(jsonResponse);
     }
 
+    protected async Task<bool> ContainsChanges(string tileId)
+    {
+      var response = await _client.GetAsync($"/api/Tile/ContainsChanges/{tileId}");
+      response.StatusCode.Should().Be(HttpStatusCode.OK);
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return bool.Parse(jsonResponse);
+    }
+
     protected DbStop GetExpectedStop(long id, double? lat = null, double? lon = null)
     {
       DbStop stop = _dbContext.Stops.First(x => x.StopId == id);

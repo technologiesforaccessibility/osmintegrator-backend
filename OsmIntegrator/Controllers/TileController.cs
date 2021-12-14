@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
-using System.Net.Http;
 using System.Threading.Tasks;
-using System.Text;
 using AutoMapper;
 using MimeKit;
 using Microsoft.AspNetCore.Authorization;
@@ -552,6 +549,20 @@ rozwiazaniadlaniewidomych.org
 
       return Ok(new Report { Value = tileReport.ToString() });
     }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<bool>> ContainsChanges(string id)
+    {
+      DbTile tile = await GetTileAsync(id);
+
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+      bool containsChanges = _osmUpdater.ContainsChanges(tile, osm);
+
+      return Ok(containsChanges);
+    }
+
 
     private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)
     {

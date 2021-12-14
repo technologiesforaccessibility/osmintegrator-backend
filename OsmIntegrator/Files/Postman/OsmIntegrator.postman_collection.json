@@ -788,6 +788,40 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/Update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"Update"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1263,6 +1297,41 @@
 								"api",
 								"Tile",
 								"UpdateStops",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ContainsChanges",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/ContainsChanges/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"ContainsChanges",
 								"{{firstTileId}}"
 							]
 						}
