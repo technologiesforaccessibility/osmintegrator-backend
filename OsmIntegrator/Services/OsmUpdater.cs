@@ -38,6 +38,48 @@ namespace OsmIntegrator.Services
       dbContext.Connections.RemoveRange(connectionsToDelete);
     }
 
+    /// <summary>
+    /// Check if there were any changes on this tile in OSM
+    /// </summary>
+    /// <param name="tile">Current tile</param>
+    /// <param name="osmRoot">OSM file as an object structure</param>
+    /// <returns>True if there were changes on that tile</returns>
+    public bool ContainsChanges(DbTile tile, Osm osmRoot)
+    {
+      foreach (Node node in osmRoot.Node)
+      {
+        if (!IsNodeOnTile(tile, node)) continue;
+
+        DbStop existingStop = tile.Stops.FirstOrDefault(
+          x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
+
+        if (existingStop != null)
+        {
+          if (existingStop.Changeset == node.Changeset && existingStop.Version == node.Version)
+          {
+            continue;
+          }
+
+          // Stop modified
+          return true;
+        }
+        // Stop needs to be added
+        return true;
+      }
+
+      foreach (DbStop stop in tile.Stops)
+      {
+        if (stop.StopType == StopType.Osm && !osmRoot.Node.Exists(x => long.Parse(x.Id) == stop.StopId))
+        {
+          // Stop removed
+          if(!stop.IsDeleted) return true;  
+        }
+      }
+
+      // Nothing has changed
+      return false;
+    }
+
     public async Task<ReportTile> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
@@ -61,9 +103,10 @@ namespace OsmIntegrator.Services
         await transaction.CommitAsync();
         return report;
       }
-      catch
+      catch (Exception e)
       {
         await transaction.RollbackAsync();
+        _logger.LogError(e, $"Problem with updating tile with id {tile.Id}");
         throw;
       }
     }
@@ -104,6 +147,14 @@ namespace OsmIntegrator.Services
       }
     }
 
+    private bool IsNodeOnTile(DbTile tile, Node node)
+    {
+      return !(tile.MinLat > double.Parse(node.Lat, CultureInfo.InvariantCulture)
+        || tile.MaxLat < double.Parse(node.Lat, CultureInfo.InvariantCulture)
+        || tile.MinLon > double.Parse(node.Lon, CultureInfo.InvariantCulture)
+        || tile.MaxLon < double.Parse(node.Lon, CultureInfo.InvariantCulture));
+    }
+
     private ReportTile ProcessTile(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       // Report - init
@@ -111,14 +162,7 @@ namespace OsmIntegrator.Services
 
       foreach (Node node in osmRoot.Node)
       {
-        if (tile.MinLat > double.Parse(node.Lat, CultureInfo.InvariantCulture)
-          || tile.MaxLat < double.Parse(node.Lat, CultureInfo.InvariantCulture)
-          || tile.MinLon > double.Parse(node.Lon, CultureInfo.InvariantCulture)
-          || tile.MaxLon < double.Parse(node.Lon, CultureInfo.InvariantCulture))
-        {
-          // node is outside boundary of current tile
-          continue;
-        }
+        if (!IsNodeOnTile(tile, node)) continue;
 
         DbStop existingStop = tile.Stops.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
@@ -206,7 +250,7 @@ namespace OsmIntegrator.Services
 
     private void RemoveStop(DbStop stop, ApplicationDbContext dbContext, ReportTile report)
     {
-      if(stop.IsDeleted) return;
+      if (stop.IsDeleted) return;
       _reportsFactory.CreateStop(report, null, stop, ChangeAction.Removed);
       stop.IsDeleted = true;
       dbContext.Stops.Update(stop);
