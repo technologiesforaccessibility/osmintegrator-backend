@@ -18,7 +18,7 @@ namespace OsmIntegrator.Tools
       };
     }
 
-    public ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action)
+    public ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action, bool reverted)
     {
       ReportStop reportStop;
       if (action == ChangeAction.Modified)
@@ -27,13 +27,14 @@ namespace OsmIntegrator.Tools
         {
           Name = stop.Name,
           Version = node.Version,
-          PreviousVersion = stop.Version,
+          PreviousVersion = stop.Version == node.Version ? null : stop.Version,
           Changeset = node.Changeset,
           PreviousChangeset = stop.Changeset,
           StopId = node.Id,
           DatabaseStopId = stop.Id,
           StopType = StopType.Osm,
-          Action = action
+          Action = action,
+          Reverted = reverted
         };
       }
       else if (action == ChangeAction.Added)
@@ -45,9 +46,12 @@ namespace OsmIntegrator.Tools
           StopId = node.Id,
           DatabaseStopId = stop.Id,
           StopType = StopType.Osm,
-          Action = action
+          Action = action,
+          Reverted = reverted
         };
-      } else {
+      }
+      else
+      {
         reportStop = new()
         {
           Name = stop.Name,
@@ -56,7 +60,8 @@ namespace OsmIntegrator.Tools
           StopId = stop.StopId.ToString(),
           DatabaseStopId = stop.Id,
           StopType = StopType.Osm,
-          Action = action
+          Action = action,
+          Reverted = reverted
         };
       }
 

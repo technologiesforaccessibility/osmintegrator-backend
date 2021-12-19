@@ -29,7 +29,7 @@ namespace OsmIntegrator.Services
 
     private void RemoveConnections(ApplicationDbContext dbContext)
     {
-      List<DbConnections> connectionsToDelete = dbContext.Connections
+      List<DbConnection> connectionsToDelete = dbContext.Connections
         .Include(x => x.OsmStop)
         .Include(x => x.GtfsStop)
         .Where(x => x.OsmStop.IsDeleted == true)
@@ -72,7 +72,7 @@ namespace OsmIntegrator.Services
         if (stop.StopType == StopType.Osm && !osmRoot.Node.Exists(x => long.Parse(x.Id) == stop.StopId))
         {
           // Stop removed
-          if(!stop.IsDeleted) return true;  
+          if (!stop.IsDeleted) return true;
         }
       }
 
@@ -169,12 +169,25 @@ namespace OsmIntegrator.Services
 
         if (existingStop != null)
         {
+          bool deletionReverted = false;
+          if (existingStop.IsDeleted)
+          {
+            deletionReverted = true;
+            existingStop.IsDeleted = false;
+          }
+
           if (existingStop.Changeset == node.Changeset && existingStop.Version == node.Version)
           {
+            if(deletionReverted)
+            {
+              ReportStop reportStop = 
+              _reportsFactory.CreateStop(
+                report, node, existingStop, ChangeAction.Modified, deletionReverted);
+            }
             continue;
           }
 
-          ModifyStop(existingStop, node, dbContext, report);
+          ModifyStop(existingStop, node, dbContext, report, deletionReverted);
         }
         else
         {
@@ -193,10 +206,11 @@ namespace OsmIntegrator.Services
       return report;
     }
 
-    private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, ReportTile report)
+    private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, ReportTile report, bool deletionReverted)
     {
       // Report - new stop
-      ReportStop reportStop = _reportsFactory.CreateStop(report, node, existingStop, ChangeAction.Modified);
+      ReportStop reportStop = 
+        _reportsFactory.CreateStop(report, node, existingStop, ChangeAction.Modified, deletionReverted);
 
       existingStop.Version = node.Version;
       existingStop.Changeset = node.Changeset;

@@ -42,9 +42,9 @@ namespace OsmIntegrator.Database.Models
 
     public bool OutsideSelectedTile { get; set; } = false;
 
-    public List<DbConnections> GtfsConnections { get; set; }
+    public List<DbConnection> GtfsConnections { get; set; }
 
-    public List<DbConnections> OsmConnections { get; set; }
+    public List<DbConnection> OsmConnections { get; set; }
 
     public string Ref { get; set; }
 

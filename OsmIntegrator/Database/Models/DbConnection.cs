@@ -7,65 +7,65 @@ using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("Connections")]
-    public class DbConnections
+  [Table("Connections")]
+  public class DbConnection
+  {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public Guid Id { get; set; }
+
+    public Guid OsmStopId { get; set; }
+
+    [Required]
+    public DbStop OsmStop { get; set; }
+
+    public Guid GtfsStopId { get; set; }
+
+    [Required]
+    public DbStop GtfsStop { get; set; }
+
+    [Required]
+    public bool Imported { get; set; }
+
+    public Guid? UserId { get; set; }
+
+    public ApplicationUser User { get; set; }
+
+    public ConnectionOperationType OperationType { get; set; }
+
+    public DateTime? UpdatedAt { get; set; }
+
+    [Required]
+    public DateTime CreatedAt { get; set; }
+
+    public Guid? ApprovedById { get; set; }
+
+    public ApplicationUser ApprovedBy { get; set; }
+  }
+
+  public class DbConnectionComparer : IEqualityComparer<DbConnection>
+  {
+    /* 
+        This lives here temporairly for simplicity. Dependency rule broken on purpose.
+    */
+    public bool Equals(DbConnection x, DbConnection y)
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public Guid Id { get; set; }
+      if (Object.ReferenceEquals(x, y)) return true;
+      if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
+        return false;
 
-        public Guid OsmStopId { get; set; }
+      return x.OsmStopId == y.OsmStopId && x.GtfsStopId == y.GtfsStopId;
 
-        [Required]
-        public DbStop OsmStop { get; set; }
-
-        public Guid GtfsStopId { get; set; }
-
-        [Required]
-        public DbStop GtfsStop { get; set; }
-
-        [Required]
-        public bool Imported { get; set; }
-
-        public Guid? UserId { get; set; }
-
-        public ApplicationUser User { get; set; }
-
-        public ConnectionOperationType OperationType { get; set; }
-
-        public DateTime? UpdatedAt { get; set; }
-
-        [Required]
-        public DateTime CreatedAt { get; set; }
-        
-        public Guid? ApprovedById { get; set; }
-        
-        public ApplicationUser ApprovedBy {get; set;}
     }
 
-    public class DbConnectionComparer : IEqualityComparer<DbConnections>
+    public int GetHashCode([DisallowNull] DbConnection obj)
     {
-        /* 
-            This lives here temporairly for simplicity. Dependency rule broken on purpose.
-        */
-        public bool Equals(DbConnections x, DbConnections y)
-        {
-            if (Object.ReferenceEquals(x, y)) return true;
-            if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
-                return false;
-            
-            return x.OsmStopId == y.OsmStopId && x.GtfsStopId == y.GtfsStopId;
-            
-        }
+      if (Object.ReferenceEquals(obj, null)) return 0;
 
-        public int GetHashCode([DisallowNull] DbConnections obj)
-        {            
-            if (Object.ReferenceEquals(obj, null)) return 0;
+      int hashProductName = obj.OsmStopId.GetHashCode();
+      int hashProductCode = obj.GtfsStopId.GetHashCode();
 
-            int hashProductName = obj.OsmStopId.GetHashCode();            
-            int hashProductCode = obj.GtfsStopId.GetHashCode();
-
-            return hashProductName ^ hashProductCode;
-        }
+      return hashProductName ^ hashProductCode;
     }
+  }
 }

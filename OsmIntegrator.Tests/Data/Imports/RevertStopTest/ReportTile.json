@@ -1,0 +1,21 @@
+{
+  "Stops": [
+    {
+      "Name": "Brynów Dworska",
+      "Action": 1,
+      "Fields": null,
+      "StopId": "1584594015",
+      "Version": 5,
+      "Reverted": true,
+      "StopType": 0,
+      "Changeset": "82493028",
+      "PreviousName": null,
+      "DatabaseStopId": "43e31e94-1126-4c89-bc68-ae37afdf5959",
+      "PreviousVersion": null,
+      "PreviousChangeset": "82493028"
+    }
+  ],
+  "TileX": 2264,
+  "TileY": 1385,
+  "TileId": "2d6fabdf-baa9-4403-9f37-410cb16cbbb5"
+}

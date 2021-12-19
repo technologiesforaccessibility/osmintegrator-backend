@@ -19,14 +19,16 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public Guid? DatabaseStopId { get; set; }
     public List<ReportField> Fields { get; set; }
     public ChangeAction Action { get; set; }
+    public bool Reverted { get; set; }
 
     public override string ToString()
     {
       StringBuilder sb = new StringBuilder();
       string previousName = !string.IsNullOrEmpty(PreviousName) ? $" ({PreviousName})" : "";
       string previousVersion = PreviousVersion is not null ? $" ({PreviousVersion.ToString()})" : "";
+      string reverted = Reverted ? ", Reverted" : "";
 
-      sb.AppendLine($"    [STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}");
+      sb.AppendLine($"[STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}{reverted}");
 
       Fields?.ForEach(x => sb.AppendLine(x.ToString()));
 

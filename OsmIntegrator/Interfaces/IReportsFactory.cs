@@ -9,7 +9,7 @@ namespace OsmIntegrator.Interfaces
   {
     void UpdateName(ReportStop reportStop, string name);
     ReportTile Create(DbTile tile);
-    ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action);
+    ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action, bool reverted = false);
     void AddField(ReportStop reportStop, string name, string actualValue, string previousValue, ChangeAction action);
   }
 }

@@ -1,0 +1,34 @@
+{
+  "Stops": [
+    {
+      "Name": "Brynów Dworska",
+      "Action": 1,
+      "Fields": [
+        {
+          "Name": "Lat",
+          "Action": 1,
+          "ActualValue": "50,2326752",
+          "PreviousValue": "50,2326753"
+        },
+        {
+          "Name": "bus",
+          "Action": 1,
+          "ActualValue": "no",
+          "PreviousValue": "yes"
+        }
+      ],
+      "StopId": "1584594015",
+      "Version": 6,
+      "Reverted": true,
+      "StopType": 0,
+      "Changeset": "82493028",
+      "PreviousName": null,
+      "DatabaseStopId": "47d5cc88-08e7-463a-afd6-90cfc8576a60",
+      "PreviousVersion": 5,
+      "PreviousChangeset": "82493028"
+    }
+  ],
+  "TileX": 2264,
+  "TileY": 1385,
+  "TileId": "3ba2501c-0b88-4ef3-ae7b-31f89ec57d7a"
+}
