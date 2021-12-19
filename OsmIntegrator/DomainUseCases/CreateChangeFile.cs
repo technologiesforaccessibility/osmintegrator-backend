@@ -54,16 +54,6 @@ namespace OsmIntegrator.DomainUseCases
     }
     public async Task<AUseCaseResponse> Handle(CreateChangeFileInputDto useCaseData)
     {
-      var querySet = await _dbContext.Connections.Where(x =>
-            x.OsmStop.Tile.Id == useCaseData.TileId &&
-            x.OperationType == ConnectionOperationType.Added)
-          .Include(connection => connection.GtfsStop)
-          .Include(connection => connection.OsmStop)
-          .OrderByDescending(con => con.CreatedAt)
-          .ThenByDescending(con => con.OsmStop)
-          .ThenByDescending(con => con.GtfsStop)
-          .ToListAsync();
-
       DbTile tile = await _dbContext.Tiles
         .FirstAsync(t => t.Id == useCaseData.TileId);
 
@@ -72,20 +62,16 @@ namespace OsmIntegrator.DomainUseCases
         .Include(x => x.OsmConnections
           .OrderByDescending(y => y.CreatedAt)
           .Take(1))
-        // .ThenInclude(x => x.GtfsStop)
+        .ThenInclude(x => x.GtfsStop)
         .ToListAsync();
 
-      List<DbConnection> a;
-
+      List<DbConnection> connections = new();
       foreach (DbStop stop in stops)
       {
-
+        DbConnection currentConnection = stop.OsmConnections.First();
+        if(currentConnection.OperationType == ConnectionOperationType.Added)
+          connections.Add(currentConnection);
       }
-
-
-
-      List<Connection> existingConnections =
-        _mapper.Map<List<Connection>>(querySet.Distinct(new DbConnectionComparer()).ToList());
 
       OsmChange osmNodes = new OsmChange()
       {
@@ -96,7 +82,7 @@ namespace OsmIntegrator.DomainUseCases
           Nodes = new List<Tools.Node>()
         }
       };
-      foreach (var connection in existingConnections)
+      foreach (var connection in connections)
       {
         osmNodes.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
       };
@@ -104,7 +90,7 @@ namespace OsmIntegrator.DomainUseCases
                                           xmlStream: CreateModifyChangeFile(osmNodes),
                                           message: "Osm change created");
     }
-    private Tools.Node CreateNode(Stop osmStop, Stop gtfsStop)
+    private Tools.Node CreateNode(DbStop osmStop, DbStop gtfsStop)
     {
       var node = new Tools.Node()
       {
