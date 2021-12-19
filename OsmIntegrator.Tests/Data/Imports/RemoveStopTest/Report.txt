@@ -1,3 +1,4 @@
 [TILE] X: 2264, Y: 1385
-    [STOP-Removed] Brynów Dworska, Id: 1584594015, Osm, Ver: 5
+
+[STOP-Removed] Brynów Dworska, Id: 1584594015, Osm, Ver: 5
 

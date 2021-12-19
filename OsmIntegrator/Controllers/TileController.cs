@@ -564,7 +564,7 @@ rozwiazaniadlaniewidomych.org
     }
 
 
-    private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnections> connections)
+    private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnection> connections)
     {
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));

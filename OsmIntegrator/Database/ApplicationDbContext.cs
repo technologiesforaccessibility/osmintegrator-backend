@@ -20,7 +20,7 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTile> Tiles { get; set; }
 
-    public DbSet<DbConnections> Connections { get; set; }
+    public DbSet<DbConnection> Connections { get; set; }
 
     public DbSet<DbNote> Notes { get; set; }
 
@@ -36,22 +36,22 @@ namespace OsmIntegrator.Database
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasKey(t => new { t.Id });
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasOne(c => c.OsmStop)
           .WithMany(o => o.OsmConnections)
           .HasForeignKey(c => c.OsmStopId)
           .OnDelete(DeleteBehavior.NoAction);
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasOne(c => c.GtfsStop)
           .WithMany(o => o.GtfsConnections)
           .HasForeignKey(c => c.GtfsStopId)
           .OnDelete(DeleteBehavior.NoAction);
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .Property(x => x.CreatedAt)
           .HasColumnType("timestamp without time zone")
           .HasDefaultValueSql("NOW()")

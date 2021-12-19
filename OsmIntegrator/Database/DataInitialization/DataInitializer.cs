@@ -159,7 +159,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
     public void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
     {
-      List<DbConnections> connections = new List<DbConnections>();
+      List<DbConnection> connections = new List<DbConnection>();
 
       foreach (DbStop osmStop in osmStops)
       {
@@ -170,7 +170,7 @@ namespace OsmIntegrator.Database.DataInitialization
 
           if (gtfsStop != null)
           {
-            connections.Add(new DbConnections()
+            connections.Add(new DbConnection()
             {
               GtfsStop = gtfsStop,
               OsmStop = osmStop,

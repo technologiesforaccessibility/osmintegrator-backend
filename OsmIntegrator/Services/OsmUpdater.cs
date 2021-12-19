@@ -29,7 +29,7 @@ namespace OsmIntegrator.Services
 
     private void RemoveConnections(ApplicationDbContext dbContext)
     {
-      List<DbConnections> connectionsToDelete = dbContext.Connections
+      List<DbConnection> connectionsToDelete = dbContext.Connections
         .Include(x => x.OsmStop)
         .Include(x => x.GtfsStop)
         .Where(x => x.OsmStop.IsDeleted == true)

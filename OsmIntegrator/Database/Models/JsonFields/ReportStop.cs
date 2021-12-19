@@ -28,7 +28,7 @@ namespace OsmIntegrator.Database.Models.JsonFields
       string previousVersion = PreviousVersion is not null ? $" ({PreviousVersion.ToString()})" : "";
       string reverted = Reverted ? ", Reverted" : "";
 
-      sb.AppendLine($"    [STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}{reverted}");
+      sb.AppendLine($"[STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}{reverted}");
 
       Fields?.ForEach(x => sb.AppendLine(x.ToString()));
 
