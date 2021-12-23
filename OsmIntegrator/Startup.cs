@@ -19,10 +19,8 @@ using OsmIntegrator.AutoMapper;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.DomainUseCases;
 using OsmIntegrator.Errors;
 using OsmIntegrator.Interfaces;
-using OsmIntegrator.Presenters;
 using OsmIntegrator.Services;
 using OsmIntegrator.Tools;
 using OsmIntegrator.Validators;
@@ -50,8 +48,6 @@ namespace osmintegrator
         config.ErrorResponses = new ApiVersioningErrorResponseProvider();
       });
 
-      services.AddScoped(typeof(IUseCase<CreateChangeFileInputDto>), typeof(CreateChangeFile));
-      services.AddSingleton<CreateChangeFileWebPresenter>();
       services.AddSingleton<DataInitializer>();
       // ===== Add our DbContext ========
       services.AddDbContext<ApplicationDbContext>();

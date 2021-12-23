@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using AutoMapper;
@@ -17,46 +18,20 @@ using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.DomainUseCases
 {
-
-  public class CreateChangeFileInputDto
-  {
-    public Guid TileId { get; }
-    public CreateChangeFileInputDto(Guid tileId)
-    {
-      TileId = tileId;
-    }
-
-  }
-
-  public class CreateChangeFileResponse : AUseCaseResponse
-  {
-    public MemoryStream XmlStream { get; private set; }
-    public MemoryStream CommentStream { get; private set; }
-    public CreateChangeFileResponse(string message, MemoryStream xmlStream, MemoryStream commentStream,
-                                    IEnumerable<string> errors = null) : base(message, errors)
-    {
-      XmlStream = xmlStream;
-      CommentStream = commentStream;
-    }
-  }
-
-  public class CreateChangeFile : IUseCase<CreateChangeFileInputDto>
+  public class OsmExporter
   {
     public readonly ApplicationDbContext _dbContext;
     private readonly IMapper _mapper;
     private readonly IConfiguration _config;
-    public CreateChangeFile(ApplicationDbContext dbContext, IMapper mapper, IConfiguration config)
+    public OsmExporter(ApplicationDbContext dbContext, IMapper mapper, IConfiguration config)
     {
       _dbContext = dbContext;
       _mapper = mapper;
       _config = config;
 
     }
-    public async Task<AUseCaseResponse> Handle(CreateChangeFileInputDto useCaseData)
+    public async Task<string> GetOsmChangeFile(DbTile tile)
     {
-      DbTile tile = await _dbContext.Tiles
-        .FirstAsync(t => t.Id == useCaseData.TileId);
-
       List<DbStop> stops = await _dbContext.Stops
         .Where(x => x.TileId == tile.Id && x.StopType == StopType.Osm)
         .Include(x => x.OsmConnections
@@ -86,9 +61,7 @@ namespace OsmIntegrator.DomainUseCases
       {
         osmNodes.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
       };
-      return new CreateChangeFileResponse(commentStream: CreateCommentFile(tile.X, tile.Y, int.Parse(_config["ZoomLevel"])),
-                                          xmlStream: CreateModifyChangeFile(osmNodes),
-                                          message: "Osm change created");
+      return CreateChangeFile(osmNodes);
     }
     private Tools.Node CreateNode(DbStop osmStop, DbStop gtfsStop)
     {
@@ -138,28 +111,25 @@ namespace OsmIntegrator.DomainUseCases
       }
       return node;
     }
-    private MemoryStream CreateModifyChangeFile(OsmChange changeNode)
-    {
-      var stream = new MemoryStream();
-      XmlSerializer serializer = new XmlSerializer(typeof(Tools.OsmChange));
-      serializer.Serialize(stream, changeNode);
-      stream.Position = 0;
-      return stream;
 
-    }
-    private MemoryStream CreateCommentFile(long x, long y, int zoom)
+    private string CreateChangeFile(OsmChange changeNode)
     {
-      var stream = new MemoryStream();
-      StreamWriter writer = new StreamWriter(stream);
-      writer.WriteLine("This change is about update tags inside bus and tram stops.");
-      writer.WriteLine("Updated tags are: name, ref and local_ref");
-      writer.WriteLine("The change file is generated automatically by the soft called OsmIntegrator.");
-      writer.WriteLine("See the wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator");
-      writer.WriteLine("And the soft itself: https://osmintegrator.eu");
-      writer.WriteLine($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}");
-      writer.Flush();
-      stream.Position = 0;
-      return stream;
+      XmlSerializer serializer = new XmlSerializer(typeof(OsmChange));
+      using StringWriter textWriter = new StringWriter();
+      serializer.Serialize(textWriter, changeNode);
+      return textWriter.ToString();
+    }
+
+    public string GetComment(long x, long y, int zoom)
+    {
+      StringBuilder sb = new StringBuilder();
+      sb.AppendLine("This change is about update tags inside bus and tram stops.");
+      sb.AppendLine("Updated tags are: name, ref and local_ref");
+      sb.AppendLine("The change file is generated automatically by the soft called OsmIntegrator.");
+      sb.AppendLine("See the wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator");
+      sb.AppendLine("And the soft itself: https://osmintegrator.eu");
+      sb.AppendLine($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}");
+      return sb.ToString();
     }
   }
 }
