@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
-using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;

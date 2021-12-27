@@ -1,5 +1,5 @@
 using AutoMapper;
-using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Connections;
 using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper

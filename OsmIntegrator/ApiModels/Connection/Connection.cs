@@ -1,7 +1,8 @@
 using System;
+using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.Database.Models;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Connections
 {
   public class Connection
   {

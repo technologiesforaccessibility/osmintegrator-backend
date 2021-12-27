@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
-using OsmIntegrator.ApiModels;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
@@ -19,6 +18,7 @@ using OsmIntegrator.Tools;
 using System.Threading;
 using OsmIntegrator.Database.Models;
 using System.Linq;
+using OsmIntegrator.ApiModels.Stops;
 
 namespace OsmIntegrator.Controllers
 {
@@ -62,6 +62,13 @@ namespace OsmIntegrator.Controllers
             var result = await _dbContext.Stops.ToListAsync();
             return Ok(_mapper.Map<List<Stop>>(result));
         }
+
+        // [HttpPut("Move")]
+        // [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
+        // public async Task<Stop> Move()
+        // {
+          
+        // }
 
         [HttpPut("Update")]
         [Authorize(Roles = UserRoles.ADMIN)]

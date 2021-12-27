@@ -22,6 +22,7 @@ using OsmIntegrator.Roles;
 using OsmIntegrator.Tools;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.ApiModels.Reports;
+using OsmIntegrator.ApiModels.Stops;
 
 namespace OsmIntegrator.Controllers
 {

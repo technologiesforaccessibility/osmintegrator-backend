@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Validators;
 using OsmIntegrator.Enums;
 using Microsoft.Extensions.Localization;
+using OsmIntegrator.ApiModels.Connections;
 
 namespace OsmIntegrator.Controllers
 {

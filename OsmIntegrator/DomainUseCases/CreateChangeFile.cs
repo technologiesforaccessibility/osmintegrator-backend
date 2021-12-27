@@ -8,6 +8,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Connections;
+using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Enums;
