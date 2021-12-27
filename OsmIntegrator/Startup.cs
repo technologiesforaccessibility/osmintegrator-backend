@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 using OsmIntegrator.AutoMapper;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
@@ -58,7 +59,8 @@ namespace osmintegrator
       services.AddControllers()
           .AddNewtonsoftJson(options =>
           {
-            options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
           });
 
       // ===== Allow-Origin ========

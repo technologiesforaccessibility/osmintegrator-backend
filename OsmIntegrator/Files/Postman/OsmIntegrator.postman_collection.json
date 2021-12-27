@@ -822,6 +822,84 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "ChangePosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stopId\": \"3288811c-f134-4527-896d-6075e55a6893\",\n    \"lat\": 50.100107,\n    \"lon\": 19.016823\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Stop/ChangePosition",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ChangePosition"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/ResetPosition/3288811c-f134-4527-896d-6075e55a6893",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ResetPosition",
+								"3288811c-f134-4527-896d-6075e55a6893"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -947,7 +1025,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/071d1170-5805-42cf-81b6-f67fde07fb1e",
+							"raw": "{{host}}/api/Tile/GetStops/0a5020f2-5a29-49e9-ba66-f4a17b6ebade",
 							"host": [
 								"{{host}}"
 							],
@@ -955,7 +1033,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"071d1170-5805-42cf-81b6-f67fde07fb1e"
+								"0a5020f2-5a29-49e9-ba66-f4a17b6ebade"
 							]
 						}
 					},
