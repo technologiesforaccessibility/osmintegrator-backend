@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Stops
 {
   public class Stop
   {
@@ -12,6 +12,8 @@ namespace OsmIntegrator.ApiModels
     public string Name { get; set; }
     public double Lat { get; set; }
     public double Lon { get; set; }
+    public double? InitLat { get; set; }
+    public double? InitLon { get; set; }
     public string Number { get; set; }
     public List<Tag> Tags { get; set; }
     public StopType StopType { get; set; }

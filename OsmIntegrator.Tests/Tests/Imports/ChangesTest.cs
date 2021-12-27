@@ -24,7 +24,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task ChangesWhileAddingStopTest()
     {
-      await InitTest(nameof(AddStopTest));
+      await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       bool actual = await ContainsChanges(tile.Id.ToString());
@@ -41,7 +41,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task ChangesWhileRemoveingStopTest()
     {
-      await InitTest(nameof(RemoveStopTest));
+      await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       bool actual = await ContainsChanges(tile.Id.ToString());
@@ -58,7 +58,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task ChangesWhileModifyingStopTest()
     {
-      await InitTest(nameof(PositionTest));
+      await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       bool actual = await ContainsChanges(tile.Id.ToString());
@@ -75,7 +75,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task ChangesWhileModifyingStopTagsTest()
     {
-      await InitTest(nameof(TagsTest));
+      await InitTest(nameof(TagsTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       bool actual = await ContainsChanges(tile.Id.ToString());

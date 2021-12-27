@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Connections;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using System;

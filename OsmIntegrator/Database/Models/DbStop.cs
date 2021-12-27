@@ -25,6 +25,9 @@ namespace OsmIntegrator.Database.Models
     [Required]
     public double Lon { get; set; }
 
+    public double? InitLat { get; set; }
+    public double? InitLon { get; set; }
+
     public string Number { get; set; }
 
     [Column(TypeName = "jsonb")]
