@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,17 +7,20 @@ using System.Xml.Serialization;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
-using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tools;
 
-namespace OsmIntegrator.DomainUseCases
+namespace OsmIntegrator.Services
 {
-  public class OsmExporter
+  public interface IOsmExporter
+  {
+    Task<string> GetOsmChangeFile(DbTile tile);
+  }
+  
+  public class OsmExporter : IOsmExporter
   {
     public readonly ApplicationDbContext _dbContext;
     private readonly IMapper _mapper;
@@ -33,7 +35,7 @@ namespace OsmIntegrator.DomainUseCases
     public async Task<string> GetOsmChangeFile(DbTile tile)
     {
       List<DbStop> stops = await _dbContext.Stops
-        .Where(x => x.TileId == tile.Id && x.StopType == StopType.Osm)
+        .Where(x => x.TileId == tile.Id && x.StopType == StopType.Osm && x.OsmConnections.Count > 0)
         .Include(x => x.OsmConnections
           .OrderByDescending(y => y.CreatedAt)
           .Take(1))
@@ -44,49 +46,50 @@ namespace OsmIntegrator.DomainUseCases
       foreach (DbStop stop in stops)
       {
         DbConnection currentConnection = stop.OsmConnections.First();
-        if(currentConnection.OperationType == ConnectionOperationType.Added)
+        if (currentConnection.OperationType == ConnectionOperationType.Added)
           connections.Add(currentConnection);
       }
 
-      OsmChange osmNodes = new OsmChange()
+      OsmChange root = new OsmChange()
       {
         Generator = "osm integrator v0.1",
         Version = "0.6",
         Mod = new Modify()
         {
-          Nodes = new List<Tools.Node>()
+          Nodes = new List<Node>()
         }
       };
-      foreach (var connection in connections)
+      foreach (DbConnection connection in connections)
       {
-        osmNodes.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
+        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
       };
-      return CreateChangeFile(osmNodes);
+      return CreateChangeFile(root);
     }
-    private Tools.Node CreateNode(DbStop osmStop, DbStop gtfsStop)
+    private Node CreateNode(DbStop osmStop, DbStop gtfsStop)
     {
-      var node = new Tools.Node()
+      Node node = new()
       {
-        Tag = new List<Tools.Tag>(),
+        Tag = new List<Tag>(),
         Changeset = osmStop.Changeset,
         Version = osmStop.Version,
         Lat = osmStop.Lat.ToString(),
         Lon = osmStop.Lon.ToString(),
         Id = osmStop.StopId.ToString()
       };
+
       foreach (var apiTag in osmStop.Tags)
       {
-        if (apiTag.Key == Constants.NAME)
+        if (apiTag.Key == Constants.REF)
         {
-          node.Tag.Add(new Tools.Tag()
+          node.Tag.Add(new Tag()
           {
             K = apiTag.Key,
-            V = osmStop.StopId.ToString()
+            V = gtfsStop.StopId.ToString()
           });
         }
         else if (apiTag.Key == Constants.LOCAL_REF)
         {
-          node.Tag.Add(new Tools.Tag()
+          node.Tag.Add(new Tag()
           {
             K = apiTag.Key,
             V = osmStop.Number
@@ -94,7 +97,7 @@ namespace OsmIntegrator.DomainUseCases
         }
         else if (apiTag.Key == Constants.NAME)
         {
-          node.Tag.Add(new Tools.Tag()
+          node.Tag.Add(new Tag()
           {
             K = apiTag.Key,
             V = gtfsStop.Name
@@ -102,13 +105,39 @@ namespace OsmIntegrator.DomainUseCases
         }
         else
         {
-          node.Tag.Add(new Tools.Tag()
+          node.Tag.Add(new Tag()
           {
             K = apiTag.Key,
             V = apiTag.Value
           });
         }
       }
+
+      if (!node.Tag.Any(x => x.K.ToLower() == Constants.REF))
+      {
+        node.Tag.Add(new Tag()
+        {
+          K = Constants.REF,
+          V = gtfsStop.StopId.ToString()
+        });
+      }
+      if (!node.Tag.Any(x => x.K.ToLower() == Constants.LOCAL_REF))
+      {
+        node.Tag.Add(new Tag()
+        {
+          K = Constants.LOCAL_REF,
+          V = osmStop.Number
+        });
+      }
+      if (!node.Tag.Any(x => x.K.ToLower() == Constants.NAME))
+      {
+        node.Tag.Add(new Tag()
+        {
+          K = Constants.NAME,
+          V = gtfsStop.Name
+        });
+      }
+
       return node;
     }
 
