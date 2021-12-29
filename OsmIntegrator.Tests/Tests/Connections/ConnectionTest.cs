@@ -46,7 +46,7 @@ namespace OsmIntegrator.Tests.Tests.Connections
       await LoginAndAssignTokenAsync(_defaultLoginData);
       await AssignUsersToAllTiles("supervisor2", "supervisor1");
       List<Connection> connectionList = 
-        await _connectionHelper.GetConnectionListAsync(0);
+        await GetConnection(_connectionHelper.Tiles[0].Id.ToString());
       connectionList.Should().HaveCount(expected);
     }
 
@@ -58,11 +58,11 @@ namespace OsmIntegrator.Tests.Tests.Connections
       var connectionAction = _connectionHelper.CreateConnection(1, 4, 0);
 
       // Create a new connection
-      HttpResponseMessage response = await _connectionHelper.CreateConnection(connectionAction);
+      HttpResponseMessage response = await CreateConnection(connectionAction);
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
       // Get current connection quantity
-      List<Connection> connectionList = await _connectionHelper.GetConnectionListAsync(0);
+      List<Connection> connectionList = await GetConnection(_connectionHelper.Tiles[0].Id.ToString());
 
       Assert.Single(connectionList);
     }
@@ -87,7 +87,7 @@ namespace OsmIntegrator.Tests.Tests.Connections
       var connectionAction = _connectionHelper.CreateConnection(leftStopId, rightStopId, tileId);
 
       // Create a new connection
-      HttpResponseMessage response = await _connectionHelper.CreateConnection(connectionAction);
+      HttpResponseMessage response = await CreateConnection(connectionAction);
       response.StatusCode.Should().Be(httpStatusCode);
     }
 
@@ -99,10 +99,10 @@ namespace OsmIntegrator.Tests.Tests.Connections
       var newConnectionAction = _connectionHelper.CreateConnection(1, 4, 0);
 
       // Create a new connection
-      HttpResponseMessage response = await _connectionHelper.CreateConnection(newConnectionAction);
+      HttpResponseMessage response = await CreateConnection(newConnectionAction);
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-      List<Connection> connectionList = await _connectionHelper.GetConnectionListAsync(0);
+      List<Connection> connectionList = await GetConnection(_connectionHelper.Tiles[0].Id.ToString());
       Assert.Single(connectionList);
 
       // Delete a new created connection
@@ -111,11 +111,11 @@ namespace OsmIntegrator.Tests.Tests.Connections
         OsmStopId = newConnectionAction.OsmStopId,
         GtfsStopId = newConnectionAction.GtfsStopId,
       };
-      response = await _connectionHelper.DeleteConnection(connectionAction);
+      response = await DeleteConnection(connectionAction);
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
       // Get current connection quantity
-      connectionList = await _connectionHelper.GetConnectionListAsync(0);
+      connectionList = await GetConnection(_connectionHelper.Tiles[0].Id.ToString());
 
       Assert.Empty(connectionList);
     }
