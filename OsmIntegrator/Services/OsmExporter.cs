@@ -18,8 +18,9 @@ namespace OsmIntegrator.Services
   public interface IOsmExporter
   {
     Task<string> GetOsmChangeFile(DbTile tile);
+    string GetComment(long x, long y, int zoom);
   }
-  
+
   public class OsmExporter : IOsmExporter
   {
     public readonly ApplicationDbContext _dbContext;
@@ -79,66 +80,30 @@ namespace OsmIntegrator.Services
 
       foreach (var apiTag in osmStop.Tags)
       {
-        if (apiTag.Key == Constants.REF)
+        node.Tag.Add(new Tag()
         {
-          node.Tag.Add(new Tag()
-          {
-            K = apiTag.Key,
-            V = gtfsStop.StopId.ToString()
-          });
-        }
-        else if (apiTag.Key == Constants.LOCAL_REF)
-        {
-          node.Tag.Add(new Tag()
-          {
-            K = apiTag.Key,
-            V = osmStop.Number
-          });
-        }
-        else if (apiTag.Key == Constants.NAME)
-        {
-          node.Tag.Add(new Tag()
-          {
-            K = apiTag.Key,
-            V = gtfsStop.Name
-          });
-        }
-        else
-        {
-          node.Tag.Add(new Tag()
-          {
-            K = apiTag.Key,
-            V = apiTag.Value
-          });
-        }
+          K = apiTag.Key,
+          V = apiTag.Value
+        });
       }
 
-      if (!node.Tag.Any(x => x.K.ToLower() == Constants.REF))
-      {
-        node.Tag.Add(new Tag()
-        {
-          K = Constants.REF,
-          V = gtfsStop.StopId.ToString()
-        });
-      }
-      if (!node.Tag.Any(x => x.K.ToLower() == Constants.LOCAL_REF))
-      {
-        node.Tag.Add(new Tag()
-        {
-          K = Constants.LOCAL_REF,
-          V = osmStop.Number
-        });
-      }
-      if (!node.Tag.Any(x => x.K.ToLower() == Constants.NAME))
-      {
-        node.Tag.Add(new Tag()
-        {
-          K = Constants.NAME,
-          V = gtfsStop.Name
-        });
-      }
+      UpdateTag(node.Tag, Constants.REF, gtfsStop.StopId.ToString());
+      UpdateTag(node.Tag, Constants.LOCAL_REF, gtfsStop.Number);
+      UpdateTag(node.Tag, Constants.NAME, gtfsStop.Name);
 
       return node;
+    }
+
+    private void UpdateTag(List<Tag> tags, string key, string value)
+    {
+      Tag tag = tags.FirstOrDefault(x => x.K.ToLower() == key);
+      if (tag == null)
+      {
+        tags.Add(new Tag { K = Constants.REF, V = value });
+        return;
+      }
+
+      tag.V = value;
     }
 
     private string CreateChangeFile(OsmChange changeNode)
@@ -152,12 +117,10 @@ namespace OsmIntegrator.Services
     public string GetComment(long x, long y, int zoom)
     {
       StringBuilder sb = new StringBuilder();
-      sb.AppendLine("This change is about update tags inside bus and tram stops.");
-      sb.AppendLine("Updated tags are: name, ref and local_ref");
-      sb.AppendLine("The change file is generated automatically by the soft called OsmIntegrator.");
-      sb.AppendLine("See the wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator");
-      sb.AppendLine("And the soft itself: https://osmintegrator.eu");
-      sb.AppendLine($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}");
+      sb.Append("This change is about update name, ref and local_ref tags inside bus and tram stops.");
+      sb.Append($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}");
+      sb.Append("Wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator");
+      sb.Append("Project page: https://osmintegrator.eu");
       return sb.ToString();
     }
   }

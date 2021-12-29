@@ -43,7 +43,6 @@ namespace OsmIntegrator.Controllers
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
     private readonly IOverpass _overpass;
-
     readonly IOsmUpdater _osmUpdater;
 
     public TileController(
@@ -381,14 +380,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.EDITOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.EDITOR).First()));
       }
 
       if (updateTileInput.SupervisorId != null && currentTile.SupervisorApproved == null)
@@ -401,9 +394,11 @@ namespace OsmIntegrator.Controllers
           throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
         }
 
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
+        if (_dbContext.TileUsers.Where(
+          x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
         {
-          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
+          throw new BadHttpRequestException(
+            _localizer["Unable to assign. User already assigned to this tile"]);
         }
 
         _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == supervisorRole));
@@ -421,14 +416,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.SUPERVISOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.SUPERVISOR).First()));
       }
 
       _dbContext.SaveChanges();
@@ -542,11 +531,6 @@ rozwiazaniadlaniewidomych.org
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
       ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
-
-      // if (Boolean.Parse(_configuration["SendEmails"]))
-      // {
-      //   SendDeletedConnectionsEmail(tile, connectionsToDelete);
-      // }
 
       return Ok(new Report { Value = tileReport.ToString() });
     }
