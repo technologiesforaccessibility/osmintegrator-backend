@@ -14,9 +14,9 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
-using OsmIntegrator.ApiModels;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.ApiModels.Conversation;
 
 namespace OsmIntegrator.Controllers
 {

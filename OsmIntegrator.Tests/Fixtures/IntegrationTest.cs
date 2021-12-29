@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -8,6 +9,8 @@ using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Interfaces;
+using OsmIntegrator.Tests.Mocks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +18,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -23,20 +25,38 @@ namespace OsmIntegrator.Tests.Fixtures
 {
   public abstract class IntegrationTest : IClassFixture<ApiWebApplicationFactory>
   {
+    protected const int RIGHT_TILE_X = 2264;
+    protected const int RIGHT_TILE_Y = 1385;
+
+    protected const long OSM_STOP_ID_1 = 1831944331; // Brynów Orkana (2)
+    protected const long OSM_STOP_ID_2 = 1905039171; // Brynów Orkana (1)
+    protected const long OSM_STOP_ID_3 = 1584594015; // Brynów Dworska
+    protected const long GTFS_STOP_ID_1 = 159541; // Stara Ligota Rolna 1
+    protected const long GTFS_STOP_ID_2 = 159542; // Stara Ligota Rolna 2
+    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana
+
+    protected string TestDataFolder {get; set; }
+    protected readonly IOverpass _overpass;
+    protected readonly OverpassMock _overpassMock;
+
     protected readonly ApiWebApplicationFactory _factory;
     protected HttpClient _client;
     protected readonly IConfiguration _configuration;
-
     protected ApplicationDbContext _dbContext;
     protected DataInitializer _dataInitializer;
 
     public IntegrationTest(ApiWebApplicationFactory factory)
     {
+      // Host
       _factory = factory;
       _client = _factory.CreateClient();
       _dbContext = _factory.Services.GetService<ApplicationDbContext>();
       _dataInitializer = _factory.Services.GetService<DataInitializer>();
       _configuration = _factory.Services.GetService<IConfiguration>();
+
+      // Overpass
+      _overpass = _factory.Services.GetService<IOverpass>();
+      _overpassMock = (OverpassMock)_overpass;
     }
 
     protected void TurnOffDbTracking()
@@ -49,6 +69,49 @@ namespace OsmIntegrator.Tests.Fixtures
     {
       _dbContext.ChangeTracker.QueryTrackingBehavior =
         Microsoft.EntityFrameworkCore.QueryTrackingBehavior.TrackAll;
+    }
+
+    protected void InitializeDb(string testName)
+    {
+      List<DbStop> gtfsStops = null;
+      string gtfsStopsPath = $"{TestDataFolder}{testName}/GtfsStopsInit.txt";
+      if (File.Exists(gtfsStopsPath))
+      {
+        gtfsStops = _dataInitializer.GetGtfsStopsList(gtfsStopsPath);
+      }
+
+      List<DbStop> osmStops = null;
+      string osmStopPath = $"{TestDataFolder}{testName}/OsmStopsInit.xml";
+      if (File.Exists(osmStopPath))
+      {
+        osmStops =
+          _dataInitializer.GetOsmStopsList(osmStopPath).ToList();
+      }
+
+      using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
+      _dataInitializer.ClearDatabase(_dbContext);
+      _dataInitializer.InitializeUsers(_dbContext);
+      _dataInitializer.InitializeStopsAndTiles(_dbContext, gtfsStops, osmStops);
+      transaction.Commit();
+    }
+
+    protected async Task InitTest(
+      string testName,
+      string editorName,
+      string supervisorName)
+    {
+      InitializeDb(testName);
+
+      await LoginAndAssignTokenAsync(
+        new LoginData
+        {
+          Email = editorName + "@abcd.pl",
+          Password = editorName + "#12345678"
+        });
+
+      await AssignUsersToAllTiles(editorName, supervisorName);
+
+      _overpassMock.OsmFileName = $"{TestDataFolder}{testName}/OsmStopsNew.xml";
     }
 
     /// <summary>
@@ -86,6 +149,11 @@ namespace OsmIntegrator.Tests.Fixtures
       }
     }
 
+    /// <summary>
+    /// The recursive objects comparer
+    /// </summary>
+    /// <param name="ignoredFields">List with fields or properties that shall be ignored.</param>
+    /// <returns>If objects are not the same it will return list of differences otherwise empty list.</returns>
     protected List<Difference> Compare<T>(T expected, T actual,
       List<string> ignoredFields = null)
     {

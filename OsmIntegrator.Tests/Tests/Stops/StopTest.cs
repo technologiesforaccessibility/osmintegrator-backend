@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
-using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;
@@ -14,7 +14,7 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Stops
 {
-  public class StopTest : IntegrationTest
+  public class StopTest : StopsTestBase
   {
     private LoginData _defaultLoginData = new LoginData
     {
@@ -40,11 +40,7 @@ namespace OsmIntegrator.Tests.Tests.Stops
     public async Task GetAllTestAsync()
     {
       await LoginAndAssignTokenAsync(_defaultLoginData);
-      HttpResponseMessage response = await _client.GetAsync("/api/Stop");
-      response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-      string jsonResponse = await response.Content.ReadAsStringAsync();
-      List<Stop> list = JsonConvert.DeserializeObject<Stop[]>(jsonResponse).ToList();
+      List<Stop> list = await GetAllStops();
       int actual = list.Count;
       int expected = 10;
       Assert.Equal(expected, actual);

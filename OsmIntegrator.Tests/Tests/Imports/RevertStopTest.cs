@@ -24,23 +24,23 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task RevertOnlyTest()
     {
-      await InitTest(nameof(RevertStopTest));
+      await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       await UpdateTileAsync(tile.Id.ToString());
 
-      _overpassMock.OsmFileName = $"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/OsmStopsInit.xml";
+      _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsInit.xml";
 
       Report report = await UpdateTileAsync(tile.Id.ToString());
       string actualTxtReport = report.Value;
       string expectedTxtReport =
-        File.ReadAllText($"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/Report.txt");
+        File.ReadAllText($"{TestDataFolder}{nameof(RevertStopTest)}/Report.txt");
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
       TurnOffDbTracking();
 
-      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.Count());
       List<DbChangeReport> actualChangeReports =
@@ -48,7 +48,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       ReportTile actualReportTile = actualChangeReports.Last().TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/ReportTile.json");
+        Deserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
@@ -59,24 +59,24 @@ namespace OsmIntegrator.Tests.Tests.Imports
     [Fact]
     public async Task RevertAndModifyTest()
     {
-      await InitTest(nameof(RevertStopTest));
+      await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       await UpdateTileAsync(tile.Id.ToString());
 
-      _overpassMock.OsmFileName = $"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/OsmStopsNew_Modify.xml";
+      _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsNew_Modify.xml";
 
       Report report = await UpdateTileAsync(tile.Id.ToString());
       File.WriteAllText("Report.txt", report.Value);
       string actualTxtReport = report.Value;
       string expectedTxtReport =
-        File.ReadAllText($"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/Report_Modify.txt");
+        File.ReadAllText($"{TestDataFolder}{nameof(RevertStopTest)}/Report_Modify.txt");
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
       TurnOffDbTracking();
 
-      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.Count());
       List<DbChangeReport> actualChangeReports =
@@ -84,7 +84,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       ReportTile actualReportTile = actualChangeReports.Last().TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"{OSM_UPDATE_FOLDER}{nameof(RevertStopTest)}/ReportTile_Modify.json");
+        Deserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile_Modify.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));

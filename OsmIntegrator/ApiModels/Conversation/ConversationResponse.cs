@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Conversation
 {
   public class ConversationResponse
   {
