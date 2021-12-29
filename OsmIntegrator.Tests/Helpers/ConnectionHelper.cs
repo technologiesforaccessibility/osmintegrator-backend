@@ -20,12 +20,12 @@ namespace OsmIntegrator.Tests.Helpers
 
     private readonly Dictionary<int, int> _stops = new Dictionary<int, int>()
     {
-      // Stop id / Stop type
-      { 159541, 1 }, // Tile: 1
+      // Stop id / Stop type (1 = GTFS, 0 = OSM)
+      { 159541, 1 }, // Tile: 1 = LEFT
       { 1831941739, 0}, // Tile: 1
       { 159542, 1 }, // Tile: 1
       { 1905028012, 0 }, // Tile: 1
-      { 159077, 1 }, // Tile: 2
+      { 159077, 1 }, // Tile: 2 = RIGHT
       { 1831944331, 0 }, // Tile: 2
       { 1905039171, 0 }, // Tile: 2
       { 159076, 1 }, // Tile: 2

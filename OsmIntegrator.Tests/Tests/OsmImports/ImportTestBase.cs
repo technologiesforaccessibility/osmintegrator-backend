@@ -1,9 +1,4 @@
 using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Newtonsoft.Json;
-using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;
 

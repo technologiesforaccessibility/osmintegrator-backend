@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -18,7 +16,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -62,6 +59,8 @@ namespace OsmIntegrator.Tests.Fixtures
       _overpass = _factory.Services.GetService<IOverpass>();
       _overpassMock = (OverpassMock)_overpass;
     }
+
+    #region DB Initialization
 
     protected void TurnOffDbTracking()
     {
@@ -153,29 +152,7 @@ namespace OsmIntegrator.Tests.Fixtures
       }
     }
 
-    /// <summary>
-    /// The recursive objects comparer
-    /// </summary>
-    /// <param name="ignoredFields">List with fields or properties that shall be ignored.</param>
-    /// <returns>If objects are not the same it will return list of differences otherwise empty list.</returns>
-    protected List<Difference> Compare<T>(T expected, T actual,
-      List<string> ignoredFields = null)
-    {
-      var comparer = new ObjectsComparer.Comparer<T>();
-
-      ignoredFields ??= new List<string>();
-      ignoredFields.ForEach(x => comparer.IgnoreMember(x));
-
-      IEnumerable<Difference> differences;
-      comparer.Compare(expected, actual, out differences);
-      return differences.ToList();
-    }
-
-    protected T Deserialize<T>(string fileName)
-    {
-      string file = File.ReadAllText(fileName);
-      return JsonConvert.DeserializeObject<T>(file);
-    }
+    #endregion
 
     #region API Client
 
@@ -224,6 +201,34 @@ namespace OsmIntegrator.Tests.Fixtures
       var response = await _client.GetAsync($"/api/Tile/ContainsChanges/{tileId}");
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return bool.Parse(jsonResponse);
+    }
+
+    #endregion
+
+    #region Other
+
+    /// <summary>
+    /// The recursive objects comparer
+    /// </summary>
+    /// <param name="ignoredFields">List with fields or properties that shall be ignored.</param>
+    /// <returns>If objects are not the same it will return list of differences otherwise empty list.</returns>
+    protected List<Difference> Compare<T>(T expected, T actual,
+      List<string> ignoredFields = null)
+    {
+      var comparer = new ObjectsComparer.Comparer<T>();
+
+      ignoredFields ??= new List<string>();
+      ignoredFields.ForEach(x => comparer.IgnoreMember(x));
+
+      IEnumerable<Difference> differences;
+      comparer.Compare(expected, actual, out differences);
+      return differences.ToList();
+    }
+
+    protected T Deserialize<T>(string fileName)
+    {
+      string file = File.ReadAllText(fileName);
+      return JsonConvert.DeserializeObject<T>(file);
     }
 
     #endregion
