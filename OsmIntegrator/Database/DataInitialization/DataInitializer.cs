@@ -74,6 +74,9 @@ namespace OsmIntegrator.Database.DataInitialization
 
       db.Stops.AddRange(allStops);
       db.Tiles.AddRange(tiles);
+
+      InitializeOsmConnections(db, gtfsStops, osmStops);
+
       db.SaveChanges();
     }
 
@@ -159,6 +162,8 @@ namespace OsmIntegrator.Database.DataInitialization
 
     public void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
     {
+      if(gtfsStops == null || osmStops == null) return;
+
       List<DbConnection> connections = new List<DbConnection>();
 
       foreach (DbStop osmStop in osmStops)

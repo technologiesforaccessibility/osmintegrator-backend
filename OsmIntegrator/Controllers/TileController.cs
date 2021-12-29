@@ -548,43 +548,6 @@ rozwiazaniadlaniewidomych.org
       return Ok(containsChanges);
     }
 
-
-    private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnection> connections)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      foreach (DbTileUser user in tile.TileUsers)
-      {
-        message.To.Add(MailboxAddress.Parse(user.User.Email));
-      }
-      message.Subject = _emailService.BuildSubject(_localizer["Connections has been deleted"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]},
-{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}
-X: {tile.X}, Y: {tile.Y}
-{String.Join(Environment.NewLine, connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]},</h3>
-<p>{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}</p><br/>
-<p>X: {tile.X}, Y: {tile.Y}</p>
-<p>{String.Join("<br/>", connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}</p>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      Task task = Task.Run(() => _emailService.SendEmailAsync(message));
-    }
-
     private async Task<DbTile> GetTileAsync(string tileId)
     {
       DbTile currentTile = await _dbContext.Tiles

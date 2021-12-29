@@ -8,7 +8,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests.Imports
+namespace OsmIntegrator.Tests.Tests.OsmImports
 {
   public class PositionTest : ImportTestBase
   {

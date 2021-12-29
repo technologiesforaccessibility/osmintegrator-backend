@@ -1,24 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Database.Models.JsonFields;
-using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tests.Fixtures;
-using OsmIntegrator.Tests.Mocks;
-using Xunit;
 
-namespace OsmIntegrator.Tests.Tests.Imports
+namespace OsmIntegrator.Tests.Tests.OsmImports
 {
   public class ImportTestBase : IntegrationTest
   {
@@ -29,7 +18,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
     
     public ImportTestBase(ApiWebApplicationFactory factory) : base(factory)
     {
-      TestDataFolder = $"Data/Imports/";
+      TestDataFolder = $"Data/OsmImports/";
     }
 
     protected async Task<Report> UpdateTileAsync(string tileId)

@@ -62,7 +62,7 @@ namespace OsmIntegrator.Controllers
           return Ok(osmChangeFile);
         }
 
-        [HttpPost("{tileId")]
+        [HttpPost("{tileId}")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult> Export(string tileId, OsmExportInput input)
         {
