@@ -1860,7 +1860,7 @@
 								}
 							]
 						},
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -1872,14 +1872,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Connections/",
+							"raw": "{{host}}/api/Connections/Remove",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								""
+								"Remove"
 							]
 						}
 					},
@@ -2460,6 +2460,90 @@
 					}
 				]
 			}
+		},
+		{
+			"name": "OsmExport",
+			"item": [
+				{
+					"name": "GetChangeFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/OsmExport/GetChangeFile/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"GetChangeFile",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Email\": \"supervisor1@abcd.pl\",\n    \"Password\": \"12345678\",\n    \"Comment\": \"Comment test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/OsmExport/Export/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"Export",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Swagger",
