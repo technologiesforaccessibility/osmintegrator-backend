@@ -150,7 +150,7 @@ namespace OsmIntegrator.Controllers
       return Ok(_localizer["Connection successfully added!"]);
     }
 
-    [HttpDelete()]
+    [HttpPost("Remove")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
     public async Task<IActionResult> Remove([FromBody] ConnectionAction connectionAction)
     {

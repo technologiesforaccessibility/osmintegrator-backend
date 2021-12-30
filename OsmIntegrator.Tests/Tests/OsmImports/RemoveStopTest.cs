@@ -10,9 +10,10 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
+using OsmIntegrator.Tools;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests.Imports
+namespace OsmIntegrator.Tests.Tests.OsmImports
 {
   public class RemoveStopTest : ImportTestBase
   {
@@ -27,7 +28,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      Report report = await UpdateTileAsync(tile.Id.ToString());
+      Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
       string actualTxtReport = report.Value;
       string expectedTxtReport =
@@ -42,7 +43,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");
+        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
@@ -56,8 +57,8 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      Report report = await UpdateTileAsync(tile.Id.ToString());
-      report = await UpdateTileAsync(tile.Id.ToString());
+      Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
+      report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
       Assert.Contains("No changes", report.Value);
     }

@@ -10,9 +10,10 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
+using OsmIntegrator.Tools;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests.Imports
+namespace OsmIntegrator.Tests.Tests.OsmImports
 {
   public class RevertStopTest : ImportTestBase
   {
@@ -27,11 +28,11 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
       _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsInit.xml";
 
-      Report report = await UpdateTileAsync(tile.Id.ToString());
+      Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
       string actualTxtReport = report.Value;
       string expectedTxtReport =
         File.ReadAllText($"{TestDataFolder}{nameof(RevertStopTest)}/Report.txt");
@@ -48,7 +49,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       ReportTile actualReportTile = actualChangeReports.Last().TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
+        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
@@ -62,11 +63,11 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
       _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsNew_Modify.xml";
 
-      Report report = await UpdateTileAsync(tile.Id.ToString());
+      Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
       File.WriteAllText("Report.txt", report.Value);
       string actualTxtReport = report.Value;
       string expectedTxtReport =
@@ -84,7 +85,7 @@ namespace OsmIntegrator.Tests.Tests.Imports
       ReportTile actualReportTile = actualChangeReports.Last().TileReport;
 
       ReportTile expectedReportTile =
-        Deserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile_Modify.json");
+        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile_Modify.json");
 
       Assert.Empty(Compare<ReportTile>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));

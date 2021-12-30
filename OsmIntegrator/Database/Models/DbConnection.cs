@@ -42,30 +42,4 @@ namespace OsmIntegrator.Database.Models
 
     public ApplicationUser ApprovedBy { get; set; }
   }
-
-  public class DbConnectionComparer : IEqualityComparer<DbConnection>
-  {
-    /* 
-        This lives here temporairly for simplicity. Dependency rule broken on purpose.
-    */
-    public bool Equals(DbConnection x, DbConnection y)
-    {
-      if (Object.ReferenceEquals(x, y)) return true;
-      if (Object.ReferenceEquals(x, null) || Object.ReferenceEquals(y, null))
-        return false;
-
-      return x.OsmStopId == y.OsmStopId && x.GtfsStopId == y.GtfsStopId;
-
-    }
-
-    public int GetHashCode([DisallowNull] DbConnection obj)
-    {
-      if (Object.ReferenceEquals(obj, null)) return 0;
-
-      int hashProductName = obj.OsmStopId.GetHashCode();
-      int hashProductCode = obj.GtfsStopId.GetHashCode();
-
-      return hashProductName ^ hashProductCode;
-    }
-  }
 }

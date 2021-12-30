@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using ObjectsComparer;
 using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
+using OsmIntegrator.ApiModels.Connections;
+using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
@@ -33,9 +34,9 @@ namespace OsmIntegrator.Tests.Fixtures
     protected const long OSM_STOP_ID_3 = 1584594015; // Brynów Dworska
     protected const long GTFS_STOP_ID_1 = 159541; // Stara Ligota Rolna 1
     protected const long GTFS_STOP_ID_2 = 159542; // Stara Ligota Rolna 2
-    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana
+    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana 2
 
-    protected string TestDataFolder {get; set; }
+    protected string TestDataFolder { get; set; }
     protected readonly IOverpass _overpass;
     protected readonly OverpassMock _overpassMock;
 
@@ -58,6 +59,8 @@ namespace OsmIntegrator.Tests.Fixtures
       _overpass = _factory.Services.GetService<IOverpass>();
       _overpassMock = (OverpassMock)_overpass;
     }
+
+    #region DB Initialization
 
     protected void TurnOffDbTracking()
     {
@@ -149,6 +152,65 @@ namespace OsmIntegrator.Tests.Fixtures
       }
     }
 
+    #endregion
+
+    #region API Client
+
+    public async Task<OsmChangeOutput> Get_OsmExport_GetChangeFile(string tileId)
+    {
+      HttpResponseMessage response = await _client.GetAsync($"/api/OsmExport/GetChangeFile/{tileId}");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<OsmChangeOutput>(jsonResponse);
+    }
+
+    public async Task<List<Tile>> Get_Tile_GetTiles()
+    {
+      HttpResponseMessage response = await _client.GetAsync("/api/Tile/GetTiles");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Tile[]>(jsonResponse).ToList();
+    }
+
+    public async Task<List<Connection>> Get_Connections(string tileId)
+    {
+      HttpResponseMessage response = await _client.GetAsync($"/api/Connections/{tileId}");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Connection[]>(jsonResponse).ToList();
+    }
+
+    public async Task<HttpResponseMessage> Put_Connections(NewConnectionAction connectionAction)
+    {
+      string jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
+      StringContent content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
+      HttpResponseMessage response = await _client.PutAsync("/api/Connections", content);
+      return response;
+    }
+
+    public async Task<HttpResponseMessage> Post_Connections_Remove(ConnectionAction connectionAction)
+    {
+      string jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
+      StringContent content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
+      HttpResponseMessage response = await _client.PostAsync("/api/Connections/Remove", content);
+      return response;
+    }
+
+    public async Task<Report> Put_Tile_UpdateStops(string tileId)
+    {
+      HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateStops/{tileId}", null);
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Report>(jsonResponse);
+    }
+
+    public async Task<bool> Get_Tile_ContainsChanges(string tileId)
+    {
+      HttpResponseMessage response = await _client.GetAsync($"/api/Tile/ContainsChanges/{tileId}");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return bool.Parse(jsonResponse);
+    }
+
+    #endregion
+
+    #region Other
+
     /// <summary>
     /// The recursive objects comparer
     /// </summary>
@@ -167,10 +229,6 @@ namespace OsmIntegrator.Tests.Fixtures
       return differences.ToList();
     }
 
-    protected T Deserialize<T>(string fileName)
-    {
-      string file = File.ReadAllText(fileName);
-      return JsonConvert.DeserializeObject<T>(file);
-    }
+    #endregion
   }
 }

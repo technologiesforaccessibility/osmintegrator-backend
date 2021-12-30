@@ -12,7 +12,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using Xunit;
 
-namespace OsmIntegrator.Tests.Tests.Imports
+namespace OsmIntegrator.Tests.Tests.OsmImports
 {
   public class ChangesTest : ImportTestBase
   {
@@ -27,13 +27,13 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await ContainsChanges(tile.Id.ToString());
+      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
 
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
-      actual = await ContainsChanges(tile.Id.ToString());
+      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.False(actual);
     }
@@ -44,13 +44,13 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await ContainsChanges(tile.Id.ToString());
+      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
 
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
-      actual = await ContainsChanges(tile.Id.ToString());
+      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.False(actual);
     }
@@ -61,13 +61,13 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await ContainsChanges(tile.Id.ToString());
+      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
 
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
-      actual = await ContainsChanges(tile.Id.ToString());
+      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.False(actual);
     }
@@ -78,13 +78,13 @@ namespace OsmIntegrator.Tests.Tests.Imports
       await InitTest(nameof(TagsTest), "supervisor2", "supervisor1");
 
       DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await ContainsChanges(tile.Id.ToString());
+      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
 
-      await UpdateTileAsync(tile.Id.ToString());
+      await Put_Tile_UpdateStops(tile.Id.ToString());
 
-      actual = await ContainsChanges(tile.Id.ToString());
+      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.False(actual);
     }

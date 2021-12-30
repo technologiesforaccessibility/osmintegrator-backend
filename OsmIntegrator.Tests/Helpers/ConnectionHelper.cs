@@ -20,12 +20,12 @@ namespace OsmIntegrator.Tests.Helpers
 
     private readonly Dictionary<int, int> _stops = new Dictionary<int, int>()
     {
-      // Stop id / Stop type
-      { 159541, 1 }, // Tile: 1
+      // Stop id / Stop type (1 = GTFS, 0 = OSM)
+      { 159541, 1 }, // Tile: 1 = LEFT
       { 1831941739, 0}, // Tile: 1
       { 159542, 1 }, // Tile: 1
       { 1905028012, 0 }, // Tile: 1
-      { 159077, 1 }, // Tile: 2
+      { 159077, 1 }, // Tile: 2 = RIGHT
       { 1831944331, 0 }, // Tile: 2
       { 1905039171, 0 }, // Tile: 2
       { 159076, 1 }, // Tile: 2
@@ -73,47 +73,6 @@ namespace OsmIntegrator.Tests.Helpers
       };
 
       return connectionAction;
-    }
-
-    private async Task<List<Tile>> GetTileListAsync()
-    {
-      var response = await _client.GetAsync("/api/Tile/GetTiles");
-      var jsonResponse = await response.Content.ReadAsStringAsync();
-      var list = JsonConvert.DeserializeObject<Tile[]>(jsonResponse).ToList();
-      return list;
-    }
-
-    public async Task<List<Connection>> GetConnectionListAsync(int tileIndex)
-    {
-      var response = await _client.GetAsync($"/api/Connections/{Tiles[tileIndex].Id}");
-      var jsonResponse = await response.Content.ReadAsStringAsync();
-      var list = JsonConvert.DeserializeObject<Connection[]>(jsonResponse).ToList();
-
-      return list;
-    }
-
-    public async Task<HttpResponseMessage> CreateConnection(NewConnectionAction connectionAction)
-    {
-      var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
-      var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
-      var response = await _client.PutAsync("/api/Connections", content);
-      return response;
-    }
-
-    public async Task<HttpResponseMessage> DeleteConnection(ConnectionAction connectionAction)
-    {
-      var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
-      // var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
-      // return await _client.DeleteAsync("/api/Connections");
-
-      HttpRequestMessage request = new HttpRequestMessage
-      {
-        Content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json"),
-        Method = HttpMethod.Delete,
-        RequestUri = new Uri($"{_client.BaseAddress}api/Connections")
-      };
-
-      return await _client.SendAsync(request);
     }
   }
 }

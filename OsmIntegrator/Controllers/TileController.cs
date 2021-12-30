@@ -43,7 +43,6 @@ namespace OsmIntegrator.Controllers
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
     private readonly IOverpass _overpass;
-
     readonly IOsmUpdater _osmUpdater;
 
     public TileController(
@@ -381,14 +380,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.EDITOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.EDITOR).First()));
       }
 
       if (updateTileInput.SupervisorId != null && currentTile.SupervisorApproved == null)
@@ -401,9 +394,11 @@ namespace OsmIntegrator.Controllers
           throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
         }
 
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
+        if (_dbContext.TileUsers.Where(
+          x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
         {
-          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
+          throw new BadHttpRequestException(
+            _localizer["Unable to assign. User already assigned to this tile"]);
         }
 
         _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == supervisorRole));
@@ -421,14 +416,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.SUPERVISOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.SUPERVISOR).First()));
       }
 
       _dbContext.SaveChanges();
@@ -543,11 +532,6 @@ rozwiazaniadlaniewidomych.org
 
       ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
 
-      // if (Boolean.Parse(_configuration["SendEmails"]))
-      // {
-      //   SendDeletedConnectionsEmail(tile, connectionsToDelete);
-      // }
-
       return Ok(new Report { Value = tileReport.ToString() });
     }
 
@@ -562,43 +546,6 @@ rozwiazaniadlaniewidomych.org
       bool containsChanges = _osmUpdater.ContainsChanges(tile, osm);
 
       return Ok(containsChanges);
-    }
-
-
-    private void SendDeletedConnectionsEmail(DbTile tile, List<DbConnection> connections)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      foreach (DbTileUser user in tile.TileUsers)
-      {
-        message.To.Add(MailboxAddress.Parse(user.User.Email));
-      }
-      message.Subject = _emailService.BuildSubject(_localizer["Connections has been deleted"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]},
-{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}
-X: {tile.X}, Y: {tile.Y}
-{String.Join(Environment.NewLine, connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]},</h3>
-<p>{_localizer["Due to deleting of some stops in OSM systems, connections on your tile has beed deleted"]}</p><br/>
-<p>X: {tile.X}, Y: {tile.Y}</p>
-<p>{String.Join("<br/>", connections.Select(c => c.OsmStop.Name + ", " + c.GtfsStop.Name))}</p>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      Task task = Task.Run(() => _emailService.SendEmailAsync(message));
     }
 
     private async Task<DbTile> GetTileAsync(string tileId)
