@@ -6,7 +6,6 @@
   <node id="1831944331" lat="50.2313802" lon="18.9886732" version="4" timestamp="2020-03-22T19:54:58Z" changeset="82493028" uid="334393" user="olo81">
     <tag k="bus" v="yes"/>
     <tag k="highway" v="bus_stop"/>
-    <tag k="name" v="Brynów Orkana"/>
     <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
     <tag k="public_transport" v="stop_position"/>
   </node>

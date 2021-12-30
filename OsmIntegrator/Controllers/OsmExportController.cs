@@ -49,7 +49,7 @@ namespace OsmIntegrator.Controllers
         }
 
         [HttpGet("{tileId}")]
-        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
         public async Task<ActionResult<OsmChangeOutput>> GetChangeFile(string tileId)
         {
           DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
@@ -61,12 +61,12 @@ namespace OsmIntegrator.Controllers
             Comment = _osmExporter.GetComment(tile.X, tile.Y, int.Parse(_configuration["ZoomLevel"]))
           };
 
-          return Ok(osmChangeFile);
+          return Ok(output);
         }
 
         [HttpPost("{tileId}")]
-        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
-        public async Task<ActionResult> Export(string tileId, OsmExportInput input)
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
+        public async Task<ActionResult> Export(string tileId, [FromBody] OsmExportInput input)
         {
           DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
           string osmChangeFile = await _osmExporter.GetOsmChangeFile(tile);

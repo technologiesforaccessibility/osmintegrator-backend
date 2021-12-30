@@ -1,4 +1,6 @@
 using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
@@ -14,6 +16,12 @@ namespace OsmIntegrator.Tools
       return textWriter.ToString();
     }
 
+    public static T XmlDeserializeFile<T>(string fileName)
+    {
+      string input = File.ReadAllText(fileName);
+      return XmlDeserialize<T>(input);
+    }
+
     public static T XmlDeserialize<T>(string xml)
     {
       var serializer = new XmlSerializer(typeof(T));
@@ -25,6 +33,12 @@ namespace OsmIntegrator.Tools
     {
       string file = File.ReadAllText(fileName);
       return JsonConvert.DeserializeObject<T>(file);
+    }
+
+    public static async Task<T> JsonDeserializeAsync<T>(HttpResponseMessage response)
+    {
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<T>(jsonResponse);
     }
   }
 }

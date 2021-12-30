@@ -97,7 +97,7 @@ namespace OsmIntegrator.Services
       Tag tag = tags.FirstOrDefault(x => x.K.ToLower() == key);
       if (tag == null)
       {
-        tags.Add(new Tag { K = Constants.REF, V = value });
+        tags.Add(new Tag { K = key, V = value });
         return;
       }
 
@@ -107,10 +107,10 @@ namespace OsmIntegrator.Services
     public string GetComment(long x, long y, int zoom)
     {
       StringBuilder sb = new StringBuilder();
-      sb.Append("This change is about update name, ref and local_ref tags inside bus and tram stops.");
-      sb.Append($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}");
-      sb.Append("Wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator");
-      sb.Append("Project page: https://osmintegrator.eu");
+      sb.Append("This change is about update name, ref and local_ref tags inside bus and tram stops. ");
+      sb.Append($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}. ");
+      sb.Append("Wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator, ");
+      sb.Append("project page: https://osmintegrator.eu");
       return sb.ToString();
     }
   }

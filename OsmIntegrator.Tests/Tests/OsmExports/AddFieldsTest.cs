@@ -7,10 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using ObjectsComparer;
 using OsmIntegrator.ApiModels.Connections;
-using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
@@ -42,9 +41,12 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
 
       OsmChangeOutput output = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
 
-      File.WriteAllText("Output.txt", output.OsmChangeFileContent);
-
       OsmChange actual = SerializationHelper.XmlDeserialize<OsmChange>(output.OsmChangeFileContent);
+
+      OsmChange expected = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{nameof(AddFieldsTest)}/osmchange.xml");
+
+      List<Difference> differences = Compare<OsmChange>(expected, actual);
+      Assert.Empty(differences);
     }
   }
 }
