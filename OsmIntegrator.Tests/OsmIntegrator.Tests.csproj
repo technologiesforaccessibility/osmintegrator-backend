@@ -182,6 +182,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="Data\OsmExports\AddFieldsTest\GtfsStopsInit.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -194,6 +195,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Data\OsmExports\AddFieldsTest\osmchange.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Data\OsmExports\UpdateFieldsTest\GtfsStopsInit.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\OsmExports\UpdateFieldsTest\OsmStopsInit.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\OsmExports\UpdateFieldsTest\osmchange.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
