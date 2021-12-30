@@ -13,11 +13,13 @@ using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.Database.Models;
 using System;
 using Microsoft.Extensions.Configuration;
+using System.Net.Mime;
 
 namespace OsmIntegrator.Controllers
 {
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces(MediaTypeNames.Application.Json)]
     [EnableCors("AllowOrigin")]
     [Route("api/[controller]/[action]")]
     [ApiController]

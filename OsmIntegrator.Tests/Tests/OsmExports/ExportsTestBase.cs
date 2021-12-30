@@ -4,7 +4,7 @@ public class ExportsTestBase : IntegrationTest
 {
   public ExportsTestBase(ApiWebApplicationFactory factory) : base(factory)
   {
-
+    TestDataFolder = "Data/OsmExports/";
   }
 
   

@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -64,7 +62,7 @@ namespace OsmIntegrator.Services
       {
         root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
       };
-      return CreateChangeFile(root);
+      return SerializationHelper.XmlSerialize(root);
     }
     private Node CreateNode(DbStop osmStop, DbStop gtfsStop)
     {
@@ -104,14 +102,6 @@ namespace OsmIntegrator.Services
       }
 
       tag.V = value;
-    }
-
-    private string CreateChangeFile(OsmChange changeNode)
-    {
-      XmlSerializer serializer = new XmlSerializer(typeof(OsmChange));
-      using StringWriter textWriter = new StringWriter();
-      serializer.Serialize(textWriter, changeNode);
-      return textWriter.ToString();
     }
 
     public string GetComment(long x, long y, int zoom)

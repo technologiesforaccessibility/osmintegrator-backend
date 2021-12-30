@@ -34,7 +34,7 @@ namespace OsmIntegrator.Tests.Fixtures
     protected const long OSM_STOP_ID_3 = 1584594015; // Brynów Dworska
     protected const long GTFS_STOP_ID_1 = 159541; // Stara Ligota Rolna 1
     protected const long GTFS_STOP_ID_2 = 159542; // Stara Ligota Rolna 2
-    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana
+    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana 2
 
     protected string TestDataFolder { get; set; }
     protected readonly IOverpass _overpass;
@@ -156,49 +156,53 @@ namespace OsmIntegrator.Tests.Fixtures
 
     #region API Client
 
-    private async Task<List<Tile>> GetTiles()
+    public async Task<OsmChangeOutput> Get_OsmExport_GetChangeFile(string tileId)
     {
-      var response = await _client.GetAsync("/api/Tile/GetTiles");
-      var jsonResponse = await response.Content.ReadAsStringAsync();
-      var list = JsonConvert.DeserializeObject<Tile[]>(jsonResponse).ToList();
-      return list;
+      HttpResponseMessage response = await _client.GetAsync($"/api/OsmExport/GetChangeFile/{tileId}");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<OsmChangeOutput>(jsonResponse);
     }
 
-    public async Task<List<Connection>> GetConnection(string tileId)
+    public async Task<List<Tile>> Get_Tile_GetTiles()
     {
-      var response = await _client.GetAsync($"/api/Connections/{tileId}");
-      var jsonResponse = await response.Content.ReadAsStringAsync();
-      var list = JsonConvert.DeserializeObject<Connection[]>(jsonResponse).ToList();
-
-      return list;
+      HttpResponseMessage response = await _client.GetAsync("/api/Tile/GetTiles");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Tile[]>(jsonResponse).ToList();
     }
 
-    public async Task<HttpResponseMessage> CreateConnection(NewConnectionAction connectionAction)
+    public async Task<List<Connection>> Get_Connections(string tileId)
     {
-      var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
-      var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
-      var response = await _client.PutAsync("/api/Connections", content);
+      HttpResponseMessage response = await _client.GetAsync($"/api/Connections/{tileId}");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Connection[]>(jsonResponse).ToList();
+    }
+
+    public async Task<HttpResponseMessage> Put_Connections(NewConnectionAction connectionAction)
+    {
+      string jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
+      StringContent content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
+      HttpResponseMessage response = await _client.PutAsync("/api/Connections", content);
       return response;
     }
 
-    public async Task<HttpResponseMessage> DeleteConnection(ConnectionAction connectionAction)
+    public async Task<HttpResponseMessage> Post_Connections_Remove(ConnectionAction connectionAction)
     {
-      var jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
-      var content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
-      var response = await _client.PostAsync("/api/Connections/Remove", content);
+      string jsonConnectionAction = JsonConvert.SerializeObject(connectionAction);
+      StringContent content = new StringContent(jsonConnectionAction, Encoding.UTF8, "application/json");
+      HttpResponseMessage response = await _client.PostAsync("/api/Connections/Remove", content);
       return response;
     }
 
-    protected async Task<Report> UpdateTileAsync(string tileId)
+    public async Task<Report> Put_Tile_UpdateStops(string tileId)
     {
-      var response = await _client.PutAsync($"/api/Tile/UpdateStops/{tileId}", null);
+      HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateStops/{tileId}", null);
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<Report>(jsonResponse);
     }
 
-    protected async Task<bool> ContainsChanges(string tileId)
+    public async Task<bool> Get_Tile_ContainsChanges(string tileId)
     {
-      var response = await _client.GetAsync($"/api/Tile/ContainsChanges/{tileId}");
+      HttpResponseMessage response = await _client.GetAsync($"/api/Tile/ContainsChanges/{tileId}");
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return bool.Parse(jsonResponse);
     }
@@ -223,12 +227,6 @@ namespace OsmIntegrator.Tests.Fixtures
       IEnumerable<Difference> differences;
       comparer.Compare(expected, actual, out differences);
       return differences.ToList();
-    }
-
-    protected T Deserialize<T>(string fileName)
-    {
-      string file = File.ReadAllText(fileName);
-      return JsonConvert.DeserializeObject<T>(file);
     }
 
     #endregion
