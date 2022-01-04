@@ -142,16 +142,19 @@ namespace osmintegrator
       {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "osmintegrator", Version = "v1" });
       });
-      services.AddAutoMapper(
-          typeof(TileProfile),
-          typeof(StopProfile),
-          typeof(TagProfile),
-          typeof(ApplicationUserProfile),
-          typeof(ConnectionProfile),
-          typeof(ExistingNoteProfile),
-          typeof(NewNoteProfile),
-          typeof(ConversationProfile),
-          typeof(MessageProfile));
+
+      services.AddAutoMapper((cfg) =>
+      {
+          cfg.AddProfile(new TileProfile(Configuration));
+          cfg.AddProfile<StopProfile>();
+          cfg.AddProfile<TagProfile>();
+          cfg.AddProfile<ApplicationUserProfile>();
+          cfg.AddProfile<ConnectionProfile>();
+          cfg.AddProfile<ExistingNoteProfile>();
+          cfg.AddProfile<NewNoteProfile>();
+          cfg.AddProfile<ConversationProfile>();
+          cfg.AddProfile<MessageProfile>();
+      });
 
       services.AddSingleton<IEmailService, EmailService>();
       services.AddSingleton<ITokenHelper, TokenHelper>();
