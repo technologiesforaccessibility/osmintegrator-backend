@@ -37,5 +37,6 @@ namespace OsmIntegrator.ApiModels
     public bool ApprovedByEditor { get; set; } = false;
     [Required]
     public bool ApprovedBySupervisor { get; set; } = false;
+    public byte ZoomLevel { get; set; }
   }
 }
