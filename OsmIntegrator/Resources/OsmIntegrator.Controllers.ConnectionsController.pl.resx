@@ -121,6 +121,10 @@
     <value>Upewnij się że wybrano poprawne przystanki</value>
     <comment/>
   </data>
+  <data name="Stops cannot have the same type" xml:space="preserve">
+    <value>Przystanki nie mogą być tego samego typu</value>
+    <comment/>
+  </data>
   <data name="OSM stop needs to be placed inside the tile" xml:space="preserve">
     <value>Przystanek OSM musi być położony wewnątrz kafelka</value>
     <comment/>

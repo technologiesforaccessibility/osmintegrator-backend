@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Errors;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
@@ -19,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Validators;
 using OsmIntegrator.Enums;
 using Microsoft.Extensions.Localization;
+using OsmIntegrator.ApiModels.Connections;
 
 namespace OsmIntegrator.Controllers
 {
@@ -63,13 +63,13 @@ namespace OsmIntegrator.Controllers
     {
 
       // Check if connection already exists and has not been deleted.
-      List<DbConnections> existingConnections = await _dbContext.Connections
+      List<DbConnection> existingConnections = await _dbContext.Connections
           .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
                   x.GtfsStopId == connectionAction.GtfsStopId)
           .OrderByDescending(link => link.CreatedAt)
           .ToListAsync();
 
-      DbConnections existingConnection = existingConnections.FirstOrDefault();
+      DbConnection existingConnection = existingConnections.FirstOrDefault();
       bool imported = false;
       if (existingConnection != null)
       {
@@ -91,7 +91,7 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
       }
 
-      DbConnections gtfsConnection = gtfsStop.GtfsConnections
+      DbConnection gtfsConnection = gtfsStop.GtfsConnections
           .OrderByDescending(link => link.CreatedAt)
           .FirstOrDefault();
 
@@ -111,7 +111,12 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
       }
 
-      DbConnections osmConnection = osmStop.OsmConnections
+      if(osmStop.StopType == gtfsStop.StopType)
+      {
+        throw new BadHttpRequestException(_localizer["Stops cannot have the same type"]);
+      }
+
+      DbConnection osmConnection = osmStop.OsmConnections
           .OrderByDescending(link => link.CreatedAt)
           .FirstOrDefault();
 
@@ -128,7 +133,7 @@ namespace OsmIntegrator.Controllers
 
       ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-      DbConnections newConnection = new DbConnections()
+      DbConnection newConnection = new DbConnection()
       {
         OsmStop = osmStop,
         OsmStopId = osmStop.Id,
@@ -145,13 +150,13 @@ namespace OsmIntegrator.Controllers
       return Ok(_localizer["Connection successfully added!"]);
     }
 
-    [HttpDelete()]
+    [HttpPost("Remove")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
     public async Task<IActionResult> Remove([FromBody] ConnectionAction connectionAction)
     {
-      List<DbConnections> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
+      List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
           x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
-      DbConnections existingConnection = existingConnections.LastOrDefault();
+      DbConnection existingConnection = existingConnections.LastOrDefault();
       bool imported = false;
       if (existingConnection != null)
       {
@@ -169,7 +174,7 @@ namespace OsmIntegrator.Controllers
 
       ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
-      DbConnections newConnection = new DbConnections()
+      DbConnection newConnection = new DbConnection()
       {
         OsmStopId = (Guid)connectionAction.OsmStopId,
         GtfsStopId = (Guid)connectionAction.GtfsStopId,
@@ -203,7 +208,7 @@ namespace OsmIntegrator.Controllers
           "FROM \"Connections\" c " +
           "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-      List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
+      List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
           query).Include(x => x.OsmStop).ToListAsync();
 
       connections = connections.Where(
@@ -222,7 +227,7 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
     public async Task<ActionResult<List<Connection>>> GetAll()
     {
-      List<DbConnections> connections = await _dbContext.Connections.FromSqlRaw(
+      List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
           "SELECT DISTINCT ON (\"GtfsStopId\", \"OsmStopId\") * " +
           "FROM \"Connections\" c " +
           "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC"
@@ -236,7 +241,7 @@ namespace OsmIntegrator.Controllers
     public async Task<ActionResult<string>> Approve(string id)
     {
 
-      DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+      DbConnection link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
       if (link == null)
       {
         throw new BadHttpRequestException(_localizer["Given connection does not exist"]);
@@ -252,7 +257,7 @@ namespace OsmIntegrator.Controllers
     public async Task<ActionResult<string>> Unapprove(string id)
     {
 
-      DbConnections link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
+      DbConnection link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
       if (link == null)
       {
         throw new BadHttpRequestException(_localizer["Given connection does not exist"]);

@@ -1,0 +1,51 @@
+{
+  "Stops": [
+    {
+      "Name": "Brynów Dworska",
+      "Action": 0,
+      "Fields": [
+        {
+          "Name": "bus",
+          "Action": 0,
+          "ActualValue": "yes",
+          "PreviousValue": null
+        },
+        {
+          "Name": "highway",
+          "Action": 0,
+          "ActualValue": "bus_stop",
+          "PreviousValue": null
+        },
+        {
+          "Name": "name",
+          "Action": 0,
+          "ActualValue": "Brynów Dworska",
+          "PreviousValue": null
+        },
+        {
+          "Name": "network",
+          "Action": 0,
+          "ActualValue": "Zarząd Transportu Metropolitalnego",
+          "PreviousValue": null
+        },
+        {
+          "Name": "public_transport",
+          "Action": 0,
+          "ActualValue": "stop_position",
+          "PreviousValue": null
+        }
+      ],
+      "StopId": "1584594015",
+      "Version": 5,
+      "StopType": 0,
+      "Changeset": "82493028",
+      "PreviousName": null,
+      "DatabaseStopId": "00000000-0000-0000-0000-000000000000",
+      "PreviousVersion": null,
+      "PreviousChangeset": null
+    }
+  ],
+  "TileX": 2264,
+  "TileY": 1385,
+  "TileId": "14f439f9-15e2-4f6b-952e-50605487e6d1"
+}

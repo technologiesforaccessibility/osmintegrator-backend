@@ -19,6 +19,10 @@ using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
+using OsmIntegrator.Tools;
+using OsmIntegrator.Database.Models.JsonFields;
+using OsmIntegrator.ApiModels.Reports;
+using OsmIntegrator.ApiModels.Stops;
 
 namespace OsmIntegrator.Controllers
 {
@@ -38,6 +42,8 @@ namespace OsmIntegrator.Controllers
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IEmailService _emailService;
+    private readonly IOverpass _overpass;
+    readonly IOsmUpdater _osmUpdater;
 
     public TileController(
         ILogger<TileController> logger,
@@ -47,7 +53,9 @@ namespace OsmIntegrator.Controllers
         UserManager<ApplicationUser> userManager,
         RoleManager<ApplicationRole> roleManager,
         IStringLocalizer<TileController> localizer,
-        IEmailService emailService
+        IEmailService emailService,
+        IOsmUpdater refresherHelper,
+        IOverpass overpass
     )
     {
       _logger = logger;
@@ -58,6 +66,8 @@ namespace OsmIntegrator.Controllers
       _roleManger = roleManager;
       _localizer = localizer;
       _emailService = emailService;
+      _osmUpdater = refresherHelper;
+      _overpass = overpass;
     }
 
     [HttpGet]
@@ -163,8 +173,10 @@ namespace OsmIntegrator.Controllers
       }
 
       // Check if tile exists
-      var tile =
-          await _dbContext.Tiles.Include(x => x.TileUsers).ThenInclude(y => y.User).SingleOrDefaultAsync(x => x.Id == tileId);
+      var tile = await _dbContext.Tiles
+          .Include(x => x.TileUsers)
+            .ThenInclude(y => y.User)
+          .SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
         throw new BadHttpRequestException(_localizer["Unable to find tile"]);
@@ -185,9 +197,12 @@ namespace OsmIntegrator.Controllers
       }
 
       // Get all stops in selected tile + stops around that tile
-      var stops = await _dbContext.Stops.Where(x =>
+      var stops = await _dbContext.Stops
+        .Where(x =>
           x.Lon > tile.OverlapMinLon && x.Lon <= tile.OverlapMaxLon &&
-          x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat).ToListAsync();
+          x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat)
+        .Where(x => !x.IsDeleted)
+        .ToListAsync();
 
       foreach (DbStop stop in stops)
       {
@@ -365,14 +380,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.EDITOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.EDITOR).First()));
       }
 
       if (updateTileInput.SupervisorId != null && currentTile.SupervisorApproved == null)
@@ -385,9 +394,11 @@ namespace OsmIntegrator.Controllers
           throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
         }
 
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
+        if (_dbContext.TileUsers.Where(
+          x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
         {
-          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
+          throw new BadHttpRequestException(
+            _localizer["Unable to assign. User already assigned to this tile"]);
         }
 
         _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == supervisorRole));
@@ -405,14 +416,8 @@ namespace OsmIntegrator.Controllers
         _dbContext.TileUsers
           .RemoveRange(
             _dbContext.TileUsers
-              .Where(x =>
-                x.Tile == currentTile
-                && x.Role == _roleManger
-                  .Roles.Where(x =>
-                    x.Name == UserRoles.SUPERVISOR)
-                  .First()
-              )
-            );
+              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
+                    x.Name == UserRoles.SUPERVISOR).First()));
       }
 
       _dbContext.SaveChanges();
@@ -479,7 +484,7 @@ namespace OsmIntegrator.Controllers
       {
         return;
       }
-  
+
       foreach (ApplicationUser user in usersInRole)
       {
         Task task = Task.Run(() => _emailService.SendEmailAsync(TileApprovedMessageBuilder(user, currentTile)));
@@ -517,11 +522,38 @@ rozwiazaniadlaniewidomych.org
       return message;
     }
 
+    [HttpPut("{id}")]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<Report>> UpdateStops(string id)
+    {
+      DbTile tile = await GetTileAsync(id);
+
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+      ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
+
+      return Ok(new Report { Value = tileReport.ToString() });
+    }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<bool>> ContainsChanges(string id)
+    {
+      DbTile tile = await GetTileAsync(id);
+
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+      bool containsChanges = _osmUpdater.ContainsChanges(tile, osm);
+
+      return Ok(containsChanges);
+    }
+
     private async Task<DbTile> GetTileAsync(string tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.TileUsers).ThenInclude(y => y.User)
         .Include(tile => tile.TileUsers).ThenInclude(y => y.Role)
+        .Include(tile => tile.Stops)
         .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
       if (currentTile == null)
       {

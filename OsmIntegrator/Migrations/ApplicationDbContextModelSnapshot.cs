@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
-using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace osmintegrator.Migrations
 {
@@ -229,7 +229,30 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnections", b =>
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbChangeReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("TileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<ReportTile>("TileReport")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TileId");
+
+                    b.ToTable("ChangeReports");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -379,6 +402,15 @@ namespace osmintegrator.Migrations
                     b.Property<string>("Changeset")
                         .HasColumnType("text");
 
+                    b.Property<double?>("InitLat")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("InitLon")
+                        .HasColumnType("double precision");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
                     b.Property<double>("Lat")
                         .HasColumnType("double precision");
 
@@ -397,8 +429,8 @@ namespace osmintegrator.Migrations
                     b.Property<int>("ProviderType")
                         .HasColumnType("integer");
 
-                    b.Property<long>("Ref")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Ref")
+                        .HasColumnType("text");
 
                     b.Property<long>("StopId")
                         .HasColumnType("bigint");
@@ -577,7 +609,18 @@ namespace osmintegrator.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnections", b =>
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbChangeReport", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
+                        .WithMany("ChangeReports")
+                        .HasForeignKey("TileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tile");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "ApprovedBy")
                         .WithMany()
@@ -702,11 +745,11 @@ namespace osmintegrator.Migrations
                         .HasForeignKey("RoleId");
 
                     b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
-                        .WithMany()
+                        .WithMany("TileUsers")
                         .HasForeignKey("TileId");
 
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("TileUsers")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Role");
@@ -714,6 +757,11 @@ namespace osmintegrator.Migrations
                     b.Navigation("Tile");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("TileUsers");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConversation", b =>
@@ -730,11 +778,15 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTile", b =>
                 {
+                    b.Navigation("ChangeReports");
+
                     b.Navigation("Conversations");
 
                     b.Navigation("Notes");
 
                     b.Navigation("Stops");
+
+                    b.Navigation("TileUsers");
                 });
 #pragma warning restore 612, 618
         }

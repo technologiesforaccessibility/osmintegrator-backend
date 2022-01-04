@@ -2,52 +2,58 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace OsmIntegrator.Database.Models
 {
-    [Table("Stops")]
-    public class DbStop
-    {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public Guid Id { get; set; }
+  [Table("Stops")]
+  public class DbStop
+  {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
+    public Guid Id { get; set; }
 
-        [Required]
-        public long StopId { get; set; }
+    [Required]
+    public long StopId { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        [Required]
-        public double Lat { get; set; }
+    [Required]
+    public double Lat { get; set; }
 
-        [Required]
-        public double Lon { get; set; }
+    [Required]
+    public double Lon { get; set; }
 
-        public string Number { get; set; }
+    public double? InitLat { get; set; }
+    public double? InitLon { get; set; }
 
-        [Column(TypeName = "jsonb")]
-        public List<Tag> Tags { get; set; }
+    public string Number { get; set; }
 
-        [Required]
-        public StopType StopType { get; set; }
+    [Column(TypeName = "jsonb")]
+    public List<Tag> Tags { get; set; }
 
-        [Required]
-        public ProviderType ProviderType { get; set; }
+    [Required]
+    public StopType StopType { get; set; }
 
-        public Guid TileId { get; set; }
+    [Required]
+    public ProviderType ProviderType { get; set; }
 
-        public DbTile Tile { get; set; }
+    public Guid TileId { get; set; }
 
-        public bool OutsideSelectedTile { get; set; } = false;
+    public DbTile Tile { get; set; }
 
-        public List<DbConnections> GtfsConnections { get; set; }
+    public bool OutsideSelectedTile { get; set; } = false;
 
-        public List<DbConnections> OsmConnections { get; set; }
+    public List<DbConnection> GtfsConnections { get; set; }
 
-        public long Ref { get; set; }
+    public List<DbConnection> OsmConnections { get; set; }
 
-        public int Version { get; set; }
+    public string Ref { get; set; }
 
-        public string Changeset { get; set; }
-    }
+    public int Version { get; set; }
+
+    public string Changeset { get; set; }
+    public bool IsDeleted { get; set; }
+  }
 }

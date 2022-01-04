@@ -6,7 +6,7 @@ namespace OsmIntegrator.AutoMapper
         public TagProfile()
         {
             AllowNullCollections = true;
-            CreateMap<OsmIntegrator.Database.Models.Tag, OsmIntegrator.ApiModels.Tag>().ReverseMap();
+            CreateMap<OsmIntegrator.Database.Models.JsonFields.Tag, OsmIntegrator.ApiModels.Tag>().ReverseMap();
         }
     }
 }

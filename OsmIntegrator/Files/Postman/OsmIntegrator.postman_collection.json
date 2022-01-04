@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1f606d99-3cdb-43c0-9b47-752a496c6d8d",
+		"_postman_id": "ac4e2b83-48dd-4a4f-a5a0-55ea6ec0bd4b",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -788,6 +788,118 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/Update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"Update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangePosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stopId\": \"3288811c-f134-4527-896d-6075e55a6893\",\n    \"lat\": 50.100107,\n    \"lon\": 19.016823\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Stop/ChangePosition",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ChangePosition"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/ResetPosition/3288811c-f134-4527-896d-6075e55a6893",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ResetPosition",
+								"3288811c-f134-4527-896d-6075e55a6893"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -913,7 +1025,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/071d1170-5805-42cf-81b6-f67fde07fb1e",
+							"raw": "{{host}}/api/Tile/GetStops/0a5020f2-5a29-49e9-ba66-f4a17b6ebade",
 							"host": [
 								"{{host}}"
 							],
@@ -921,7 +1033,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"071d1170-5805-42cf-81b6-f67fde07fb1e"
+								"0a5020f2-5a29-49e9-ba66-f4a17b6ebade"
 							]
 						}
 					},
@@ -1228,6 +1340,76 @@
 								"api",
 								"Tile",
 								"RemoveUser",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateStopsOnTile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/UpdateStops/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"UpdateStops",
+								"{{firstTileId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ContainsChanges",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/ContainsChanges/{{firstTileId}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"ContainsChanges",
 								"{{firstTileId}}"
 							]
 						}
@@ -1678,7 +1860,7 @@
 								}
 							]
 						},
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -1690,14 +1872,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Connections/",
+							"raw": "{{host}}/api/Connections/Remove",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								""
+								"Remove"
 							]
 						}
 					},
@@ -2278,6 +2460,90 @@
 					}
 				]
 			}
+		},
+		{
+			"name": "OsmExport",
+			"item": [
+				{
+					"name": "GetChangeFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/OsmExport/GetChangeFile/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"GetChangeFile",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Email\": \"supervisor1@abcd.pl\",\n    \"Password\": \"12345678\",\n    \"Comment\": \"Comment test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/OsmExport/Export/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"Export",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Swagger",

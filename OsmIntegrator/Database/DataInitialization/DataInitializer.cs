@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
@@ -26,17 +28,170 @@ namespace OsmIntegrator.Database.DataInitialization
 
     public void Initialize(ApplicationDbContext db)
     {
-      List<DbStop> gtfsStops = GetGtfsStopsList();
-      List<DbStop> osmStops = GetOsmStopsList();
+      List<DbStop> gtfsStops = GetGtfsStopsList("Files/GtfsStops.txt");
+      List<DbStop> osmStops = GetOsmStopsList("Files/OsmStops.xml");
 
       Initialize(db, gtfsStops, osmStops);
       MigrateNotes(db);
       MigrateTileUsers(db);
     }
 
+    public void InitializeUsers(ApplicationDbContext db)
+    {
+      Guid editorRoleId = Guid.Parse("ff6cce18-706d-448c-89de-56212f1722ef");
+      Guid supervisorRoleId = Guid.Parse("3e4d73d6-6566-4518-a5b0-dce5a7016e24");
+      Guid coordinatorRoleId = Guid.Parse("17b91040-16cb-4fc6-9954-421cc8adc154");
+      Guid uploaderRoleId = Guid.Parse("f44243a2-7ea3-4327-9dbd-4ff97c164b33");
+      Guid adminRoleId = Guid.Parse("62f8bfff-d16a-4748-919c-56131148262e");
+
+      AddRole(db.Roles, editorRoleId, OsmIntegrator.Roles.UserRoles.EDITOR);
+      AddRole(db.Roles, supervisorRoleId, OsmIntegrator.Roles.UserRoles.SUPERVISOR);
+      AddRole(db.Roles, coordinatorRoleId, OsmIntegrator.Roles.UserRoles.COORDINATOR);
+      AddRole(db.Roles, uploaderRoleId, OsmIntegrator.Roles.UserRoles.UPLOADER);
+      AddRole(db.Roles, adminRoleId, OsmIntegrator.Roles.UserRoles.ADMIN);
+
+      AddUser(db.Users, db.UserRoles, Guid.Parse("c514ae13-d80a-40b1-90d0-df88ccca73ec"), "user1@abcd.pl", new List<Guid>() { editorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("9815ba57-e990-4f91-a8e9-17abe977d681"), "editor1@abcd.pl", new List<Guid>() { editorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"), "supervisor1@abcd.pl", new List<Guid>() { supervisorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("58fb0db2-0d67-4aa4-af63-9e7111d0b346"), "supervisor2@abcd.pl", new List<Guid>() { supervisorRoleId, editorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), "coordinator1@abcd.pl", new List<Guid>() { coordinatorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { adminRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { editorRoleId, adminRoleId, supervisorRoleId });
+      AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"), "editor2@abcd.pl", new List<Guid>() { editorRoleId });
+      db.SaveChanges();
+    }
+
+    public void InitializeStopsAndTiles(
+      ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
+    {
+      gtfsStops ??= new();
+      osmStops ??= new();
+
+      List<DbStop> allStops = new List<DbStop>();
+      allStops.AddRange(osmStops);
+      allStops.AddRange(gtfsStops);
+      List<DbTile> tiles = GetTiles(allStops);
+
+      db.Stops.AddRange(allStops);
+      db.Tiles.AddRange(tiles);
+
+      InitializeOsmConnections(db, gtfsStops, osmStops);
+
+      db.SaveChanges();
+    }
+
+    public void InitializeFakeData(ApplicationDbContext db)
+    {
+      List<DbTile> tiles = db.Tiles.ToList();
+      DbTile tile_2263_1385 = tiles.FirstOrDefault(x => x.X == 2263 && x.Y == 1385);
+
+      List<ApplicationUser> users = db.Users.Where(x => x.UserName.Contains("editor")).ToList();
+      ApplicationUser editor1 = users[0];
+      ApplicationUser editor2 = users[1];
+
+      List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
+      ApplicationUser supervisor1 = supervisors[0];
+
+      tiles[0].Users = tiles[1].Users = tile_2263_1385.Users = new List<ApplicationUser> { editor1 };
+      tiles[0].EditorApproved = tiles[1].EditorApproved = tile_2263_1385.EditorApproved = editor1;
+      tiles[0].EditorApprovalTime = tiles[1].EditorApprovalTime = tile_2263_1385.EditorApprovalTime = DateTime.Now;
+
+      db.SaveChanges();
+
+      DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
+
+      DbNote note1 = new DbNote
+      {
+        Text = "Not approved",
+        Lat = tile.MinLat,
+        Lon = tile.MinLon,
+        UserId = editor1.Id,
+        Status = NoteStatus.Created,
+        TileId = tile.Id
+      };
+
+      DbNote note2 = new DbNote
+      {
+        Text = "Approved",
+        Lat = tile.MaxLat,
+        Lon = tile.MinLon,
+        UserId = editor1.Id,
+        Status = NoteStatus.Approved,
+        Approver = supervisor1,
+        TileId = tile.Id
+      };
+
+      DbNote note3 = new DbNote
+      {
+        Text = "Supervisor approved",
+        Lat = tile.MaxLat,
+        Lon = tile.MinLon,
+        UserId = supervisor1.Id,
+        Status = NoteStatus.Rejected,
+        Approver = supervisor1,
+        TileId = tile.Id
+      };
+
+      DbNote note4 = new DbNote
+      {
+        Text = "Supervisor not approved",
+        Lat = tile.MaxLat,
+        Lon = tile.MinLon,
+        UserId = supervisor1.Id,
+        Status = NoteStatus.Created,
+        TileId = tile.Id
+      };
+
+      DbNote note5 = new DbNote
+      {
+        Text = "Editor 2",
+        Lat = tile.MaxLat,
+        Lon = tile.MinLon,
+        UserId = editor2.Id,
+        Status = NoteStatus.Created,
+        TileId = tile.Id
+      };
+
+      db.Notes.Add(note1);
+      db.Notes.Add(note2);
+      db.Notes.Add(note3);
+      db.Notes.Add(note4);
+      db.Notes.Add(note5);
+      db.SaveChanges();
+    }
+
+    public void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
+    {
+      if(gtfsStops == null || osmStops == null) return;
+
+      List<DbConnection> connections = new List<DbConnection>();
+
+      foreach (DbStop osmStop in osmStops)
+      {
+        long @ref;
+        if (long.TryParse(osmStop.Ref, out @ref))
+        {
+          DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == @ref);
+
+          if (gtfsStop != null)
+          {
+            connections.Add(new DbConnection()
+            {
+              GtfsStop = gtfsStop,
+              OsmStop = osmStop,
+              Imported = true
+            });
+          }
+        }
+      }
+
+      db.Connections.AddRange(connections);
+      db.SaveChanges();
+    }
+
     public void Initialize(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
     {
-      using (var transaction = db.Database.BeginTransaction())
+      using (IDbContextTransaction transaction = db.Database.BeginTransaction())
       {
         try
         {
@@ -45,129 +200,10 @@ namespace OsmIntegrator.Database.DataInitialization
             return;
           }
 
-          Guid editorRoleId = Guid.Parse("ff6cce18-706d-448c-89de-56212f1722ef");
-          Guid supervisorRoleId = Guid.Parse("3e4d73d6-6566-4518-a5b0-dce5a7016e24");
-          Guid coordinatorRoleId = Guid.Parse("17b91040-16cb-4fc6-9954-421cc8adc154");
-          Guid uploaderRoleId = Guid.Parse("f44243a2-7ea3-4327-9dbd-4ff97c164b33");
-          Guid adminRoleId = Guid.Parse("62f8bfff-d16a-4748-919c-56131148262e");
-
-          AddRole(db.Roles, editorRoleId, OsmIntegrator.Roles.UserRoles.EDITOR);
-          AddRole(db.Roles, supervisorRoleId, OsmIntegrator.Roles.UserRoles.SUPERVISOR);
-          AddRole(db.Roles, coordinatorRoleId, OsmIntegrator.Roles.UserRoles.COORDINATOR);
-          AddRole(db.Roles, uploaderRoleId, OsmIntegrator.Roles.UserRoles.UPLOADER);
-          AddRole(db.Roles, adminRoleId, OsmIntegrator.Roles.UserRoles.ADMIN);
-
-          AddUser(db.Users, db.UserRoles, Guid.Parse("c514ae13-d80a-40b1-90d0-df88ccca73ec"), "user1@abcd.pl", new List<Guid>() { editorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("9815ba57-e990-4f91-a8e9-17abe977d681"), "editor1@abcd.pl", new List<Guid>() { editorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"), "supervisor1@abcd.pl", new List<Guid>() { supervisorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("58fb0db2-0d67-4aa4-af63-9e7111d0b346"), "supervisor2@abcd.pl", new List<Guid>() { supervisorRoleId, editorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), "coordinator1@abcd.pl", new List<Guid>() { coordinatorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), "admin@abcd.pl", new List<Guid>() { adminRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { editorRoleId, adminRoleId, supervisorRoleId });
-          AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"), "editor2@abcd.pl", new List<Guid>() { editorRoleId });
-          db.SaveChanges();
-
-          List<DbStop> allStops = new List<DbStop>();
-          allStops.AddRange(osmStops);
-          allStops.AddRange(gtfsStops);
-          List<DbTile> tiles = GetTiles(allStops);
-
-          DbTile tile_2263_1385 = tiles.FirstOrDefault(x => x.X == 2263 && x.Y == 1385);
-
-          List<ApplicationUser> users = db.Users.Where(x => x.UserName.Contains("editor")).ToList();
-          ApplicationUser editor1 = users[0];
-          ApplicationUser editor2 = users[1];
-
-          List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
-          ApplicationUser supervisor1 = supervisors[0];
-
-          tiles[0].Users = tiles[1].Users = tile_2263_1385.Users = new List<ApplicationUser> { editor1 };
-          tiles[0].EditorApproved = tiles[1].EditorApproved = tile_2263_1385.EditorApproved = editor1;
-          tiles[0].EditorApprovalTime = tiles[1].EditorApprovalTime = tile_2263_1385.EditorApprovalTime = DateTime.Now;
-
-          db.Stops.AddRange(allStops);
-          db.Tiles.AddRange(tiles);
-          db.SaveChanges();
-
-          DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
-
-          DbNote note1 = new DbNote
-          {
-            Text = "Not approved",
-            Lat = tile.MinLat,
-            Lon = tile.MinLon,
-            UserId = editor1.Id,
-            Status = NoteStatus.Created,
-            TileId = tile.Id
-          };
-
-          DbNote note2 = new DbNote
-          {
-            Text = "Approved",
-            Lat = tile.MaxLat,
-            Lon = tile.MinLon,
-            UserId = editor1.Id,
-            Status = NoteStatus.Approved,
-            Approver = supervisor1,
-            TileId = tile.Id
-          };
-
-          DbNote note3 = new DbNote
-          {
-            Text = "Supervisor approved",
-            Lat = tile.MaxLat,
-            Lon = tile.MinLon,
-            UserId = supervisor1.Id,
-            Status = NoteStatus.Rejected,
-            Approver = supervisor1,
-            TileId = tile.Id
-          };
-
-          DbNote note4 = new DbNote
-          {
-            Text = "Supervisor not approved",
-            Lat = tile.MaxLat,
-            Lon = tile.MinLon,
-            UserId = supervisor1.Id,
-            Status = NoteStatus.Created,
-            TileId = tile.Id
-          };
-
-          DbNote note5 = new DbNote
-          {
-            Text = "Editor 2",
-            Lat = tile.MaxLat,
-            Lon = tile.MinLon,
-            UserId = editor2.Id,
-            Status = NoteStatus.Created,
-            TileId = tile.Id
-          };
-
-          db.Notes.Add(note1);
-          db.Notes.Add(note2);
-          db.Notes.Add(note3);
-          db.Notes.Add(note4);
-          db.Notes.Add(note5);
-          db.SaveChanges();
-
-          List<DbConnections> connections = new List<DbConnections>();
-
-          foreach (DbStop osmStop in osmStops)
-          {
-            DbStop gtfsStop = gtfsStops.FirstOrDefault(x => x.StopId == osmStop.Ref);
-            if (gtfsStop != null)
-            {
-              connections.Add(new DbConnections()
-              {
-                GtfsStop = gtfsStop,
-                OsmStop = osmStop,
-                Imported = true
-              });
-            }
-          }
-
-          db.Connections.AddRange(connections);
-          db.SaveChanges();
+          InitializeUsers(db);
+          InitializeStopsAndTiles(db, gtfsStops, osmStops);
+          InitializeFakeData(db);
+          InitializeOsmConnections(db, gtfsStops, osmStops);
 
           transaction.Commit();
         }
@@ -235,6 +271,7 @@ namespace OsmIntegrator.Database.DataInitialization
         }
       }
     }
+
     public void MigrateTileUsers(ApplicationDbContext db)
     {
       using (var transaction = db.Database.BeginTransaction())
@@ -323,9 +360,9 @@ namespace OsmIntegrator.Database.DataInitialization
       }
     }
 
-    public List<DbStop> GetGtfsStopsList()
+    public List<DbStop> GetGtfsStopsList(string fileName)
     {
-      List<string[]> csvStopList = CsvParser.Parse("Files/GtfsStops.txt");
+      List<string[]> csvStopList = CsvParser.Parse(fileName);
       List<DbStop> ztmStopList = csvStopList.Select((x, index) => new DbStop()
       {
         Id = Guid.NewGuid(),
@@ -340,13 +377,13 @@ namespace OsmIntegrator.Database.DataInitialization
       return ztmStopList;
     }
 
-    public List<DbStop> GetOsmStopsList()
+    public List<DbStop> GetOsmStopsList(string fileName)
     {
       List<DbStop> result = new List<DbStop>();
 
       XmlSerializer serializer = new XmlSerializer(typeof(Osm));
 
-      using (Stream reader = new FileStream("Files/OsmStops.xml", FileMode.Open))
+      using (Stream reader = new FileStream(fileName, FileMode.Open))
       {
         Osm osmRoot = (Osm)serializer.Deserialize(reader);
 
@@ -364,30 +401,23 @@ namespace OsmIntegrator.Database.DataInitialization
             Changeset = node.Changeset
           };
 
-          List<Models.Tag> tempTags = new List<Models.Tag>();
+          List<Models.JsonFields.Tag> tempTags = new();
 
-          node.Tag.ForEach(x => tempTags.Add(new Models.Tag()
+          node.Tag.ForEach(x => tempTags.Add(new Models.JsonFields.Tag()
           {
             Key = x.K,
             Value = x.V
           }));
           stop.Tags = tempTags;
 
-          var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "name");
+          var nameTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.NAME);
           stop.Name = nameTag?.Value;
 
-          var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "ref");
-          long refVal;
-          if (refTag != null && long.TryParse(refTag.Value, out refVal))
-          {
-            stop.Ref = refVal;
-          }
+          var refTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.REF);
+          stop.Ref = refTag?.Value;
 
-          var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == "local_ref");
-          if (localRefTag != null && !string.IsNullOrEmpty(localRefTag.Value))
-          {
-            stop.Number = localRefTag.Value;
-          }
+          var localRefTag = tempTags.FirstOrDefault(x => x.Key.ToLower() == Constants.LOCAL_REF);
+          stop.Number = localRefTag?.Value;
 
           result.Add(stop);
         }
@@ -452,30 +482,22 @@ namespace OsmIntegrator.Database.DataInitialization
 
     public void ClearDatabase(ApplicationDbContext db)
     {
-      using (var transaction = db.Database.BeginTransaction())
-      {
-        try
-        {
-          db.Notes.RemoveRange(db.Notes);
-          db.Connections.RemoveRange(db.Connections);
-          db.Stops.RemoveRange(db.Stops);
-          db.Tiles.RemoveRange(db.Tiles);
+      db.Notes.RemoveRange(db.Notes);
+      db.Connections.RemoveRange(db.Connections);
+      db.Stops.RemoveRange(db.Stops);
+      db.Tiles.RemoveRange(db.Tiles);
 
-          db.Roles.RemoveRange(db.Roles);
-          db.Users.RemoveRange(db.Users);
-          db.UserRoles.RemoveRange(db.UserRoles);
+      db.Conversations.RemoveRange(db.Conversations);
+      db.Messages.RemoveRange(db.Messages);
+      db.TileUsers.RemoveRange(db.TileUsers);
 
-          db.SaveChanges();
+      db.Roles.RemoveRange(db.Roles);
+      db.Users.RemoveRange(db.Users);
+      db.UserRoles.RemoveRange(db.UserRoles);
 
-          transaction.Commit();
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine(e);
-          transaction.Rollback();
-          throw;
-        }
-      }
+      db.ChangeReports.RemoveRange(db.ChangeReports);
+
+      db.SaveChanges();
     }
   }
 }

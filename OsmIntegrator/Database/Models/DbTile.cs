@@ -71,6 +71,8 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbTileUser> TileUsers { get; set; }
 
+    public List<DbChangeReport> ChangeReports { get; set; }
+
     public DbTile()
     {
 

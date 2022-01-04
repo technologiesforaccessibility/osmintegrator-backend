@@ -4,5 +4,8 @@
     "editor.insertSpaces": true,
     "[csharp]": {
       "editor.defaultFormatter": "ms-dotnettools.csharp"
-    }
+    },
+    "cSpell.words": [
+      "Xunit"
+    ]
 }

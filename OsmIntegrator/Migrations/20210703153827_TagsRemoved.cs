@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.JsonFields;
 
 namespace osmintegrator.Migrations
 {
