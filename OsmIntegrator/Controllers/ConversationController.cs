@@ -172,44 +172,6 @@ namespace OsmIntegrator.Controllers
       return Ok(response);
     }
 
-
-    [HttpPut("Approve/{conversationId}")]
-    [Authorize(Roles =
-        UserRoles.SUPERVISOR + "," +
-        UserRoles.COORDINATOR + "," +
-        UserRoles.ADMIN)]
-    public async Task<ActionResult> Approve(string conversationId)
-    {
-      DbConversation dbConversation = await _dbContext.Conversations
-        .Include(x => x.Messages)
-          .ThenInclude(y => y.User)
-        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
-
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-
-      if (dbConversation == null)
-      {
-        throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
-      }
-
-      Message approvalMessage = new Message()
-      {
-        Id = new Guid(),
-        UserId = user.Id,
-        ConversationId = dbConversation.Id,
-        Status = NoteStatus.Approved,
-        CreatedAt = DateTime.Now
-      };
-      DbMessage dbMessage = _mapper.Map<DbMessage>(approvalMessage);
-      dbMessage.User = user;
-
-      dbConversation.Messages.Add(dbMessage);
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Conversation approved successfully"]);
-    }
-
     private void SendApprovedTileEmail(DbConversation conversation)
     {
       List<ApplicationUser> users = conversation.Messages
@@ -252,44 +214,6 @@ rozwiazaniadlaniewidomych.org
       return message;
     }
 
-    [HttpPut("Reject/{conversationId}")]
-    [Authorize(Roles =
-        UserRoles.SUPERVISOR + "," +
-        UserRoles.COORDINATOR + "," +
-        UserRoles.ADMIN)]
-    public async Task<ActionResult> Reject(string conversationId)
-    {
-      DbConversation dbConversation = await _dbContext.Conversations
-        .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == Guid.Parse(conversationId));
-
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-
-      if (dbConversation == null)
-      {
-        throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
-      }
-
-      Message rejectMessage = new Message()
-      {
-        Id = new Guid(),
-        UserId = user.Id,
-        ConversationId = dbConversation.Id,
-        Status = NoteStatus.Rejected,
-        CreatedAt = DateTime.Now
-      };
-      DbMessage dbMessage = _mapper.Map<DbMessage>(rejectMessage);
-      dbMessage.User = user;
-
-      dbConversation.Messages.Add(dbMessage);
-
-      _dbContext.SaveChanges();
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Conversation rejected successfully"]);
-    }
-
-
     /// <summary>
     /// Approves conversation.
     /// </summary>
@@ -326,48 +250,6 @@ rozwiazaniadlaniewidomych.org
       _dbContext.SaveChanges();
 
       return Ok(_localizer["Conversation approved successfully"]);
-    }
-
-    /// <summary>
-    /// Rejects conversation.
-    /// </summary>
-    /// <param name="message">Message object.</param>
-    /// <returns>Operation satuts.</returns>
-    [HttpPut("Reject")]
-    [Authorize(Roles =
-        UserRoles.SUPERVISOR + "," +
-        UserRoles.COORDINATOR + "," +
-        UserRoles.ADMIN)]
-    public async Task<ActionResult> Reject([FromBody] MessageInput messageInput)
-    {
-      DbConversation dbConversation = await _dbContext.Conversations
-        .Include(x => x.Messages)
-        .FirstOrDefaultAsync(x => x.Id == messageInput.ConversationId);
-
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-
-      if (dbConversation == null)
-      {
-        throw new BadHttpRequestException(_localizer["Selected conversation doesn't exist"]);
-      }
-
-      Message message = new Message()
-      {
-        Id = new Guid(),
-        UserId = user.Id,
-        ConversationId = dbConversation.Id,
-        Status = NoteStatus.Rejected,
-        CreatedAt = DateTime.Now,
-        Text = messageInput.Text,
-      };
-      DbMessage dbMessage = _mapper.Map<DbMessage>(message);
-      dbMessage.User = user;
-
-      dbConversation.Messages.Add(dbMessage);
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Conversation rejected successfully"]);
     }
   }
 }
