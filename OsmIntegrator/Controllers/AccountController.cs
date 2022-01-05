@@ -38,6 +38,7 @@ namespace OsmIntegrator.Controllers
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly ITokenHelper _tokenHelper;
     private readonly IStringLocalizer<AccountController> _localizer;
+    private readonly IExternalServicesConfiguration _externalServicesConfiguration;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
@@ -47,7 +48,8 @@ namespace OsmIntegrator.Controllers
         ILogger<AccountController> logger,
         RoleManager<ApplicationRole> roleManager,
         ITokenHelper tokenHelper,
-        IStringLocalizer<AccountController> localizer
+        IStringLocalizer<AccountController> localizer,
+        IExternalServicesConfiguration externalServicesConfiguration
         )
     {
       _logger = logger;
@@ -58,6 +60,7 @@ namespace OsmIntegrator.Controllers
       _roleManager = roleManager;
       _tokenHelper = tokenHelper;
       _localizer = localizer;
+      _externalServicesConfiguration = externalServicesConfiguration ?? throw new ArgumentNullException(nameof(externalServicesConfiguration));
     }
 
     [HttpGet]
@@ -227,10 +230,10 @@ namespace OsmIntegrator.Controllers
 
     private MimeMessage ConfirmRegistrationMessageBuilder(ApplicationUser user)
     {
-      string slackInvitation = "https://join.slack.com/t/techforaccessibility/shared_invite/zt-y7auomk3-iFugUKhN_Qz6_8Y37jySNw";
-      string slackDownload = "https://slack.com/downloads";
-      string userManualLink = "https://drive.google.com/file/d/147oQ0nPozaHM0O4OKTLPSIBpMFvB9bWM/view?usp=sharing";
-      string facebookGroupLink = "https://www.facebook.com/groups/282362010475827";
+      string slackInvitation = _externalServicesConfiguration.SlackInvitationUrl;
+      string slackDownload = _externalServicesConfiguration.SlackDownloadUrl;
+      string userManualLink = _externalServicesConfiguration.UserManualUrl;
+      string facebookGroupLink = _externalServicesConfiguration.FacebookGroupUrl;
 
       MimeMessage message = new MimeMessage();
       message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));

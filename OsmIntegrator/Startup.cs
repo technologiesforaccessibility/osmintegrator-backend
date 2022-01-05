@@ -49,6 +49,7 @@ namespace osmintegrator
         config.ErrorResponses = new ApiVersioningErrorResponseProvider();
       });
 
+      services.AddSingleton<IExternalServicesConfiguration, ExternalServicesConfiguration>();
       services.AddSingleton<DataInitializer>();
       // ===== Add our DbContext ========
       services.AddDbContext<ApplicationDbContext>();
