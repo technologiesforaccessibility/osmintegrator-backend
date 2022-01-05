@@ -88,6 +88,7 @@ namespace OsmIntegrator.Controllers
 
       if (userEmail == null)
       {
+        // TODO: security vulnerability - disclosing users data
         throw new BadHttpRequestException(_localizer["Email doesn't exist"]);
       }
 
