@@ -146,21 +146,22 @@ namespace osmintegrator
 
       services.AddAutoMapper((cfg) =>
       {
-          cfg.AddProfile(new TileProfile(Configuration));
-          cfg.AddProfile<StopProfile>();
-          cfg.AddProfile<TagProfile>();
-          cfg.AddProfile<ApplicationUserProfile>();
-          cfg.AddProfile<ConnectionProfile>();
-          cfg.AddProfile<ExistingNoteProfile>();
-          cfg.AddProfile<NewNoteProfile>();
-          cfg.AddProfile<ConversationProfile>();
-          cfg.AddProfile<MessageProfile>();
+        cfg.AddProfile(new TileProfile(Configuration));
+        cfg.AddProfile<StopProfile>();
+        cfg.AddProfile<TagProfile>();
+        cfg.AddProfile<ApplicationUserProfile>();
+        cfg.AddProfile<ConnectionProfile>();
+        cfg.AddProfile<ExistingNoteProfile>();
+        cfg.AddProfile<NewNoteProfile>();
+        cfg.AddProfile<ConversationProfile>();
+        cfg.AddProfile<MessageProfile>();
       });
 
       services.AddSingleton<IEmailService, EmailService>();
       services.AddSingleton<ITokenHelper, TokenHelper>();
       services.AddSingleton<ITileValidator, TileValidator>();
       services.AddScoped<IOsmExporter, OsmExporter>();
+      services.AddScoped<IEmailHelper, EmailHelper>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
