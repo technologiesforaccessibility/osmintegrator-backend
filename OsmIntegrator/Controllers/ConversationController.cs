@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using AutoMapper;
-using MimeKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -48,8 +47,6 @@ namespace OsmIntegrator.Controllers
     private readonly IMapper _mapper;
     private readonly IStringLocalizer<ConversationController> _localizer;
 
-    private readonly IEmailService _emailService;
-
     private readonly IConfiguration _configuration;
 
     public ConversationController(
@@ -59,7 +56,6 @@ namespace OsmIntegrator.Controllers
         RoleManager<ApplicationRole> roleManager,
         ApplicationDbContext dbContext,
         IStringLocalizer<ConversationController> localizer,
-        IEmailService emailService,
         IConfiguration configuration
     )
     {
@@ -69,7 +65,6 @@ namespace OsmIntegrator.Controllers
       _roleManager = roleManager;
       _dbContext = dbContext;
       _localizer = localizer;
-      _emailService = emailService;
       _configuration = configuration;
     }
 
@@ -170,48 +165,6 @@ namespace OsmIntegrator.Controllers
 
 
       return Ok(response);
-    }
-
-    private void SendApprovedTileEmail(DbConversation conversation)
-    {
-      List<ApplicationUser> users = conversation.Messages
-        .FindAll(x => x.Status == NoteStatus.Created)
-        .Select(x => x.User)
-        .ToList();
-
-      foreach (ApplicationUser user in users)
-      {
-        Task task = Task.Run(() => _emailService.SendEmailAsync(ConversationResolvedMessageBuilder(user)));
-      }
-    }
-
-    private MimeMessage ConversationResolvedMessageBuilder(ApplicationUser user)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(user.Email));
-      message.Subject = _emailService.BuildSubject(_localizer["Report resolved"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
-{_localizer["Report that you submitted was resolved"]}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["Report that you submitted was resolved"]}</p><br/>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
     }
 
     /// <summary>

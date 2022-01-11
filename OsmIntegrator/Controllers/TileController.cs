@@ -41,7 +41,6 @@ namespace OsmIntegrator.Controllers
     private readonly IMapper _mapper;
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
-    private readonly IEmailService _emailService;
     private readonly IOverpass _overpass;
     readonly IOsmUpdater _osmUpdater;
 
@@ -65,7 +64,6 @@ namespace OsmIntegrator.Controllers
       _userManager = userManager;
       _roleManger = roleManager;
       _localizer = localizer;
-      _emailService = emailService;
       _osmUpdater = refresherHelper;
       _overpass = overpass;
     }
@@ -462,64 +460,8 @@ namespace OsmIntegrator.Controllers
       }
 
       _dbContext.SaveChanges();
-      await SendEmails(currentTile);
 
       return Ok(_localizer["Tile approved"]);
-    }
-
-    private async Task SendEmails(DbTile currentTile)
-    {
-      List<ApplicationUser> usersInRole = new List<ApplicationUser>();
-
-      if (currentTile.SupervisorApproved != null)
-      {
-        usersInRole = (List<ApplicationUser>)await _userManager.GetUsersInRoleAsync(UserRoles.COORDINATOR);
-      }
-      else if (currentTile.EditorApproved != null)
-      {
-        usersInRole = currentTile.TileUsers.Where(x => x.Role.Name == UserRoles.SUPERVISOR).Select(x => x.User).ToList();
-      }
-
-      if (!Boolean.Parse(_configuration["SendEmails"]))
-      {
-        return;
-      }
-
-      foreach (ApplicationUser user in usersInRole)
-      {
-        Task task = Task.Run(() => _emailService.SendEmailAsync(TileApprovedMessageBuilder(user, currentTile)));
-      }
-    }
-
-    private MimeMessage TileApprovedMessageBuilder(ApplicationUser user, DbTile tile)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(user.Email));
-      message.Subject = _emailService.BuildSubject(_localizer["Tile approved"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
-{_localizer["One of the tiles was approved"]}
-X: {tile.X}, Y: {tile.Y}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["One of the tiles was approved"]}</p><br/>
-<p>X: {tile.X}, Y: {tile.Y}</p>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
     }
 
     [HttpPut("{id}")]
