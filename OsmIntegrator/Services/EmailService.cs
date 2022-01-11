@@ -36,7 +36,7 @@ namespace OsmIntegrator.Services
 
       try
       {
-        var email = new MimeMessage();
+        MimeMessage email = new MimeMessage();
         email.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
         email.To.Add(MailboxAddress.Parse(to));
         email.Subject = subject;

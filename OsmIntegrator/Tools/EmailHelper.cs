@@ -29,37 +29,37 @@ public class EmailHelper : IEmailHelper
 
   public async Task SendChangeEmailMessageAsync(string newEmailAddress, ClaimsPrincipal user)
   {
-    var applicationUser = await _userManager.GetUserAsync(user);
+    ApplicationUser applicationUser = await _userManager.GetUserAsync(user);
 
-    var normalizedNewEmailAddress = newEmailAddress.Trim().ToLower();
+    string normalizedNewEmailAddress = newEmailAddress.Trim().ToLower();
 
-    var token = await _userManager.GenerateChangeEmailTokenAsync(applicationUser, normalizedNewEmailAddress);
+    string token = await _userManager.GenerateChangeEmailTokenAsync(applicationUser, normalizedNewEmailAddress);
 
-    var urlToResetPassword =
+    string urlToResetPassword =
         _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + normalizedNewEmailAddress + "&oldEmail=" + applicationUser.Email + "&token=" + token;
 
-    var messageBody = BuildChangeEmailMessageBody(normalizedNewEmailAddress, applicationUser.UserName, urlToResetPassword);
-    var subject = GetSubject(_localizer["Confirm new email"]);
+    MimeEntity messageBody = BuildChangeEmailMessageBody(normalizedNewEmailAddress, applicationUser.UserName, urlToResetPassword);
+    string subject = GetSubject(_localizer["Confirm new email"]);
 
     await _emailService.SendEmailAsync(normalizedNewEmailAddress, subject, messageBody);
   }
 
   public async Task SendForgotPasswordMessageAsync(string userEmailAddress)
   {
-    var user = await _userManager.FindByEmailAsync(userEmailAddress);
+    ApplicationUser user = await _userManager.FindByEmailAsync(userEmailAddress);
 
     if (user != null && await _userManager.IsEmailConfirmedAsync(user))
     {
-      var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+      string token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
       //Generate reset password link using url to frontend service, email and reset password token
       //for example:
-      var urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ResetPassword?email=" + userEmailAddress + "&token=" + token;
+      string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ResetPassword?email=" + userEmailAddress + "&token=" + token;
       // to do: create function to generate email message and subject
       // containing instruction what to do and url link to reset password
 
-      var subject = GetSubject(_localizer["Resset password"]);
-      var messageBody = BuildForgotPasswordMessageBody(user.UserName, urlToResetPassword);
+      string subject = GetSubject(_localizer["Resset password"]);
+      MimeEntity messageBody = BuildForgotPasswordMessageBody(user.UserName, urlToResetPassword);
 
       await _emailService.SendEmailAsync(userEmailAddress, subject, messageBody);
     }
@@ -67,19 +67,19 @@ public class EmailHelper : IEmailHelper
 
   public async Task SendRegisterMessageAsync(RegisterData model, ApplicationUser user)
   {
-    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-    var url = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
+    string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+    string url = _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + token;
 
-    var subject = GetSubject(_localizer["Confirm account registration"]);
-    var messageBody = BuildRegisterMessageBody(model.Username, url);
+    string subject = GetSubject(_localizer["Confirm account registration"]);
+    MimeEntity messageBody = BuildRegisterMessageBody(model.Username, url);
 
     await _emailService.SendEmailAsync(model.Email, subject, messageBody);
   }
 
   public async Task SendConfirmRegistrationMessageAsync(ApplicationUser user)
   {
-    var subject = GetSubject(_localizer["Information for new users"]);
-    var messageBody = BuildConfirmRegistrationMessageBody(user.Email, user.UserName);
+    string subject = GetSubject(_localizer["Information for new users"]);
+    MimeEntity messageBody = BuildConfirmRegistrationMessageBody(user.Email, user.UserName);
 
     await _emailService.SendEmailAsync(user.Email, subject, messageBody);
   }
@@ -91,7 +91,7 @@ public class EmailHelper : IEmailHelper
     string userManualLink = _externalServicesConfiguration.UserManualUrl;
     string facebookGroupLink = _externalServicesConfiguration.FacebookGroupUrl;
 
-    var builder = new BodyBuilder();
+    BodyBuilder builder = new BodyBuilder();
 
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["You have successfully created an account on"]} www.osmintegrator.pl. 
@@ -124,7 +124,7 @@ rozwiazaniadlaniewidomych.org
 
   private MimeEntity BuildRegisterMessageBody(string username, string url)
   {
-    var builder = new BodyBuilder();
+    BodyBuilder builder = new BodyBuilder();
 
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["You have just created an account on the site"]} www.osmintegrator.pl. {_localizer["To activate your account, click on the link below."]}
@@ -147,7 +147,7 @@ rozwiazaniadlaniewidomych.org
 
   private MimeEntity BuildForgotPasswordMessageBody(string username, string url)
   {
-    var builder = new BodyBuilder();
+    BodyBuilder builder = new BodyBuilder();
 
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["You have requested password reset on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
@@ -171,7 +171,7 @@ rozwiazaniadlaniewidomych.org
 
   private MimeEntity BuildChangeEmailMessageBody(string newEmailAddress, string username, string url)
   {
-    var builder = new BodyBuilder();
+    BodyBuilder builder = new BodyBuilder();
 
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["You have requested changing an email address on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
