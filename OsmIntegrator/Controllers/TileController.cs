@@ -140,18 +140,9 @@ namespace OsmIntegrator.Controllers
       if (roles.Contains(UserRoles.EDITOR))
       {
         List<DbTile> editorTiles = await _dbContext.Tiles
-          .Include(x => x.TileUsers)
-            .ThenInclude(y => y.User)
+          .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections)
           .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.TileUsers.Any(x => x.User.Id == user.Id))
-          .Where(x =>
-            x.EditorApprovedId == null
-            && x.SupervisorApprovedId == null
-            && x.TileUsers.Any(y =>
-              y.User.Id == user.Id
-              && y.Role.Name == UserRoles.EDITOR
-            )
-          )
+          .OnlyAccessibleBy(user.Id)
           .ToListAsync();
         tiles.AddRange(editorTiles);
       }
@@ -172,8 +163,8 @@ namespace OsmIntegrator.Controllers
 
       // Check if tile exists
       var tile = await _dbContext.Tiles
-          .Include(x => x.TileUsers)
-            .ThenInclude(y => y.User)
+          .Include(t => t.Stops).ThenInclude(s => s.GtfsConnections)
+          .Include(x => x.TileUsers).ThenInclude(y => y.User)
           .SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
@@ -189,7 +180,7 @@ namespace OsmIntegrator.Controllers
       if (
         !roles.Contains(UserRoles.SUPERVISOR) &&
         !roles.Contains(UserRoles.COORDINATOR) &&
-        (roles.Contains(UserRoles.EDITOR) && !tile.TileUsers.Any(x => x.User.Id == user.Id)))
+        (roles.Contains(UserRoles.EDITOR) && !tile.IsAccessibleBy(user.Id)))
       {
         throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
       }

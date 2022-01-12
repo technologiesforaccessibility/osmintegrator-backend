@@ -61,29 +61,23 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
     public async Task<IActionResult> Add([FromBody] NewConnectionAction connectionAction)
     {
-
-      // Check if connection already exists and has not been deleted.
-      List<DbConnection> existingConnections = await _dbContext.Connections
-          .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
-                  x.GtfsStopId == connectionAction.GtfsStopId)
+      // Check if connection already exists
+      DbConnection existingConnection = await _dbContext.Connections
+          .Where(x => x.OsmStopId == connectionAction.OsmStopId)
+          .Where(x => x.GtfsStopId == connectionAction.GtfsStopId)
           .OrderByDescending(link => link.CreatedAt)
-          .ToListAsync();
+          .AsNoTracking()
+          .FirstOrDefaultAsync();
 
-      DbConnection existingConnection = existingConnections.FirstOrDefault();
-      bool imported = false;
-      if (existingConnection != null)
+      // Check if connection has not been added.
+      if (existingConnection?.OperationType == ConnectionOperationType.Added)
       {
-        if (existingConnection.OperationType == ConnectionOperationType.Added)
-        {
-          throw new BadHttpRequestException(_localizer["The connection already exists"]);
-        }
-        // Check wether last connection was imported
-        imported = existingConnection.Imported;
+        throw new BadHttpRequestException(_localizer["The connection already exists"]);
       }
 
       // Check if GTFS stop has already been connected to another stop.
       DbStop gtfsStop = await _dbContext.Stops
-          .Include(x => x.GtfsConnections)
+          .Include(x => x.Tile).ThenInclude(t => t.Stops).ThenInclude(s => s.GtfsConnections)
           .FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
 
       if (gtfsStop == null)
@@ -95,7 +89,7 @@ namespace OsmIntegrator.Controllers
           .OrderByDescending(link => link.CreatedAt)
           .FirstOrDefault();
 
-      if (gtfsConnection != null && gtfsConnection.OperationType == ConnectionOperationType.Added)
+      if (gtfsConnection?.OperationType == ConnectionOperationType.Added)
       {
         throw new BadHttpRequestException(_localizer["The GTFS stop has already been connected with different stop"]);
       }
@@ -111,7 +105,7 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Please ensure correct stops were chosen"]);
       }
 
-      if(osmStop.StopType == gtfsStop.StopType)
+      if (osmStop.StopType == gtfsStop.StopType)
       {
         throw new BadHttpRequestException(_localizer["Stops cannot have the same type"]);
       }
@@ -133,6 +127,11 @@ namespace OsmIntegrator.Controllers
 
       ApplicationUser currentUser = await _userManager.GetUserAsync(User);
 
+      if (!gtfsStop.Tile.IsAccessibleBy(currentUser.Id))
+      {
+        throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
+      }
+
       DbConnection newConnection = new DbConnection()
       {
         OsmStop = osmStop,
@@ -140,12 +139,12 @@ namespace OsmIntegrator.Controllers
         GtfsStopId = gtfsStop.Id,
         GtfsStop = gtfsStop,
         User = currentUser,
-        Imported = imported,
+        Imported = existingConnection?.Imported ?? false,
         OperationType = ConnectionOperationType.Added
       };
 
-      _dbContext.Connections.Add(newConnection);
-      _dbContext.SaveChanges();
+      await _dbContext.Connections.AddAsync(newConnection);
+      await _dbContext.SaveChangesAsync();
 
       return Ok(_localizer["Connection successfully added!"]);
     }
