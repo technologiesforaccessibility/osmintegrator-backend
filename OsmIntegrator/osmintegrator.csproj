@@ -48,4 +48,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  
+  <ItemGroup>
+	<Content Include="Scripts\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
