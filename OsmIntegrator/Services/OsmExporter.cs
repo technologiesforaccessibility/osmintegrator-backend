@@ -107,9 +107,9 @@ namespace OsmIntegrator.Services
     public string GetComment(long x, long y, int zoom)
     {
       StringBuilder sb = new StringBuilder();
-      sb.Append("This change is about update name, ref and local_ref tags inside bus and tram stops. ");
+      sb.Append("This change is about updating name, ref and local_ref tags inside bus and tram stops. ");
       sb.Append($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}. ");
-      sb.Append("Wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator, ");
+      sb.Append("Wiki page: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind, ");
       sb.Append("project page: https://osmintegrator.eu");
       return sb.ToString();
     }
