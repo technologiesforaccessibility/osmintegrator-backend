@@ -5,6 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
@@ -98,5 +100,17 @@ namespace OsmIntegrator.Database.Models
       OverlapMinLat = minLat - latOverlap;
       OverlapMaxLat = maxLat + latOverlap;
     }
+
+    public bool HasNewGtfsConnections => Stops
+      .Where(s => s.StopType == StopType.Gtfs)
+      .SelectMany(s=>s.GtfsConnections)
+      .OnlyActive()
+      .Any(c => c.UserId.HasValue);
+
+    public bool IsAccessibleBy(Guid userId) => !Stops
+      .Where(s => s.StopType == StopType.Gtfs) 
+      .SelectMany(s => s.GtfsConnections)
+      .OnlyActive()
+      .Any(c => c.UserId.HasValue && c.UserId != userId);
   }
 }
