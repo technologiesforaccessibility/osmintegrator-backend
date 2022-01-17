@@ -16,14 +16,23 @@ using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.OsmExports
 {
-  public class UpdateFieldsTest : ExportsTestBase
+  public class OsmExportTest : IntegrationTest
   {
-    public UpdateFieldsTest(ApiWebApplicationFactory factory) : base(factory) { }
+    string expectedComment = "Updating ref and local_ref with GTFS data. " +
+      "Tile X: 2264, Y: 1385, Zoom: 12. " +
+      "Wiki: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind";
 
-    [Fact]
-    public async Task Test()
+    public OsmExportTest(ApiWebApplicationFactory factory) : base(factory)
     {
-      await InitTest(nameof(UpdateFieldsTest), "supervisor2", "supervisor1");
+      TestDataFolder = "Data/OsmExports/";
+    }
+
+    [Theory]
+    [InlineData("AddFieldsTest")]
+    [InlineData("UpdateFieldsTest")]
+    public async Task Test(string testName)
+    {
+      await InitTest(testName, "supervisor2", "supervisor1");
 
       DbStop gtfsStop = await _dbContext.Stops.FirstAsync(x => x.StopId == GTFS_STOP_ID_3);
       DbStop osmStop = await _dbContext.Stops.FirstAsync(x => x.StopId == OSM_STOP_ID_1);
@@ -41,10 +50,10 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
 
       OsmChangeOutput output = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
 
+      Assert.Equal(expectedComment, output.Comment);
+
       OsmChange actual = SerializationHelper.XmlDeserialize<OsmChange>(output.OsmChangeFileContent);
-
-      OsmChange expected = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{nameof(UpdateFieldsTest)}/osmchange.xml");
-
+      OsmChange expected = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
       List<Difference> differences = Compare<OsmChange>(expected, actual);
       Assert.Empty(differences);
     }

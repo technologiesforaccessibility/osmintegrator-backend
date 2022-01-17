@@ -47,7 +47,8 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       DbStop actualStop2 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_2);
       Assert.Equal(5, actualStop2.Tags.Count);
       Assert.Contains(actualStop2.Tags, x => x.Key == "very_public_transport" && x.Value == "stop_position");
-      Assert.False(actualStop2.Tags.Any(x => x.Key == "public_transport"));
+
+      Assert.DoesNotContain(actualStop2.Tags, x => x.Key == "public_transport");
 
       ReportTile actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;

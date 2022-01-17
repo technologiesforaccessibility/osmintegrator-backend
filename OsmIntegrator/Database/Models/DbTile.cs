@@ -112,5 +112,11 @@ namespace OsmIntegrator.Database.Models
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Any(c => c.UserId.HasValue && c.UserId != userId);
+    
+    public IEnumerable<DbConnection> ActiveConnections(bool exported) => Stops
+      .Where(s => s.StopType == StopType.Osm)
+      .SelectMany(s => s.OsmConnections)
+      .OnlyActive()
+      .Where(c => c.Exported == exported);
   }
 }
