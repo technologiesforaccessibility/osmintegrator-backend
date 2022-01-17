@@ -103,14 +103,21 @@ namespace OsmIntegrator.Database.Models
 
     public bool HasNewGtfsConnections => Stops
       .Where(s => s.StopType == StopType.Gtfs)
-      .SelectMany(s=>s.GtfsConnections)
+      .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Any(c => c.UserId.HasValue);
 
     public bool IsAccessibleBy(Guid userId) => !Stops
-      .Where(s => s.StopType == StopType.Gtfs) 
+      .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Any(c => c.UserId.HasValue && c.UserId != userId);
+
+    public ApplicationUser AssignedUser => Stops
+      .Where(s => s.StopType == StopType.Gtfs)
+      .SelectMany(s => s.GtfsConnections)
+      .OnlyActive()
+      .Select(c => c.User)
+      .FirstOrDefault(u => u != null);
   }
 }

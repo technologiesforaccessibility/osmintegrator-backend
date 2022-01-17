@@ -22,7 +22,7 @@ namespace OsmIntegrator.Controllers
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api")]
     [EnableCors("AllowOrigin")]
     public class UsersController : ControllerBase
     {
@@ -50,9 +50,9 @@ namespace OsmIntegrator.Controllers
             _localizer = localizer;
         }
 
-        [HttpGet]
+        [HttpGet("users")]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        public async Task<ActionResult<List<User>>> Get()
+        public async Task<ActionResult<List<User>>> Get(string role = null)
         {
             var users = await _userManager.Users
                 .Select(u => new { User = u, Roles = new List<string>() })
@@ -83,6 +83,24 @@ namespace OsmIntegrator.Controllers
                 });
             }
             return Ok(result);
+        }
+
+        [HttpGet("roles/{role}/users")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        public async Task<ActionResult<List<User>>> GetByRole(string role)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(role?.Trim().ToLower());      
+
+            List<User> result = users
+              .Select(user => new ApiModels.User()
+              {
+                UserName = user.UserName,
+                Email = user.Email,
+                Id = user.Id
+              })
+              .ToList();
+
+          return Ok(result);
         }
     }
 }
