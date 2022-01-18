@@ -84,6 +84,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles
           .Include(x => x.TileUsers)
+          .Include(x => x.Stops).ThenInclude(s => s.GtfsConnections)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.SupervisorApprovedId == null)
           .ToListAsync();
