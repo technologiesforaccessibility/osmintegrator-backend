@@ -1,10 +1,11 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace OsmIntegrator.ApiModels
 {
   public class UpdateTileInput
   {
-    public Guid? SupervisorId { get; set; }
+    [Required]
     public Guid? EditorId { get; set; }
   }
 }

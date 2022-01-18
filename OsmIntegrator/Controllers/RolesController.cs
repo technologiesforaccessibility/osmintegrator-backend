@@ -83,6 +83,24 @@ namespace OsmIntegrator.Controllers
             return Ok(usersWithRoles);
         }
 
+        [HttpGet("{role}/users")]
+        [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+        public async Task<ActionResult<List<User>>> GetUsersWithRole(string role)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(role?.Trim().ToLower());      
+
+            List<User> result = users
+              .Select(user => new ApiModels.User()
+              {
+                UserName = user.UserName,
+                Email = user.Email,
+                Id = user.Id
+              })
+              .ToList();
+
+          return Ok(result);
+        }
+
         /// <summary>
         /// Remove roles to which current user has no permissions.
         /// </summary>
