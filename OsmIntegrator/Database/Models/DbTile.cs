@@ -119,5 +119,10 @@ namespace OsmIntegrator.Database.Models
       .OnlyActive()
       .Select(c => c.User)
       .FirstOrDefault(u => u != null);
+
+    public int UnconnectedZtmStops => Stops
+      .Where(s => s.StopType == StopType.Gtfs)
+      .Where(s => !s.GtfsConnections.OnlyActive().Any())
+      .Count();
   }
 }
