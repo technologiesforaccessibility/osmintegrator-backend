@@ -41,5 +41,10 @@ namespace OsmIntegrator.Database.Models
     public Guid? ApprovedById { get; set; }
 
     public ApplicationUser ApprovedBy { get; set; }
+
+    [Required]
+    public bool Exported { get; set; }
+
+    public DateTime? ExportedAt { get; set; }
   }
 }
