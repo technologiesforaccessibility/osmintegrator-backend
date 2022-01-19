@@ -23,6 +23,9 @@ using OsmIntegrator.Tools;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.ApiModels.Stops;
+using OsmIntegrator.Database.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace OsmIntegrator.Controllers
 {
@@ -81,6 +84,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles
           .Include(x => x.TileUsers)
+          .Include(x => x.Stops).ThenInclude(s => s.GtfsConnections)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x => x.SupervisorApprovedId == null)
           .ToListAsync();
@@ -111,10 +115,7 @@ namespace OsmIntegrator.Controllers
       if (roles.Contains(UserRoles.SUPERVISOR))
       {
         List<DbTile> supervisorTiles = await _dbContext.Tiles
-          .Include(x => x.TileUsers)
-            .ThenInclude(y => y.User)
-          .Include(x => x.TileUsers)
-            .ThenInclude(y => y.Role)
+          .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections).ThenInclude(c => c.User)
           .Where(x => x.GtfsStopsCount > 0)
           .Where(x =>
             x.EditorApprovedId != null
@@ -146,6 +147,23 @@ namespace OsmIntegrator.Controllers
           .ToListAsync();
         tiles.AddRange(editorTiles);
       }
+
+      return Ok(_mapper.Map<List<Tile>>(tiles));
+    }
+
+    [HttpGet]
+    [Authorize(Roles = UserRoles.SUPERVISOR)]
+    public async Task<ActionResult<List<Tile>>> GetUncommitedTiles()
+    {
+      List<DbTile> tiles = (await _dbContext.Connections
+        .Where(c => c.UserId != null)
+        .Include(c => c.GtfsStop.Tile)
+        .Include(c => c.GtfsStop.GtfsConnections).ThenInclude(c => c.User)
+        .ToListAsync())
+        .OnlyActive()
+        .Select(c => c.GtfsStop.Tile)
+        .Distinct()
+        .ToList();
 
       return Ok(_mapper.Map<List<Tile>>(tiles));
     }
@@ -335,78 +353,19 @@ namespace OsmIntegrator.Controllers
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> UpdateUsers(string id, [FromBody] UpdateTileInput updateTileInput)
+    public async Task<ActionResult<string>> UpdateUsers(Guid id, [FromBody] UpdateTileInput updateTileInput)
     {
-      DbTile currentTile = await GetTileAsync(id);
+      List<DbConnection> connections = (await _dbContext.Connections
+        .Where(c => c.GtfsStop.TileId == id)
+        .Where(c => c.UserId != null)
+        .ToListAsync())
+        .OnlyActive()
+        .Where(c => c.UserId != updateTileInput.EditorId)
+        .ToList();
 
-      if (updateTileInput.EditorId != null && currentTile.EditorApproved == null)
+      foreach (var connection in connections)
       {
-        ApplicationUser editor = await _userManager.FindByIdAsync(updateTileInput.EditorId.ToString());
-        IList<string> roles = await _userManager.GetRolesAsync(editor);
-        ApplicationRole editorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First();
-        if (!roles.Contains(UserRoles.EDITOR))
-        {
-          throw new BadHttpRequestException(_localizer["This user is not an editor"]);
-        }
-
-        if (_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.User == editor && x.Role != editorRole).Count() != 0)
-        {
-          throw new BadHttpRequestException(_localizer["Unable to assign. User already assigned to this tile"]);
-        }
-
-        _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == editorRole));
-
-        _dbContext.TileUsers.Add(new DbTileUser()
-        {
-          Id = new Guid(),
-          User = editor,
-          Tile = currentTile,
-          Role = editorRole
-        });
-      }
-      else if (currentTile.EditorApproved == null)
-      {
-        _dbContext.TileUsers
-          .RemoveRange(
-            _dbContext.TileUsers
-              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
-                    x.Name == UserRoles.EDITOR).First()));
-      }
-
-      if (updateTileInput.SupervisorId != null && currentTile.SupervisorApproved == null)
-      {
-        ApplicationUser supervisor = await _userManager.FindByIdAsync(updateTileInput.SupervisorId.ToString());
-        IList<string> roles = await _userManager.GetRolesAsync(supervisor);
-        ApplicationRole supervisorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.SUPERVISOR).First();
-        if (!roles.Contains(UserRoles.SUPERVISOR))
-        {
-          throw new BadHttpRequestException(_localizer["This user is not a supervisor"]);
-        }
-
-        if (_dbContext.TileUsers.Where(
-          x => x.Tile == currentTile && x.User == supervisor && x.Role != supervisorRole).Count() != 0)
-        {
-          throw new BadHttpRequestException(
-            _localizer["Unable to assign. User already assigned to this tile"]);
-        }
-
-        _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == supervisorRole));
-
-        _dbContext.TileUsers.Add(new DbTileUser()
-        {
-          Id = new Guid(),
-          User = supervisor,
-          Tile = currentTile,
-          Role = supervisorRole
-        });
-      }
-      else if (currentTile.SupervisorApproved == null)
-      {
-        _dbContext.TileUsers
-          .RemoveRange(
-            _dbContext.TileUsers
-              .Where(x => x.Tile == currentTile && x.Role == _roleManger.Roles.Where(x =>
-                    x.Name == UserRoles.SUPERVISOR).First()));
+        connection.UserId = updateTileInput.EditorId;
       }
 
       _dbContext.SaveChanges();

@@ -17,6 +17,8 @@ namespace OsmIntegrator.AutoMapper
           .ForMember(x => x.UsersCount, o => o.MapFrom(x => x.TileUsers.Count))
           .ForMember(x => x.ApprovedBySupervisor, o => o.MapFrom(x => x.SupervisorApprovedId != null))
           .ForMember(x => x.ZoomLevel, o => o.MapFrom(x => zoomLevel))
+          .ForMember(x => x.AssignedUserName, o => o.MapFrom(x => x.AssignedUser == null ? string.Empty : x.AssignedUser.UserName))
+          .ForMember(x => x.UnconnectedGtfsStops, o => o.MapFrom(x => x.UnconnectedZtmStops))
           .ForMember(x => x.ApprovedByEditor, o => o.MapFrom(x => x.HasNewGtfsConnections));
     }
   }

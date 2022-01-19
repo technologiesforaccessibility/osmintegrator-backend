@@ -103,12 +103,12 @@ namespace OsmIntegrator.Database.Models
 
     public bool HasNewGtfsConnections => Stops
       .Where(s => s.StopType == StopType.Gtfs)
-      .SelectMany(s=>s.GtfsConnections)
+      .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Any(c => c.UserId.HasValue);
 
     public bool IsAccessibleBy(Guid userId) => !Stops
-      .Where(s => s.StopType == StopType.Gtfs) 
+      .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Any(c => c.UserId.HasValue && c.UserId != userId);
@@ -118,5 +118,17 @@ namespace OsmIntegrator.Database.Models
       .SelectMany(s => s.OsmConnections)
       .OnlyActive()
       .Where(c => c.Exported == exported);
+
+    public ApplicationUser AssignedUser => Stops
+      .Where(s => s.StopType == StopType.Gtfs)
+      .SelectMany(s => s.GtfsConnections)
+      .OnlyActive()
+      .Select(c => c.User)
+      .FirstOrDefault(u => u != null);
+
+    public int UnconnectedZtmStops => Stops
+      .Where(s => s.StopType == StopType.Gtfs)
+      .Where(s => !s.GtfsConnections.OnlyActive().Any())
+      .Count();
   }
 }

@@ -139,8 +139,7 @@ namespace OsmIntegrator.Tests.Fixtures
 
       UpdateTileInput input = new UpdateTileInput
       {
-        EditorId = editorId,
-        SupervisorId = supervisorId
+        EditorId = editorId
       };
 
       foreach (DbTile tile in _dbContext.Tiles.ToList())

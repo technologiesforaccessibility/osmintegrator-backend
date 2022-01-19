@@ -38,5 +38,7 @@ namespace OsmIntegrator.ApiModels
     [Required]
     public bool ApprovedBySupervisor { get; set; } = false;
     public byte ZoomLevel { get; set; }
+    public string AssignedUserName { get; set; }
+    public ushort UnconnectedGtfsStops { get; set; }
   }
 }
