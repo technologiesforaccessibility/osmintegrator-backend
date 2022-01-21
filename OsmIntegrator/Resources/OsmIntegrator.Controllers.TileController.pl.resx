@@ -125,31 +125,6 @@
     <value>Podany użytkownik nie istnieje</value>
     <comment />
   </data>
-  <data name="Tile approved" xml:space="preserve">
-    <value>Kafelek zatwierdzony</value>
-    <comment />
-  </data>
-  <data name="This user is not an editor" xml:space="preserve">
-    <value>Ten użytkownik nie jest edytorem</value>
-  </data>
-  <data name="Supervisor cannot approve tile edited by himself" xml:space="preserve">
-    <value>Superwizor nie może zatwierdzić kafelka edytowanego przez siebie</value>
-  </data>
-  <data name="Unable to assign. Tile has already been approved by editor" xml:space="preserve">
-    <value>Nie można przypisać użytkownika do kafelka, który został już zatwierdzony przez edytora</value>
-  </data>
-  <data name="User successfully removed from the tile" xml:space="preserve">
-    <value>Przypisanie użytkownika usunięte</value>
-    <comment />
-  </data>
-  <data name="Tile has already been approved by supervisor" xml:space="preserve">
-    <value>Kafelek został już zaakceptowany przez superwizora</value>
-    <comment />
-  </data>
-  <data name="Unable to remove user from already approved tile" xml:space="preserve">
-    <value>Nie można usunąć użytkownika z kafelka zatwierdzonego przez edytora</value>
-    <comment />
-  </data>
   <data name="Unable to find tile" xml:space="preserve">
     <value>Brak kafelka</value>
     <comment />
@@ -165,9 +140,6 @@
   <data name="One of the tiles was approved" xml:space="preserve">
     <value>Jeden z kafelków został zatwierdzony</value>
     <comment />
-  </data>
-  <data name="Something went wrong when assigning user to a tile" xml:space="preserve">
-    <value>Wystąpił błąd podczas przypisywania użytkownika do kafelka</value>
   </data>
   <data name="User has been added to the tile" xml:space="preserve">
     <value>Użytkownik został przypisany do kafelka</value>
