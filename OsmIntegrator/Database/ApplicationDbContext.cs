@@ -22,13 +22,9 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbConnection> Connections { get; set; }
 
-    public DbSet<DbNote> Notes { get; set; }
-
     public DbSet<DbConversation> Conversations { get; set; }
 
     public DbSet<DbMessage> Messages { get; set; }
-
-    public DbSet<DbTileUser> TileUsers { get; set; }
 
     public DbSet<DbChangeReport> ChangeReports { get; set; }
 

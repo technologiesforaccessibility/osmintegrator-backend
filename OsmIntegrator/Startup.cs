@@ -151,8 +151,6 @@ namespace osmintegrator
         cfg.AddProfile<TagProfile>();
         cfg.AddProfile<ApplicationUserProfile>();
         cfg.AddProfile<ConnectionProfile>();
-        cfg.AddProfile<ExistingNoteProfile>();
-        cfg.AddProfile<NewNoteProfile>();
         cfg.AddProfile<ConversationProfile>();
         cfg.AddProfile<MessageProfile>();
       });

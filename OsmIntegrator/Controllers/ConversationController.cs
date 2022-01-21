@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
-using OsmIntegrator.Interfaces;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.ApiModels.Conversation;
 

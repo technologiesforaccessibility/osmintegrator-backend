@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Database.Models.Enums;
-using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
 {
@@ -52,10 +49,6 @@ namespace OsmIntegrator.Database.Models
     public int GtfsStopsCount { get; set; }
 
     public List<DbStop> Stops { get; set; }
-
-    public List<ApplicationUser> Users { get; set; }
-
-    public List<DbNote> Notes { get; set; }
 
     public List<DbConversation> Conversations { get; set; }
 
