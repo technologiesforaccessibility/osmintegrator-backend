@@ -5,9 +5,13 @@ using OsmIntegrator.Enums;
 
 public static class DbConnectionsExtensions
 {
-  public static IEnumerable<DbConnection> OnlyActive(this IEnumerable<DbConnection> connections) =>
+  public static IEnumerable<DbConnection> OnlyLatest(this IEnumerable<DbConnection> connections) =>
     connections
       .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
-      .Select(g => g.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
+      .Select(g => g.OrderByDescending(c => c.CreatedAt).FirstOrDefault());
+
+  public static IEnumerable<DbConnection> OnlyActive(this IEnumerable<DbConnection> connections) =>
+    connections
+      .OnlyLatest()
       .Where(c => c.OperationType == ConnectionOperationType.Added);
 }

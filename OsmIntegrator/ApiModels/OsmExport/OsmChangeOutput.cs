@@ -1,8 +1,7 @@
 using System.Collections.Generic;
 
-public class OsmExportInitialInfo
+public class OsmChangeOutput
 {
-  public string Comment { get; set; }
   public string Changes { get; set; }
-  public string[] Tags { get; set; }
+  public IReadOnlyDictionary<string, string> Tags { get; set; }
 }

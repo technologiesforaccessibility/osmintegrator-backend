@@ -292,7 +292,7 @@ namespace OsmIntegrator.Controllers
     /// </summary>
     [HttpDelete("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> RemoveUser(string id)
+    public async Task<ActionResult<string>> RemoveUser(Guid id)
     {
       DbTile currentTile = await GetTileAsync(id);
 
@@ -317,7 +317,7 @@ namespace OsmIntegrator.Controllers
     /// </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> UpdateUser(string id, [FromBody] User userBody)
+    public async Task<ActionResult<string>> UpdateUser(Guid id, [FromBody] User userBody)
     {
       ApplicationUser user = await _userManager.FindByIdAsync(userBody.Id.ToString());
 
@@ -375,7 +375,7 @@ namespace OsmIntegrator.Controllers
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
-    public async Task<ActionResult<string>> Approve(string id)
+    public async Task<ActionResult<string>> Approve(Guid id)
     {
       DbTile currentTile = await GetTileAsync(id);
 
@@ -416,7 +416,7 @@ namespace OsmIntegrator.Controllers
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Report>> UpdateStops(string id)
+    public async Task<ActionResult<Report>> UpdateStops(Guid id)
     {
       DbTile tile = await GetTileAsync(id);
 
@@ -429,9 +429,17 @@ namespace OsmIntegrator.Controllers
 
     [HttpGet("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<bool>> ContainsChanges(string id)
+    public async Task<ActionResult<bool>> ContainsChanges(Guid id)
     {
       DbTile tile = await GetTileAsync(id);
+
+      var minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
+      var exportUnlocksAt =  tile.LastExportAt?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
+      var minExportDelayExceeded = exportUnlocksAt < DateTime.Now;
+      if (!minExportDelayExceeded)
+      {
+        return BadRequest();
+      }
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
@@ -440,13 +448,14 @@ namespace OsmIntegrator.Controllers
       return Ok(containsChanges);
     }
 
-    private async Task<DbTile> GetTileAsync(string tileId)
+    private async Task<DbTile> GetTileAsync(Guid tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.TileUsers).ThenInclude(y => y.User)
         .Include(tile => tile.TileUsers).ThenInclude(y => y.Role)
         .Include(tile => tile.Stops)
-        .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+        .Include(tile => tile.ExportReports)
+        .SingleOrDefaultAsync(x => x.Id == tileId);
       if (currentTile == null)
       {
         throw new BadHttpRequestException(_localizer["Given tile does not exist"]);

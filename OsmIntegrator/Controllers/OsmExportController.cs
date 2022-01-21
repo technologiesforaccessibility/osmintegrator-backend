@@ -50,42 +50,56 @@ namespace OsmIntegrator.Controllers
     }
 
     [HttpGet("tiles/{tileId}/export/changes")]
-        [Authorize(Roles = 
-          UserRoles.EDITOR + "," + 
-          UserRoles.SUPERVISOR + "," + 
-          UserRoles.COORDINATOR + "," + 
+    [Authorize(Roles =
+          UserRoles.EDITOR + "," +
+          UserRoles.SUPERVISOR + "," +
+          UserRoles.COORDINATOR + "," +
           UserRoles.ADMIN)]
+    public async Task<ActionResult<OsmChangeOutput>> GetExportChanges(Guid tileId)
     {
-      
-          DbTile tile = await _dbContext.Tiles
-            .Include(x => x.Stops)
-            .ThenInclude(x => x.OsmConnections)
-            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
-          string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
+      DbTile tile = await _dbContext.Tiles
+        .Include(x => x.Stops)
+        .ThenInclude(x => x.GtfsConnections)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      OsmExportInitialInfo output = new()
+      var comment = _osmExporter.GetComment(tile.X, tile.Y, byte.Parse(_configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo));
+
+      OsmChangeOutput output = new()
       {
-        Changes = await _osmExporter.GetOsmChangeFile(tile),
-        Tags = _osmExporter.GetTags(),
-            Comment = _osmExporter.GetComment(tile.X, tile.Y, byte.Parse(_configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo))
+        Changes = tile.GetUnexportedChanges(_localizer),
+        Tags = _osmExporter.GetTags(comment)
       };
 
       return Ok(output);
     }
 
     [HttpPost("tiles/{tileId}/export")]
-        [Authorize(Roles = 
-          UserRoles.EDITOR + "," + 
-          UserRoles.SUPERVISOR + "," + 
-          UserRoles.COORDINATOR + "," + 
+    [Authorize(Roles =
+          UserRoles.EDITOR + "," +
+          UserRoles.SUPERVISOR + "," +
+          UserRoles.COORDINATOR + "," +
           UserRoles.ADMIN)]
-    public async Task<ActionResult> Export(string tileId, [FromBody] OsmExportInput input)
+    public async Task<ActionResult> Export(Guid tileId, [FromBody] OsmExportInput input)
     {
-          DbTile tile = await _dbContext.Tiles
-            .Include(x => x.Stops)
-            .ThenInclude(x => x.OsmConnections)
-            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
-          string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
+      DbTile tile = await _dbContext.Tiles
+        .Include(x => x.Stops)
+        .ThenInclude(x => x.OsmConnections)
+        .Include(t => t.ExportReports)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
+      string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
+
+      tile.ExportReports.Add(new DbTileExportReport
+      {
+        CreatedAt = DateTime.Now,
+        TileReport = new()
+        {
+          TileId = tileId,
+          TileX = tile.X,
+          TileY = tile.Y
+        }
+      });
+
+      await _dbContext.SaveChangesAsync();
 
       // Use python script to send osmchange.osc to OSM
       // Link to upload.py: https://github.com/grigory-rechistov/osm-bulk-upload
@@ -95,13 +109,16 @@ namespace OsmIntegrator.Controllers
 
     [HttpGet("tiles/{tileId}/export/osc")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
-    public async Task<ActionResult> GetExportFile(string tileId)
+    public async Task<ActionResult> GetExportFile(Guid tileId)
     {
-      DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+      DbTile tile = await _dbContext.Tiles
+        .AsNoTracking()
+        .Include(t => t.Stops).ThenInclude(s => s.OsmConnections).ThenInclude(c => c.GtfsStop)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      string filecontent = await _osmExporter.GetOsmChangeFile(tile);
+      string filecontent = _osmExporter.GetOsmChangeFile(tile);
 
-      return File(Encoding.UTF8.GetBytes(filecontent), "text/plain", "osmchange.osc");
+      return File(Encoding.UTF8.GetBytes(filecontent), "text/xml", "osmchange.osc");
     }
   }
 }

@@ -48,14 +48,14 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
       HttpResponseMessage response = await Put_Connections(connectionAction);
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-      OsmChangeOutput output = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
+      OsmChange actualFile = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
+      OsmChangeOutput actualChanges = await Get_OsmExport_GetChanges(tile.Id.ToString());  
 
-      Assert.Equal(expectedComment, output.Comment);
+      OsmChange expectedChanges = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
 
-      OsmChange actual = SerializationHelper.XmlDeserialize<OsmChange>(output.OsmChangeFileContent);
-      OsmChange expected = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
-      List<Difference> differences = Compare<OsmChange>(expected, actual);
+      List<Difference> differences = Compare<OsmChange>(expectedChanges, actualFile);
       Assert.Empty(differences);
+      Assert.Equal(expectedComment, actualChanges.Tags["comment"]);
     }
   }
 }
