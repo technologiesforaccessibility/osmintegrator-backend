@@ -17,6 +17,7 @@ namespace OsmIntegrator.Services
   {
     Task<string> GetOsmChangeFile(DbTile tile);
     string GetComment(long x, long y, int zoom);
+    string[] GetTags();
   }
 
   public class OsmExporter : IOsmExporter
@@ -113,5 +114,11 @@ namespace OsmIntegrator.Services
       sb.Append("project page: https://osmintegrator.eu");
       return sb.ToString();
     }
+
+    public string[] GetTags() => new[] {
+      "created_by=osmintegrator",
+      "source=Zarząd Transportu Metropolitalnego",
+      "hashtags=#osmintegrator;#ztm;#silesia"
+    };
   }
 }
