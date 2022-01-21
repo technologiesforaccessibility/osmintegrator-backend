@@ -92,10 +92,6 @@ namespace OsmIntegrator.Database.DataInitialization
       List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
       ApplicationUser supervisor1 = supervisors[0];
 
-      tiles[0].Users = tiles[1].Users = tile_2263_1385.Users = new List<ApplicationUser> { editor1 };
-      tiles[0].EditorApproved = tiles[1].EditorApproved = tile_2263_1385.EditorApproved = editor1;
-      tiles[0].EditorApprovalTime = tiles[1].EditorApprovalTime = tile_2263_1385.EditorApprovalTime = DateTime.Now;
-
       db.SaveChanges();
 
       DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
