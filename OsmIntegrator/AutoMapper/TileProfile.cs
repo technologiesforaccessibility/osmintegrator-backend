@@ -10,7 +10,7 @@ namespace OsmIntegrator.AutoMapper
   {
     public TileProfile(IConfiguration configuration)
     {
-      var zoomLevel = byte.Parse(configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo);
+      byte zoomLevel = byte.Parse(configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo);
 
       AllowNullCollections = true;
       CreateMap<DbTile, Tile>()

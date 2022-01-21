@@ -73,4 +73,11 @@ namespace OsmIntegrator.Tools
     public string Generator { get; set; }
   }
 
+  [XmlRoot(ElementName = "osm")]
+  public class OsmChangeset
+  {
+    [XmlAttribute(AttributeName = "changeset")]
+    public List<Tag> Tags{ get; set; }
+  }
+
 }

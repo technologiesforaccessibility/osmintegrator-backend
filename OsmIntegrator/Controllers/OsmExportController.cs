@@ -8,13 +8,13 @@ using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database;
 using OsmIntegrator.Roles;
 using Microsoft.Extensions.Localization;
-using OsmIntegrator.Services;
 using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.Database.Models;
 using System;
-using Microsoft.Extensions.Configuration;
 using System.Net.Mime;
 using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.Globalization;
 
 namespace OsmIntegrator.Controllers
 {
@@ -50,27 +50,42 @@ namespace OsmIntegrator.Controllers
     }
 
     [HttpGet("tiles/{tileId}/export/changes")]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
-    public async Task<ActionResult<OsmExportInitialInfo>> GetExportChanges(string tileId)
+        [Authorize(Roles = 
+          UserRoles.EDITOR + "," + 
+          UserRoles.SUPERVISOR + "," + 
+          UserRoles.COORDINATOR + "," + 
+          UserRoles.ADMIN)]
     {
-      DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+      
+          DbTile tile = await _dbContext.Tiles
+            .Include(x => x.Stops)
+            .ThenInclude(x => x.OsmConnections)
+            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+          string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
 
       OsmExportInitialInfo output = new()
       {
         Changes = await _osmExporter.GetOsmChangeFile(tile),
         Tags = _osmExporter.GetTags(),
-        Comment = _osmExporter.GetComment(tile.X, tile.Y, int.Parse(_configuration["ZoomLevel"]))
+            Comment = _osmExporter.GetComment(tile.X, tile.Y, byte.Parse(_configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo))
       };
 
       return Ok(output);
     }
 
     [HttpPost("tiles/{tileId}/export")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
+        [Authorize(Roles = 
+          UserRoles.EDITOR + "," + 
+          UserRoles.SUPERVISOR + "," + 
+          UserRoles.COORDINATOR + "," + 
+          UserRoles.ADMIN)]
     public async Task<ActionResult> Export(string tileId, [FromBody] OsmExportInput input)
     {
-      DbTile tile = await _dbContext.Tiles.FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
-      string osmChangeFile = await _osmExporter.GetOsmChangeFile(tile);
+          DbTile tile = await _dbContext.Tiles
+            .Include(x => x.Stops)
+            .ThenInclude(x => x.OsmConnections)
+            .FirstOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+          string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
 
       // Use python script to send osmchange.osc to OSM
       // Link to upload.py: https://github.com/grigory-rechistov/osm-bulk-upload
