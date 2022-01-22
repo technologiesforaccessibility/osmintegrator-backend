@@ -139,7 +139,6 @@ namespace OsmIntegrator.Controllers
         GtfsStopId = gtfsStop.Id,
         GtfsStop = gtfsStop,
         User = currentUser,
-        Imported = existingConnection?.Imported ?? false,
         OperationType = ConnectionOperationType.Added
       };
 
@@ -156,15 +155,13 @@ namespace OsmIntegrator.Controllers
       List<DbConnection> existingConnections = await _dbContext.Connections.Where(x => x.OsmStopId == connectionAction.OsmStopId &&
           x.GtfsStopId == connectionAction.GtfsStopId).ToListAsync();
       DbConnection existingConnection = existingConnections.LastOrDefault();
-      bool imported = false;
+
       if (existingConnection != null)
       {
         if (existingConnection.OperationType == ConnectionOperationType.Removed)
         {
           throw new BadHttpRequestException(_localizer["The connection have already been removed"]);
         }
-        // Check wether last connection was imported
-        imported = existingConnection.Imported;
       }
       else if (existingConnection == null)
       {
@@ -178,7 +175,6 @@ namespace OsmIntegrator.Controllers
         OsmStopId = (Guid)connectionAction.OsmStopId,
         GtfsStopId = (Guid)connectionAction.GtfsStopId,
         User = currentUser,
-        Imported = imported,
         OperationType = ConnectionOperationType.Removed
       };
 
@@ -234,39 +230,5 @@ namespace OsmIntegrator.Controllers
       List<Connection> result = _mapper.Map<List<Connection>>(connections);
       return Ok(result);
     }
-
-    [HttpPut("Approve/{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR)]
-    public async Task<ActionResult<string>> Approve(string id)
-    {
-
-      DbConnection link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
-      if (link == null)
-      {
-        throw new BadHttpRequestException(_localizer["Given connection does not exist"]);
-      }
-      ApplicationUser currentUser = await _userManager.GetUserAsync(User);
-      link.ApprovedBy = currentUser;
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Connection approved"]);
-    }
-    [HttpPut("Unapprove/{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR)]
-    public async Task<ActionResult<string>> Unapprove(string id)
-    {
-
-      DbConnection link = await _dbContext.Connections.Where(c => c.Id == Guid.Parse(id)).FirstOrDefaultAsync();
-      if (link == null)
-      {
-        throw new BadHttpRequestException(_localizer["Given connection does not exist"]);
-      }
-      link.ApprovedById = null;
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Connection unapproved"]);
-    }
   }
-
-
 }

@@ -10,7 +10,6 @@ namespace OsmIntegrator.AutoMapper
     {
       AllowNullCollections = true;
       CreateMap<DbConnection, Connection>()
-        .ForMember(x => x.Approved, o => o.MapFrom(x => x.ApprovedById != null))
         .ReverseMap();
     }
   }
