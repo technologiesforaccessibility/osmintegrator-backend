@@ -1419,76 +1419,6 @@
 					"response": []
 				},
 				{
-					"name": "Approve",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Connections/Approve/e044ac55-294a-47a5-98de-971696146968",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Connections",
-								"Approve",
-								"e044ac55-294a-47a5-98de-971696146968"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Unapprove",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Connections/Unapprove/e044ac55-294a-47a5-98de-971696146968",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Connections",
-								"Unapprove",
-								"e044ac55-294a-47a5-98de-971696146968"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Get",
 					"request": {
 						"auth": {
@@ -1850,54 +1780,6 @@
 								"api",
 								"Conversation",
 								"Approve"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RejectConversation",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Conversation/Reject/{{conversationId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Conversation",
-								"Reject",
-								"{{conversationId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RejectConversationWithText",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"conversationId\": \"{{conversationId}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Conversation/Reject",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Conversation",
-								"Reject"
 							]
 						}
 					},
