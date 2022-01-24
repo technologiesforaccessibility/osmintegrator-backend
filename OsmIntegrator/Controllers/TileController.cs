@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using AutoMapper;
-using MimeKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -23,9 +22,6 @@ using OsmIntegrator.Tools;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.ApiModels.Stops;
-using OsmIntegrator.Database.Models.Enums;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace OsmIntegrator.Controllers
 {
@@ -72,38 +68,6 @@ namespace OsmIntegrator.Controllers
     }
 
     [HttpGet]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
-    public async Task<ActionResult<List<Tile>>> GetAllTiles()
-    {
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-      IList<string> roles = await _userManager.GetRolesAsync(user);
-
-      List<DbTile> tiles = new List<DbTile>();
-
-      if (roles.Contains(UserRoles.SUPERVISOR))
-      {
-        List<DbTile> supervisorTiles = await _dbContext.Tiles
-          .Include(x => x.TileUsers)
-          .Include(x => x.Stops).ThenInclude(s => s.GtfsConnections)
-          .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.SupervisorApprovedId == null)
-          .ToListAsync();
-        tiles.AddRange(supervisorTiles);
-      }
-
-      if (roles.Contains(UserRoles.COORDINATOR))
-      {
-        List<DbTile> coordinatorTiles = await _dbContext.Tiles
-          .Include(x => x.TileUsers)
-          .Where(x => x.GtfsStopsCount > 0)
-          .Where(x => x.EditorApprovedId != null && x.SupervisorApprovedId != null).ToListAsync();
-        tiles.AddRange(coordinatorTiles);
-      }
-
-      return Ok(_mapper.Map<List<Tile>>(tiles));
-    }
-
-    [HttpGet]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<List<Tile>>> GetTiles()
     {
@@ -111,32 +75,6 @@ namespace OsmIntegrator.Controllers
       IList<string> roles = await _userManager.GetRolesAsync(user);
 
       List<DbTile> tiles = new List<DbTile>();
-
-      if (roles.Contains(UserRoles.SUPERVISOR))
-      {
-        List<DbTile> supervisorTiles = await _dbContext.Tiles
-          .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections).ThenInclude(c => c.User)
-          .Where(x => x.GtfsStopsCount > 0)
-          .Where(x =>
-            x.EditorApprovedId != null
-            && x.SupervisorApprovedId == null
-            && x.TileUsers.Any(y =>
-              y.User.Id == user.Id
-              && y.Role.Name == UserRoles.SUPERVISOR
-            )
-          )
-          .ToListAsync();
-        tiles.AddRange(supervisorTiles);
-      }
-
-      if (roles.Contains(UserRoles.COORDINATOR))
-      {
-        List<DbTile> coordinatorTiles = await _dbContext.Tiles
-          .Where(
-            x => x.GtfsStopsCount > 0 && x.EditorApprovedId != null && x.SupervisorApprovedId != null)
-          .ToListAsync();
-        tiles.AddRange(coordinatorTiles);
-      }
 
       if (roles.Contains(UserRoles.EDITOR))
       {
@@ -182,7 +120,6 @@ namespace OsmIntegrator.Controllers
       // Check if tile exists
       var tile = await _dbContext.Tiles
           .Include(t => t.Stops).ThenInclude(s => s.GtfsConnections)
-          .Include(x => x.TileUsers).ThenInclude(y => y.User)
           .SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
@@ -231,126 +168,6 @@ namespace OsmIntegrator.Controllers
       return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<TileWithUsers>> GetUsers(string id)
-    {
-      Guid tileId;
-      if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
-      {
-        throw new BadHttpRequestException(_localizer["Invalid tile"]);
-      }
-
-      List<ApplicationUser> allUsers = await _userManager.Users.OrderBy(x => x.UserName).ToListAsync();
-
-      // Remove other users than editors
-      List<ApplicationUser> editors = new List<ApplicationUser>();
-      foreach (ApplicationUser user in allUsers)
-      {
-        IList<string> roles = await _userManager.GetRolesAsync(user);
-        // add roles to user
-        user.Roles = roles;
-        if (roles.Any(x => x == UserRoles.EDITOR || x == UserRoles.SUPERVISOR))
-          editors.Add(user);
-      }
-
-      // Get current tile by id
-      DbTile currentTile =
-          await _dbContext.Tiles
-            .Include(tile => tile.TileUsers)
-              .ThenInclude(y => y.User)
-            .Include(tile => tile.TileUsers)
-              .ThenInclude(y => y.Role)
-            .SingleOrDefaultAsync(x => x.Id == tileId);
-
-      TileWithUsers result = new TileWithUsers
-      {
-        Id = tileId,
-        Users = new List<TileUser>()
-      };
-
-      foreach (ApplicationUser user in editors)
-      {
-        TileUser tileUser = new TileUser
-        {
-          Id = user.Id,
-          UserName = user.UserName,
-          IsSupervisor = user.Roles.Contains(UserRoles.SUPERVISOR),
-          IsEditor = user.Roles.Contains(UserRoles.EDITOR)
-        };
-        result.Users.Add(tileUser);
-        tileUser.IsAssigned = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.EDITOR);
-        tileUser.IsAssignedAsSupervisor = currentTile.TileUsers.Any(x => x.User.Id == user.Id && x.Role.Name == UserRoles.SUPERVISOR);
-      }
-
-      return Ok(result);
-
-    }
-
-    /// <summary>
-    /// DEPRECATED
-    /// </summary>
-    [HttpDelete("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> RemoveUser(Guid id)
-    {
-      DbTile currentTile = await GetTileAsync(id);
-
-      if (currentTile == null)
-      {
-        throw new BadHttpRequestException(_localizer["Unable to find tile"]);
-      }
-
-      if (currentTile.EditorApproved != null)
-      {
-        throw new BadHttpRequestException(_localizer["Unable to remove user from already approved tile"]);
-      }
-
-      currentTile.TileUsers.Clear();
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["User successfully removed from the tile"]);
-    }
-
-    /// <summary>
-    /// DEPRECATED
-    /// </summary>
-    [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> UpdateUser(Guid id, [FromBody] User userBody)
-    {
-      ApplicationUser user = await _userManager.FindByIdAsync(userBody.Id.ToString());
-
-      IList<string> roles = await _userManager.GetRolesAsync(user);
-      if (!roles.Contains(UserRoles.EDITOR))
-      {
-        throw new BadHttpRequestException(_localizer["This user is not an editor"]);
-      }
-
-      DbTile currentTile = await GetTileAsync(id);
-
-      if (currentTile.EditorApproved != null)
-      {
-        throw new BadHttpRequestException(_localizer["Unable to assign. Tile has already been approved by editor"]);
-      }
-
-      ApplicationRole editorRole = _roleManger.Roles.Where(x => x.Name == UserRoles.EDITOR).First();
-
-      _dbContext.TileUsers.RemoveRange(_dbContext.TileUsers.Where(x => x.Tile == currentTile && x.Role == editorRole));
-
-      _dbContext.TileUsers.Add(new DbTileUser()
-      {
-        Id = new Guid(),
-        User = user,
-        Tile = currentTile,
-        Role = editorRole
-      });
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["User has been added to the tile"]);
-    }
-
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<string>> UpdateUsers(Guid id, [FromBody] UpdateTileInput updateTileInput)
@@ -371,47 +188,6 @@ namespace OsmIntegrator.Controllers
       _dbContext.SaveChanges();
 
       return Ok(_localizer["User has been added to the tile"]);
-    }
-
-    [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.EDITOR)]
-    public async Task<ActionResult<string>> Approve(Guid id)
-    {
-      DbTile currentTile = await GetTileAsync(id);
-
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-
-      List<string> userRoles = (List<string>)await _userManager.GetRolesAsync(user);
-
-      if (currentTile.SupervisorApproved != null)
-      {
-        throw new BadHttpRequestException(_localizer["Tile has already been approved by supervisor"]);
-      }
-
-      if (currentTile.EditorApproved != null && userRoles.Contains(UserRoles.SUPERVISOR))
-      {
-        if (currentTile.TileUsers.Any(x => x.Id == user.Id && x.Role.Name == UserRoles.EDITOR))
-        {
-          throw new BadHttpRequestException(_localizer["Supervisor cannot approve tile edited by himself"]);
-        }
-
-        currentTile.SupervisorApproved = user;
-        currentTile.SupervisorApprovalTime = DateTime.Now;
-      }
-      else if (currentTile.EditorApproved == null && userRoles.Contains(UserRoles.EDITOR))
-      {
-        currentTile.EditorApproved = user;
-        currentTile.EditorApprovalTime = DateTime.Now;
-      }
-      else
-      {
-        _logger.LogError($"Problem with assigning user to tile. Tile id: {currentTile.Id}, editor approved: {currentTile.EditorApproved != null}, supervisor approved: {currentTile.SupervisorApproved != null}.");
-        throw new BadHttpRequestException(_localizer["Something went wrong when assigning user to a tile"]);
-      }
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Tile approved"]);
     }
 
     [HttpPut("{id}")]
@@ -451,8 +227,6 @@ namespace OsmIntegrator.Controllers
     private async Task<DbTile> GetTileAsync(Guid tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
-        .Include(tile => tile.TileUsers).ThenInclude(y => y.User)
-        .Include(tile => tile.TileUsers).ThenInclude(y => y.Role)
         .Include(tile => tile.Stops)
         .Include(tile => tile.ExportReports)
         .SingleOrDefaultAsync(x => x.Id == tileId);

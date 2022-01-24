@@ -4,8 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
@@ -55,25 +53,7 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbStop> Stops { get; set; }
 
-    public List<ApplicationUser> Users { get; set; }
-
-    public Guid? EditorApprovedId { get; set; }
-
-    public ApplicationUser EditorApproved { get; set; }
-
-    public DateTime? EditorApprovalTime { get; set; }
-
-    public Guid? SupervisorApprovedId { get; set; }
-
-    public ApplicationUser SupervisorApproved { get; set; }
-
-    public DateTime? SupervisorApprovalTime { get; set; }
-
-    public List<DbNote> Notes { get; set; }
-
     public List<DbConversation> Conversations { get; set; }
-
-    public List<DbTileUser> TileUsers { get; set; }
 
     public List<DbChangeReport> ChangeReports { get; set; } = new();
 
@@ -132,7 +112,6 @@ namespace OsmIntegrator.Database.Models
 
       return sb.ToString();
     }
-
     public DbTile()
     {
 

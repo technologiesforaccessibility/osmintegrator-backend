@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.ApiModels;
-using OsmIntegrator.Interfaces;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.ApiModels.Conversation;
 
@@ -173,6 +172,11 @@ namespace OsmIntegrator.Controllers
     /// <param name="message">Message object.</param>
     /// <returns>Operation satuts.</returns>
     [HttpPut("Approve")]
+    [Authorize(Roles =
+        UserRoles.EDITOR + "," +
+        UserRoles.SUPERVISOR + "," +
+        UserRoles.COORDINATOR + "," +
+        UserRoles.ADMIN)]
     public async Task<ActionResult> Approve([FromBody] MessageInput messageInput)
     {
       DbConversation dbConversation = await _dbContext.Conversations
