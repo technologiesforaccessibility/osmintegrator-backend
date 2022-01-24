@@ -24,23 +24,14 @@ namespace OsmIntegrator.Database.Models
     [Required]
     public DbStop GtfsStop { get; set; }
 
-    [Required]
-    public bool Imported { get; set; }
-
     public Guid? UserId { get; set; }
 
     public ApplicationUser User { get; set; }
 
     public ConnectionOperationType OperationType { get; set; }
 
-    public DateTime? UpdatedAt { get; set; }
-
     [Required]
     public DateTime CreatedAt { get; set; }
-
-    public Guid? ApprovedById { get; set; }
-
-    public ApplicationUser ApprovedBy { get; set; }
 
     [Required]
     public bool Exported { get; set; }

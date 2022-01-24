@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OsmIntegrator.Database;
@@ -11,9 +12,10 @@ using OsmIntegrator.Database.Models.JsonFields;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220121184643_RemoveNotes")]
+    partial class RemoveNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,6 +245,9 @@ namespace osmintegrator.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ApprovedById")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
@@ -257,16 +262,24 @@ namespace osmintegrator.Migrations
                     b.Property<Guid>("GtfsStopId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("Imported")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("OperationType")
                         .HasColumnType("integer");
 
                     b.Property<Guid>("OsmStopId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedById");
 
                     b.HasIndex("GtfsStopId");
 
@@ -506,6 +519,10 @@ namespace osmintegrator.Migrations
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
+                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedById");
+
                     b.HasOne("OsmIntegrator.Database.Models.DbStop", "GtfsStop")
                         .WithMany("GtfsConnections")
                         .HasForeignKey("GtfsStopId")
@@ -521,6 +538,8 @@ namespace osmintegrator.Migrations
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("ApprovedBy");
 
                     b.Navigation("GtfsStop");
 

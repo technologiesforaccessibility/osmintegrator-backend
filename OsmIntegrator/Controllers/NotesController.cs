@@ -20,11 +20,6 @@ using OsmIntegrator.ApiModels.Conversation;
 
 namespace OsmIntegrator.Controllers
 {
-  /// <summary>
-  /// This controller allows to manage user roles.
-  /// Make sure you've already read this article before making any changes in the code:
-  /// https://github.com/technologiesforaccessibility/osmintegrator-wiki/wiki/Permissions-and-Roles
-  /// </summary>
   [ApiController]
   [EnableCors("AllowOrigin")]
   [Route("api/[controller]")]
@@ -197,76 +192,6 @@ namespace OsmIntegrator.Controllers
       }
 
       return Ok(result);
-    }
-
-    [HttpPut]
-    [Authorize(Roles =
-        UserRoles.EDITOR + "," +
-        UserRoles.SUPERVISOR + "," +
-        UserRoles.COORDINATOR + "," +
-        UserRoles.ADMIN)]
-    public async Task<ActionResult> Update([FromBody] UpdateNote note)
-    {
-      DbNote dbNote = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == note.Id);
-
-      if (dbNote == null)
-      {
-        throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
-      }
-
-      dbNote.Lat = note.Lat;
-      dbNote.Lon = note.Lon;
-      dbNote.Text = note.Text;
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Note successfully updated"]);
-    }
-
-    /// <summary>
-    /// Deprecated
-    /// </summary>
-    [HttpDelete("{id}")]
-    [Authorize(Roles =
-        UserRoles.EDITOR + "," +
-        UserRoles.SUPERVISOR + "," +
-        UserRoles.COORDINATOR + "," +
-        UserRoles.ADMIN)]
-    public async Task<ActionResult> Delete(string id)
-    {
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-      IList<string> roles = await _userManager.GetRolesAsync(user);
-
-      DbNote note = await _dbContext.Notes.FirstOrDefaultAsync(x => x.Id == Guid.Parse(id));
-
-      if (note == null)
-      {
-        throw new BadHttpRequestException(_localizer["Selected note doesn't exist"]);
-      }
-
-      // These roles can remove all notes
-      if (roles.Contains(UserRoles.SUPERVISOR) || roles.Contains(UserRoles.COORDINATOR) ||
-          roles.Contains(UserRoles.ADMIN))
-      {
-        _dbContext.Remove(note);
-      }
-      // Editor can only remove his note.
-      else
-      {
-        if (note.UserId == user.Id && note.Status != NoteStatus.Approved &&
-            note.Status != NoteStatus.Rejected)
-        {
-          _dbContext.Remove(note);
-        }
-        else
-        {
-          throw new BadHttpRequestException(_localizer["Note doesn't belong to editor"]);
-        }
-      }
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["Note removed successfully"]);
     }
 
     [HttpPut("Approve/{id}")]

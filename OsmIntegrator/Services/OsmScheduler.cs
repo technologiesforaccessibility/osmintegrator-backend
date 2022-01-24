@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading;
@@ -85,11 +84,7 @@ namespace OsmIntegrator.Services
 
           Osm result = await _overpass.GetFullArea(dbContext, _cancellationToken);
 
-          List<DbTile> tilesToRefresh = dbContext.Tiles
-            .Include(x => x.Stops)
-            .Include(x => x.TileUsers)
-            .Where(x => x.TileUsers.Count() == 0)
-            .ToList();
+          List<DbTile> tilesToRefresh = dbContext.Tiles.ToList();
 
           await _osmUpdater.Update(tilesToRefresh, dbContext, result);
         }
