@@ -12,9 +12,5 @@ namespace OsmIntegrator.ApiModels.Connections
     public Guid OsmStopId { get; set; }
     public Stop OsmStop { get; set; }
     public Stop GtfsStop { get; set; }
-
-    public bool Imported { get; set; }
-
-    public bool Approved { get; set; }
   }
 }
