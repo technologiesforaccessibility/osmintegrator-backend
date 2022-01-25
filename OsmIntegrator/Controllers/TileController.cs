@@ -192,22 +192,30 @@ namespace OsmIntegrator.Controllers
 
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Report>> UpdateStops(string id)
+    public async Task<ActionResult<Report>> UpdateStops(Guid id)
     {
       DbTile tile = await GetTileAsync(id);
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
+      TileImportReport tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
 
       return Ok(new Report { Value = tileReport.ToString() });
     }
 
     [HttpGet("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<bool>> ContainsChanges(string id)
+    public async Task<ActionResult<bool>> ContainsChanges(Guid id)
     {
       DbTile tile = await GetTileAsync(id);
+
+      var minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
+      var exportUnlocksAt =  tile.LastExportAt?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
+      var minExportDelayExceeded = exportUnlocksAt < DateTime.Now;
+      if (!minExportDelayExceeded)
+      {
+        return BadRequest();
+      }
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
@@ -216,11 +224,12 @@ namespace OsmIntegrator.Controllers
       return Ok(containsChanges);
     }
 
-    private async Task<DbTile> GetTileAsync(string tileId)
+    private async Task<DbTile> GetTileAsync(Guid tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.Stops)
-        .SingleOrDefaultAsync(x => x.Id == Guid.Parse(tileId));
+        .Include(tile => tile.ExportReports)
+        .SingleOrDefaultAsync(x => x.Id == tileId);
       if (currentTile == null)
       {
         throw new BadHttpRequestException(_localizer["Given tile does not exist"]);

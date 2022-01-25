@@ -44,14 +44,14 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.Count());
-      List<DbChangeReport> actualChangeReports =
+      List<DbTileImportReport> actualChangeReports =
         _dbContext.ChangeReports.Where(x => x.TileId == tile.Id).ToList();
-      ReportTile actualReportTile = actualChangeReports.Last().TileReport;
+      TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
 
       TurnOnDbTracking();
@@ -80,14 +80,14 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.Count());
-      List<DbChangeReport> actualChangeReports =
+      List<DbTileImportReport> actualChangeReports =
         _dbContext.ChangeReports.Where(x => x.TileId == tile.Id).ToList();
-      ReportTile actualReportTile = actualChangeReports.Last().TileReport;
+      TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile_Modify.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile_Modify.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
 
       TurnOnDbTracking();

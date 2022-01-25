@@ -214,29 +214,6 @@ namespace osmintegrator.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbChangeReport", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("TileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<ReportTile>("TileReport")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TileId");
-
-                    b.ToTable("ChangeReports");
-                });
-
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -442,6 +419,57 @@ namespace osmintegrator.Migrations
                     b.ToTable("Tiles");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileExportReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("TileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TileExportReport>("TileReport")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TileId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TileExportReports");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileImportReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("TileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TileImportReport>("TileReport")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TileId");
+
+                    b.ToTable("TileImportReports");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationRole", null)
@@ -491,17 +519,6 @@ namespace osmintegrator.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("OsmIntegrator.Database.Models.DbChangeReport", b =>
-                {
-                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
-                        .WithMany("ChangeReports")
-                        .HasForeignKey("TileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tile");
                 });
 
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConnection", b =>
@@ -576,6 +593,36 @@ namespace osmintegrator.Migrations
                     b.Navigation("Tile");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileExportReport", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
+                        .WithMany("ExportReports")
+                        .HasForeignKey("TileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OsmIntegrator.Database.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tile");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileImportReport", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
+                        .WithMany("ChangeReports")
+                        .HasForeignKey("TileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tile");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbConversation", b =>
                 {
                     b.Navigation("Messages");
@@ -593,6 +640,8 @@ namespace osmintegrator.Migrations
                     b.Navigation("ChangeReports");
 
                     b.Navigation("Conversations");
+
+                    b.Navigation("ExportReports");
 
                     b.Navigation("Stops");
                 });

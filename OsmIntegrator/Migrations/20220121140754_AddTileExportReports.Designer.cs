@@ -12,8 +12,8 @@ using OsmIntegrator.Database.Models.JsonFields;
 namespace osmintegrator.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220115205407_ExportedConnections")]
-    partial class ExportedConnections
+    [Migration("20220121140754_AddTileExportReports")]
+    partial class AddTileExportReports
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -525,6 +525,29 @@ namespace osmintegrator.Migrations
                     b.ToTable("Tiles");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileExportReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<Guid>("TileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TileExportReport>("TileReport")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TileId");
+
+                    b.ToTable("TileExportReport");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -746,6 +769,17 @@ namespace osmintegrator.Migrations
                     b.Navigation("SupervisorApproved");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileExportReport", b =>
+                {
+                    b.HasOne("OsmIntegrator.Database.Models.DbTile", "Tile")
+                        .WithMany("ExportReports")
+                        .HasForeignKey("TileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tile");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbTileUser", b =>
                 {
                     b.HasOne("OsmIntegrator.Database.Models.ApplicationRole", "Role")
@@ -789,6 +823,8 @@ namespace osmintegrator.Migrations
                     b.Navigation("ChangeReports");
 
                     b.Navigation("Conversations");
+
+                    b.Navigation("ExportReports");
 
                     b.Navigation("Notes");
 

@@ -51,13 +51,13 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
       Assert.Equal(expectedStop3.Version, actualStop3.Version);
 
-      ReportTile actualReportTile =
+      TileImportReport actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(PositionTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(PositionTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
   }

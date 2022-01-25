@@ -11,9 +11,9 @@ namespace OsmIntegrator.Interfaces
 {
   public interface IOsmUpdater
   {
-    Task<ReportTile> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
+    Task<TileImportReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
 
-    Task<List<ReportTile>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
+    Task<List<TileImportReport>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
 
     bool ContainsChanges(DbTile tile, Osm osmRoot);
   }

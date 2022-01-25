@@ -4,32 +4,24 @@ using OsmIntegrator.Database.Models.JsonFields;
 
 namespace osmintegrator.Migrations
 {
-    public partial class ChangeReports : Migration
+    public partial class AddTileExportReports : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Ref",
-                table: "Stops",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(long),
-                oldType: "bigint");
-
             migrationBuilder.CreateTable(
-                name: "ChangeReports",
+                name: "TileExportReport",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    TileReport = table.Column<TileImportReport>(type: "jsonb", nullable: false),
+                    TileReport = table.Column<TileExportReport>(type: "jsonb", nullable: false),
                     TileId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChangeReports", x => x.Id);
+                    table.PrimaryKey("PK_TileExportReport", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ChangeReports_Tiles_TileId",
+                        name: "FK_TileExportReport_Tiles_TileId",
                         column: x => x.TileId,
                         principalTable: "Tiles",
                         principalColumn: "Id",
@@ -37,25 +29,15 @@ namespace osmintegrator.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChangeReports_TileId",
-                table: "ChangeReports",
+                name: "IX_TileExportReport_TileId",
+                table: "TileExportReport",
                 column: "TileId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChangeReports");
-
-            migrationBuilder.AlterColumn<long>(
-                name: "Ref",
-                table: "Stops",
-                type: "bigint",
-                nullable: false,
-                defaultValue: 0L,
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                name: "TileExportReport");
         }
     }
 }

@@ -84,14 +84,17 @@ namespace OsmIntegrator.Services
 
     public string GetChangeset(string comment)
     {
-      OsmChangeset changeset = new();
+      var tags = GetTags(comment)
+        .Select(t => new Tag
+        {
+          K = t.Key,
+          V = t.Value
+        })
+        .ToList();
 
-      changeset.Tags = new List<Tag>() {
-        new Tag { K = "comment", V = comment },
-        new Tag { K = "import", V = "yes"},
-        new Tag { K = "created_by", V = "osmintegrator.eu" },
-        new Tag { K = "source", V = "Zarząd Transportu Metropolitalnego" },
-        new Tag { K = "hashtags", V = "#osmintegrator;#ztm;#silesia" }
+      OsmChangeset changeset = new()
+      {
+        Tags = tags
       };
 
       return SerializationHelper.XmlSerialize(changeset);
@@ -105,5 +108,13 @@ namespace OsmIntegrator.Services
       sb.Append("Wiki: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind");
       return sb.ToString();
     }
+
+    public IReadOnlyDictionary<string, string> GetTags(string comment) => new Dictionary<string, string> {
+      {"comment", comment},
+      {"import", "yes"},
+      {"created_by", "osmintegrator"},
+      {"source", "Zarząd Transportu Metropolitalnego"},
+      {"hashtags", "#osmintegrator;#ztm;#silesia"}
+    };
   }
 }
