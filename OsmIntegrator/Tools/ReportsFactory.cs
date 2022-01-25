@@ -8,7 +8,7 @@ namespace OsmIntegrator.Tools
 {
   public class ReportsFactory : IReportsFactory
   {
-    public ReportTile Create(DbTile tile)
+    public TileImportReport Create(DbTile tile)
     {
       return new()
       {
@@ -18,7 +18,7 @@ namespace OsmIntegrator.Tools
       };
     }
 
-    public ReportStop CreateStop(ReportTile report, Node node, DbStop stop, ChangeAction action, bool reverted)
+    public ReportStop CreateStop(TileImportReport report, Node node, DbStop stop, ChangeAction action, bool reverted)
     {
       ReportStop reportStop;
       if (action == ChangeAction.Modified)

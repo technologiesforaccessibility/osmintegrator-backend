@@ -15,6 +15,7 @@ using System.Net.Mime;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
+using Microsoft.AspNetCore.Identity;
 
 namespace OsmIntegrator.Controllers
 {
@@ -32,6 +33,7 @@ namespace OsmIntegrator.Controllers
     private readonly IStringLocalizer<OsmExportController> _localizer;
     private readonly IOsmExporter _osmExporter;
     private readonly IConfiguration _configuration;
+    private readonly UserManager<ApplicationUser> _userManager;
 
     public OsmExportController(
         ApplicationDbContext dbContext,
@@ -39,7 +41,8 @@ namespace OsmIntegrator.Controllers
         IMapper mapper,
         IStringLocalizer<OsmExportController> localizer,
         IOsmExporter osmExporter,
-        IConfiguration configuration)
+        IConfiguration configuration, 
+        UserManager<ApplicationUser> userManager)
     {
       _dbContext = dbContext;
       _logger = logger;
@@ -47,6 +50,7 @@ namespace OsmIntegrator.Controllers
       _localizer = localizer;
       _osmExporter = osmExporter;
       _configuration = configuration;
+      _userManager = userManager;
     }
 
     [HttpGet("tiles/{tileId}/export/changes")]
@@ -81,6 +85,9 @@ namespace OsmIntegrator.Controllers
           UserRoles.ADMIN)]
     public async Task<ActionResult> Export(Guid tileId, [FromBody] OsmExportInput input)
     {
+      // Get current user roles
+      ApplicationUser user = await _userManager.GetUserAsync(User);
+
       DbTile tile = await _dbContext.Tiles
         .Include(x => x.Stops)
         .ThenInclude(x => x.OsmConnections)
@@ -91,12 +98,8 @@ namespace OsmIntegrator.Controllers
       tile.ExportReports.Add(new DbTileExportReport
       {
         CreatedAt = DateTime.Now,
+        UserId = user.Id,
         TileReport = new()
-        {
-          TileId = tileId,
-          TileX = tile.X,
-          TileY = tile.Y
-        }
       });
 
       await _dbContext.SaveChangesAsync();

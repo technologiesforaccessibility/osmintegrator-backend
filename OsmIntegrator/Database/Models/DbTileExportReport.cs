@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
-using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 
 namespace OsmIntegrator.Database.Models
 {
-  [Table("TileExportReport")]
+  [Table("TileExportReports")]
   public class DbTileExportReport
   {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -24,7 +19,16 @@ namespace OsmIntegrator.Database.Models
     [Column(TypeName = "jsonb")]
     public TileExportReport TileReport { get; set; }
 
+    [Required]
     public Guid TileId { get; set; }
+
+    [Required]
     public DbTile Tile { get; set; }
+
+    [Required]
+    public Guid UserId { get; set; }
+
+    [Required]
+    public ApplicationUser User { get; set; }
   }
 }

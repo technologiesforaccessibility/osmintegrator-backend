@@ -243,7 +243,7 @@ namespace osmintegrator.Migrations
                     b.Property<Guid>("TileId")
                         .HasColumnType("uuid");
 
-                    b.Property<ReportTile>("TileReport")
+                    b.Property<TileImportReport>("TileReport")
                         .IsRequired()
                         .HasColumnType("jsonb");
 

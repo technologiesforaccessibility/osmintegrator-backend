@@ -198,7 +198,7 @@ namespace OsmIntegrator.Controllers
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      ReportTile tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
+      TileImportReport tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
 
       return Ok(new Report { Value = tileReport.ToString() });
     }

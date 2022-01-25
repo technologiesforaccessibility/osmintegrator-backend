@@ -26,7 +26,7 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbMessage> Messages { get; set; }
 
-    public DbSet<DbChangeReport> ChangeReports { get; set; }
+    public DbSet<DbTileImportReport> ChangeReports { get; set; }
 
     private DataInitializer _dataInitializer { get; set; }
 

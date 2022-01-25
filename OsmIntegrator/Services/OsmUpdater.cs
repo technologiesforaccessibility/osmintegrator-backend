@@ -80,18 +80,18 @@ namespace OsmIntegrator.Services
       return false;
     }
 
-    public async Task<ReportTile> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
+    public async Task<TileImportReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
       {
-        ReportTile report = ProcessTile(tile, dbContext, osmRoot);
+        TileImportReport report = ProcessTile(tile, dbContext, osmRoot);
 
         RemoveConnections(dbContext);
 
         if (report.Stops.Count > 0)
         {
-          dbContext.ChangeReports.Add(new DbChangeReport
+          dbContext.ChangeReports.Add(new DbTileImportReport
           {
             CreatedAt = DateTime.Now,
             TileId = tile.Id,
@@ -111,11 +111,11 @@ namespace OsmIntegrator.Services
       }
     }
 
-    public async Task<List<ReportTile>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
+    public async Task<List<TileImportReport>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot)
     {
       using (IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync())
       {
-        List<ReportTile> reports = new();
+        List<TileImportReport> reports = new();
         try
         {
           tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
@@ -126,7 +126,7 @@ namespace OsmIntegrator.Services
           {
             if (x.Stops.Count > 0)
             {
-              dbContext.ChangeReports.Add(new DbChangeReport
+              dbContext.ChangeReports.Add(new DbTileImportReport
               {
                 CreatedAt = DateTime.Now,
                 TileId = x.TileId, // Tile id was saved during the report creation
@@ -155,10 +155,10 @@ namespace OsmIntegrator.Services
         || tile.MaxLon < double.Parse(node.Lon, CultureInfo.InvariantCulture));
     }
 
-    private ReportTile ProcessTile(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
+    private TileImportReport ProcessTile(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       // Report - init
-      ReportTile report = _reportsFactory.Create(tile);
+      TileImportReport report = _reportsFactory.Create(tile);
 
       foreach (Node node in osmRoot.Node)
       {
@@ -206,7 +206,7 @@ namespace OsmIntegrator.Services
       return report;
     }
 
-    private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, ReportTile report, bool deletionReverted)
+    private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, TileImportReport report, bool deletionReverted)
     {
       // Report - new stop
       ReportStop reportStop = 
@@ -239,7 +239,7 @@ namespace OsmIntegrator.Services
       dbContext.Stops.Update(existingStop);
     }
 
-    private void AddStop(Node node, DbTile tile, ReportTile report)
+    private void AddStop(Node node, DbTile tile, TileImportReport report)
     {
       DbStop stop = new DbStop
       {
@@ -262,7 +262,7 @@ namespace OsmIntegrator.Services
       tile.Stops.Add(stop);
     }
 
-    private void RemoveStop(DbStop stop, ApplicationDbContext dbContext, ReportTile report)
+    private void RemoveStop(DbStop stop, ApplicationDbContext dbContext, TileImportReport report)
     {
       if (stop.IsDeleted) return;
       _reportsFactory.CreateStop(report, null, stop, ChangeAction.Removed);

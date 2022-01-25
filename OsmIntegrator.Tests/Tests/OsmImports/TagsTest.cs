@@ -50,13 +50,13 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.DoesNotContain(actualStop2.Tags, x => x.Key == "public_transport");
 
-      ReportTile actualReportTile =
+      TileImportReport actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(TagsTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(TagsTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
   }

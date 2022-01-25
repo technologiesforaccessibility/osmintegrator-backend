@@ -55,7 +55,7 @@ namespace OsmIntegrator.Database.Models
 
     public List<DbConversation> Conversations { get; set; }
 
-    public List<DbChangeReport> ChangeReports { get; set; } = new();
+    public List<DbTileImportReport> ChangeReports { get; set; } = new();
 
     public List<DbTileExportReport> ExportReports { get; set; } = new();
 
