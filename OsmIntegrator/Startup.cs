@@ -22,6 +22,7 @@ using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Errors;
 using OsmIntegrator.Interfaces;
+using OsmIntegrator.OsmApi;
 using OsmIntegrator.Services;
 using OsmIntegrator.Tools;
 using OsmIntegrator.Validators;
@@ -160,6 +161,9 @@ namespace osmintegrator
       services.AddSingleton<ITileValidator, TileValidator>();
       services.AddScoped<IOsmExporter, OsmExporter>();
       services.AddScoped<IEmailHelper, EmailHelper>();
+      services.AddScoped<IOsmApiClient, OsmApiClient>();
+      services.AddScoped<IOsmExportBuilder, OsmExportBuilder>();
+      services.AddScoped<ITileExportValidator, TileExportValidator>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

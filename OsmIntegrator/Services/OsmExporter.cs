@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
@@ -21,8 +25,14 @@ namespace OsmIntegrator.Services
       _config = config;
 
     }
-    public string GetOsmChangeFile(DbTile tile)
+    public async Task<OsmChange> GetOsmChangeAsync(Guid tileId, uint changesetId)
     {
+      DbTile tile = await _dbContext.Tiles
+        .Include(x => x.Stops)
+        .ThenInclude(x => x.OsmConnections)
+        .Include(t => t.ExportReports)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
+
       List<DbConnection> connections = tile.ActiveConnections(false).ToList();
 
       OsmChange root = new OsmChange()
@@ -37,20 +47,20 @@ namespace OsmIntegrator.Services
 
       foreach (DbConnection connection in connections)
       {
-        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
+        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop, changesetId));
       };
 
-      return SerializationHelper.XmlSerialize(root);
+      return root;
     }
-    private Node CreateNode(DbStop osmStop, DbStop gtfsStop)
+    private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint changesetId)
     {
       Node node = new()
       {
         Tag = new List<Tag>(),
-        Changeset = osmStop.Changeset,
+        Changeset = changesetId.ToString(),
         Version = osmStop.Version,
-        Lat = osmStop.Lat.ToString(),
-        Lon = osmStop.Lon.ToString(),
+        Lat = osmStop.Lat.ToString(CultureInfo.InvariantCulture),
+        Lon = osmStop.Lon.ToString(CultureInfo.InvariantCulture),
         Id = osmStop.StopId.ToString()
       };
 
@@ -82,7 +92,7 @@ namespace OsmIntegrator.Services
       tag.V = value;
     }
 
-    public string GetChangeset(string comment)
+    public OsmChangeset CreateChangeset(string comment)
     {
       var tags = GetTags(comment)
         .Select(t => new Tag
@@ -97,7 +107,7 @@ namespace OsmIntegrator.Services
         Tags = tags
       };
 
-      return SerializationHelper.XmlSerialize(changeset);
+      return changeset;
     }
 
     public string GetComment(long x, long y, byte zoom)

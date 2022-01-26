@@ -28,6 +28,8 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTileImportReport> ChangeReports { get; set; }
 
+    public DbSet<DbTileExportReport> ExportReports { get; set; }
+
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

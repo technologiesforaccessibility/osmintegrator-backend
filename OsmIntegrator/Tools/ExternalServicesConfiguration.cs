@@ -28,4 +28,8 @@ public class ExternalServicesConfiguration : IExternalServicesConfiguration
   public string FacebookGroupUrl =>
     _externalServicesConfigSection["FacebookGroupUrl"] ?? throw new MemberAccessException(
       "Facebook Group Url is missing in appsetting.json file");
+
+  public string OsmApiUrl =>
+    _externalServicesConfigSection["OsmApiUrl"] ?? throw new MemberAccessException(
+      "Osm Api Url is missing in appsetting.json file");
 }

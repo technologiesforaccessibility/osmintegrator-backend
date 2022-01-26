@@ -22,6 +22,8 @@ using OsmIntegrator.Tools;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.ApiModels.Stops;
+using OsmIntegrator.Extensions;
+using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -41,7 +43,8 @@ namespace OsmIntegrator.Controllers
     private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IOverpass _overpass;
-    readonly IOsmUpdater _osmUpdater;
+    private readonly IOsmUpdater _osmUpdater;
+    private readonly ITileExportValidator _tileExportValidator;
 
     public TileController(
         ILogger<TileController> logger,
@@ -54,7 +57,7 @@ namespace OsmIntegrator.Controllers
         IEmailService emailService,
         IOsmUpdater refresherHelper,
         IOverpass overpass
-    )
+, ITileExportValidator tileExportValidator)
     {
       _logger = logger;
       _dbContext = dbContext;
@@ -65,6 +68,7 @@ namespace OsmIntegrator.Controllers
       _localizer = localizer;
       _osmUpdater = refresherHelper;
       _overpass = overpass;
+      _tileExportValidator = tileExportValidator;
     }
 
     [HttpGet]
@@ -207,15 +211,12 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<bool>> ContainsChanges(Guid id)
     {
-      DbTile tile = await GetTileAsync(id);
-
-      var minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
-      var exportUnlocksAt =  tile.LastExportAt?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
-      var minExportDelayExceeded = exportUnlocksAt < DateTime.Now;
-      if (!minExportDelayExceeded)
+      if (!await _tileExportValidator.ValidateDelayAsync(id))
       {
         return BadRequest();
       }
+
+      DbTile tile = await GetTileAsync(id);
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
@@ -228,7 +229,6 @@ namespace OsmIntegrator.Controllers
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.Stops)
-        .Include(tile => tile.ExportReports)
         .SingleOrDefaultAsync(x => x.Id == tileId);
       if (currentTile == null)
       {

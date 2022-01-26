@@ -30,5 +30,8 @@ namespace OsmIntegrator.Database.Models
 
     [Required]
     public ApplicationUser User { get; set; }
+
+    [Required]
+    public uint ChangesetId { get; set; }
   }
 }
