@@ -16,6 +16,11 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
+using OsmIntegrator.Tools;
+using OsmIntegrator.OsmApi;
+using OsmIntegrator.Extensions;
+using System.Linq;
+using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
 {
@@ -34,6 +39,9 @@ namespace OsmIntegrator.Controllers
     private readonly IOsmExporter _osmExporter;
     private readonly IConfiguration _configuration;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IOsmExportBuilder _osmExportBuilder;
+    private readonly IExternalServicesConfiguration _externalServices;
+    private readonly ITileExportValidator _tileExportValidator;
 
     public OsmExportController(
         ApplicationDbContext dbContext,
@@ -41,8 +49,11 @@ namespace OsmIntegrator.Controllers
         IMapper mapper,
         IStringLocalizer<OsmExportController> localizer,
         IOsmExporter osmExporter,
-        IConfiguration configuration, 
-        UserManager<ApplicationUser> userManager)
+        IConfiguration configuration,
+        UserManager<ApplicationUser> userManager,
+        IOsmExportBuilder osmExportBuilder,
+        IExternalServicesConfiguration externalServices,
+        ITileExportValidator tileExportValidator)
     {
       _dbContext = dbContext;
       _logger = logger;
@@ -51,6 +62,9 @@ namespace OsmIntegrator.Controllers
       _osmExporter = osmExporter;
       _configuration = configuration;
       _userManager = userManager;
+      _osmExportBuilder = osmExportBuilder;
+      _externalServices = externalServices;
+      _tileExportValidator = tileExportValidator;
     }
 
     [HttpGet("tiles/{tileId}/export/changes")]
@@ -85,27 +99,35 @@ namespace OsmIntegrator.Controllers
           UserRoles.ADMIN)]
     public async Task<ActionResult> Export(Guid tileId, [FromBody] OsmExportInput input)
     {
+      if (!await _tileExportValidator.ValidateDelayAsync(tileId))
+      {
+        return BadRequest();
+      }
+
+      // send tile's changes to OSM
+      uint changesetId = await _osmExportBuilder
+        .UseTile(tileId)
+        .UseChangesetComment(input.Comment)
+        .UseOsmApiUrl(_externalServices.OsmApiUrl)
+        .UseUsername(input.Email)
+        .UsePassword(input.Password)
+        .UseClose()
+        .ExportAsync();
+
       // Get current user roles
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
-      DbTile tile = await _dbContext.Tiles
-        .Include(x => x.Stops)
-        .ThenInclude(x => x.OsmConnections)
-        .Include(t => t.ExportReports)
-        .FirstOrDefaultAsync(x => x.Id == tileId);
-      string osmChangeFile = _osmExporter.GetOsmChangeFile(tile);
-
-      tile.ExportReports.Add(new DbTileExportReport
+      // report export in database
+      await _dbContext.ExportReports.AddAsync(new DbTileExportReport
       {
+        TileId = tileId,
         CreatedAt = DateTime.Now,
         UserId = user.Id,
-        TileReport = new()
+        TileReport = new(),
+        ChangesetId = changesetId
       });
 
       await _dbContext.SaveChangesAsync();
-
-      // Use python script to send osmchange.osc to OSM
-      // Link to upload.py: https://github.com/grigory-rechistov/osm-bulk-upload
 
       return Ok();
     }
@@ -114,14 +136,9 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
     public async Task<ActionResult> GetExportFile(Guid tileId)
     {
-      DbTile tile = await _dbContext.Tiles
-        .AsNoTracking()
-        .Include(t => t.Stops).ThenInclude(s => s.OsmConnections).ThenInclude(c => c.GtfsStop)
-        .FirstOrDefaultAsync(x => x.Id == tileId);
+      OsmChange osmChange = await _osmExporter.GetOsmChangeAsync(tileId, 0);
 
-      string filecontent = _osmExporter.GetOsmChangeFile(tile);
-
-      return File(Encoding.UTF8.GetBytes(filecontent), "text/xml", "osmchange.osc");
+      return File(osmChange.ToXml().ToBytes(), "text/xml", "osmchange.osc");
     }
   }
 }

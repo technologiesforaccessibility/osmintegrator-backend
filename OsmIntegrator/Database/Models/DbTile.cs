@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
+using OsmIntegrator.Extensions;
 
 namespace OsmIntegrator.Database.Models
 {

@@ -4,4 +4,5 @@ public interface IExternalServicesConfiguration
   string SlackInvitationUrl { get; }
   string UserManualUrl { get; }
   string FacebookGroupUrl { get; }
+  string OsmApiUrl { get; }
 }
