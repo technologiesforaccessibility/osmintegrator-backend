@@ -48,10 +48,6 @@ namespace OsmIntegrator.Database.Models
     [Required]
     public double OverlapMaxLon { get; set; } = 0;
 
-    public int OsmStopsCount { get; set; } = 0;
-
-    public int GtfsStopsCount { get; set; }
-
     public List<DbStop> Stops { get; set; }
 
     public List<DbConversation> Conversations { get; set; }
@@ -139,6 +135,8 @@ namespace OsmIntegrator.Database.Models
       OverlapMaxLat = maxLat + latOverlap;
     }
 
+    public int GtfsStopsCount => Stops.Where(s => s.StopType == StopType.Gtfs).Count();
+
     public bool HasNewGtfsConnections => Stops
       .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
@@ -164,7 +162,7 @@ namespace OsmIntegrator.Database.Models
       .Select(c => c.User)
       .FirstOrDefault(u => u != null);
 
-    public int UnconnectedZtmStops => Stops
+    public int UnconnectedGtfsStops => Stops
       .Where(s => s.StopType == StopType.Gtfs)
       .Where(s => !s.GtfsConnections.OnlyActive().Any())
       .Count();

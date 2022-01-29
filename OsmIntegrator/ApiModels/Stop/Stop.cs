@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using OsmIntegrator.Database.Models;
+using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.ApiModels.Stops

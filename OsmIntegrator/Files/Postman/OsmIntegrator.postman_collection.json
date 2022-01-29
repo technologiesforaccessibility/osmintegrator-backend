@@ -187,7 +187,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"supervisor1#12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"supervisor2@abcd.pl\",\r\n    \"Password\": \"supervisor2#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -916,7 +916,7 @@
 									"var data = pm.response.json();",
 									"pm.environment.set(\"firstTileId\", data[0].id);",
 									"",
-									"var result = data.filter( element => element.x === 2264 && element.y === 1384);",
+									"var result = data.filter(element => element.x === 2264 && element.y === 1384);",
 									"pm.environment.set(\"tile_2264_1384\", result[0].id);"
 								],
 								"type": "text/javascript"
@@ -956,6 +956,55 @@
 					"response": []
 				},
 				{
+					"name": "GetUncommitedTiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var data = pm.response.json();",
+									"pm.environment.set(\"firstTileId\", data[0].id);",
+									"",
+									"var result = data.filter( element => element.x === 2264 && element.y === 1384);",
+									"pm.environment.set(\"tile_2264_1384\", result[0].id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Tile/GetUncommitedTiles",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Tile",
+								"GetUncommitedTiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GetStops",
 					"request": {
 						"auth": {
@@ -976,7 +1025,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/0a5020f2-5a29-49e9-ba66-f4a17b6ebade",
+							"raw": "{{host}}/api/Tile/GetStops/01bcbe50-ee42-4f88-abeb-6ec060b27b6a",
 							"host": [
 								"{{host}}"
 							],
@@ -984,7 +1033,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"0a5020f2-5a29-49e9-ba66-f4a17b6ebade"
+								"01bcbe50-ee42-4f88-abeb-6ec060b27b6a"
 							]
 						}
 					},

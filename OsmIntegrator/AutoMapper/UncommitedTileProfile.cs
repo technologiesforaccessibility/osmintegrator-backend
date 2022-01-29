@@ -6,15 +6,12 @@ using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper
 {
-  public class TileProfile : Profile
+  public class UncommitedTileProfile : Profile
   {
-    public TileProfile(IConfiguration configuration)
+    public UncommitedTileProfile()
     {
-      byte zoomLevel = byte.Parse(configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo);
-
       AllowNullCollections = true;
-      CreateMap<DbTile, Tile>()
-          .ForMember(x => x.ZoomLevel, o => o.MapFrom(x => zoomLevel))
+      CreateMap<DbTile, UncommitedTile>()
           .ForMember(x => x.AssignedUserName, 
             o => o.MapFrom(x => x.AssignedUser == null ? string.Empty : x.AssignedUser.UserName));
     }
