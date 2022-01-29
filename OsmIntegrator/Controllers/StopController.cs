@@ -95,7 +95,6 @@ namespace OsmIntegrator.Controllers
       dbStop.Lon = stop.Lon;
 
       Stop result = _mapper.Map<Stop>(dbStop);
-      result.Tile = null;
 
       await _dbContext.SaveChangesAsync();
       return Ok(result);
