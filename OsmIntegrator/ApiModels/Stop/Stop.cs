@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.ApiModels.Stops
@@ -19,7 +18,6 @@ namespace OsmIntegrator.ApiModels.Stops
     public StopType StopType { get; set; }
     public ProviderType ProviderType { get; set; }
     public Guid TileId { get; set; }
-    public Tile Tile { get; set; }
     public bool OutsideSelectedTile { get; set; } = false;
     public int Version { get; set; }
     public string Changeset { get; set; }

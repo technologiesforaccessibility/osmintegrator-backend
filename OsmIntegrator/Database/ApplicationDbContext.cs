@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
-using Microsoft.AspNetCore.Identity;
 using System;
 
 namespace OsmIntegrator.Database

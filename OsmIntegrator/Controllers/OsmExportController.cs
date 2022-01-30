@@ -12,14 +12,12 @@ using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.Database.Models;
 using System;
 using System.Net.Mime;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using OsmIntegrator.Tools;
 using OsmIntegrator.OsmApi;
 using OsmIntegrator.Extensions;
-using System.Linq;
 using OsmIntegrator.Validators;
 
 namespace OsmIntegrator.Controllers
@@ -121,7 +119,7 @@ namespace OsmIntegrator.Controllers
       await _dbContext.ExportReports.AddAsync(new DbTileExportReport
       {
         TileId = tileId,
-        CreatedAt = DateTime.Now,
+        CreatedAt = DateTime.Now.ToUniversalTime(),
         UserId = user.Id,
         TileReport = new(),
         ChangesetId = changesetId
