@@ -148,6 +148,7 @@ namespace osmintegrator
       services.AddAutoMapper((cfg) =>
       {
         cfg.AddProfile(new TileProfile(Configuration));
+        cfg.AddProfile<UncommitedTileProfile>();
         cfg.AddProfile<StopProfile>();
         cfg.AddProfile<TagProfile>();
         cfg.AddProfile<ApplicationUserProfile>();

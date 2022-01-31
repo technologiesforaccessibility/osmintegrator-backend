@@ -24,6 +24,8 @@ using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
+using OsmIntegrator.ApiModels.Tiles;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Controllers
 {
@@ -56,8 +58,8 @@ namespace OsmIntegrator.Controllers
         IStringLocalizer<TileController> localizer,
         IEmailService emailService,
         IOsmUpdater refresherHelper,
-        IOverpass overpass
-, ITileExportValidator tileExportValidator)
+        IOverpass overpass, 
+        ITileExportValidator tileExportValidator)
     {
       _logger = logger;
       _dbContext = dbContext;
@@ -84,7 +86,7 @@ namespace OsmIntegrator.Controllers
       {
         List<DbTile> editorTiles = await _dbContext.Tiles
           .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections)
-          .Where(x => x.GtfsStopsCount > 0)
+          .Where(x => x.Stops.Any(s => s.StopType == StopType.Gtfs))
           .OnlyAccessibleBy(user.Id)
           .ToListAsync();
         tiles.AddRange(editorTiles);
@@ -100,14 +102,16 @@ namespace OsmIntegrator.Controllers
       List<DbTile> tiles = (await _dbContext.Connections
         .Where(c => c.UserId != null)
         .Include(c => c.GtfsStop.Tile)
-        .Include(c => c.GtfsStop.GtfsConnections).ThenInclude(c => c.User)
+          .ThenInclude(t => t.Stops.Where(s => s.StopType == StopType.Gtfs))
+          .ThenInclude(s => s.GtfsConnections)
+          .ThenInclude(c => c.User)
         .ToListAsync())
         .OnlyActive()
         .Select(c => c.GtfsStop.Tile)
         .Distinct()
         .ToList();
 
-      return Ok(_mapper.Map<List<Tile>>(tiles));
+      return Ok(_mapper.Map<List<UncommitedTile>>(tiles));
     }
 
     [HttpGet("{id}")]

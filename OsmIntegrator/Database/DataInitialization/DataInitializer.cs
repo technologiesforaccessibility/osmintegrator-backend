@@ -273,15 +273,6 @@ namespace OsmIntegrator.Database.DataInitialization
           DbTile existingTile = result[tileXY];
           stop.TileId = existingTile.Id;
 
-          if (stop.StopType == StopType.Gtfs)
-          {
-            existingTile.GtfsStopsCount++;
-          }
-          else
-          {
-            existingTile.OsmStopsCount++;
-          }
-
           continue;
         }
 
@@ -297,15 +288,6 @@ namespace OsmIntegrator.Database.DataInitialization
             leftUpperCorner.X, rightBottomCorner.X,
             rightBottomCorner.Y, leftUpperCorner.Y,
             _overlapFactor);
-
-        if (stop.StopType == StopType.Gtfs)
-        {
-          newTile.GtfsStopsCount++;
-        }
-        else
-        {
-          newTile.OsmStopsCount++;
-        }
 
         stop.TileId = newTile.Id;
         result.Add(tileXY, newTile);

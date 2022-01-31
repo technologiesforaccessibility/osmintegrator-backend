@@ -7,6 +7,7 @@ using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.ApiModels.Connections;
 using OsmIntegrator.ApiModels.Reports;
+using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
