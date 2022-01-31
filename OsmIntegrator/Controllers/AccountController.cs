@@ -18,7 +18,6 @@ using System.Net.Mime;
 using OsmIntegrator.Database.Models;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Roles;
-using MimeKit;
 
 namespace OsmIntegrator.Controllers
 {
