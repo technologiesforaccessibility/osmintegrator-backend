@@ -8,7 +8,6 @@ using System.IO;
 using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Identity;
-using OsmIntegrator.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OsmIntegrator.Database.Models.Enums;
@@ -32,8 +31,6 @@ namespace OsmIntegrator.Database.DataInitialization
       List<DbStop> osmStops = GetOsmStopsList("Files/OsmStops.xml");
 
       Initialize(db, gtfsStops, osmStops);
-      MigrateNotes(db);
-      MigrateTileUsers(db);
     }
 
     public void InitializeUsers(ApplicationDbContext db)
@@ -92,71 +89,10 @@ namespace OsmIntegrator.Database.DataInitialization
       List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
       ApplicationUser supervisor1 = supervisors[0];
 
-      tiles[0].Users = tiles[1].Users = tile_2263_1385.Users = new List<ApplicationUser> { editor1 };
-      tiles[0].EditorApproved = tiles[1].EditorApproved = tile_2263_1385.EditorApproved = editor1;
-      tiles[0].EditorApprovalTime = tiles[1].EditorApprovalTime = tile_2263_1385.EditorApprovalTime = DateTime.Now;
-
       db.SaveChanges();
 
       DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
 
-      DbNote note1 = new DbNote
-      {
-        Text = "Not approved",
-        Lat = tile.MinLat,
-        Lon = tile.MinLon,
-        UserId = editor1.Id,
-        Status = NoteStatus.Created,
-        TileId = tile.Id
-      };
-
-      DbNote note2 = new DbNote
-      {
-        Text = "Approved",
-        Lat = tile.MaxLat,
-        Lon = tile.MinLon,
-        UserId = editor1.Id,
-        Status = NoteStatus.Approved,
-        Approver = supervisor1,
-        TileId = tile.Id
-      };
-
-      DbNote note3 = new DbNote
-      {
-        Text = "Supervisor approved",
-        Lat = tile.MaxLat,
-        Lon = tile.MinLon,
-        UserId = supervisor1.Id,
-        Status = NoteStatus.Rejected,
-        Approver = supervisor1,
-        TileId = tile.Id
-      };
-
-      DbNote note4 = new DbNote
-      {
-        Text = "Supervisor not approved",
-        Lat = tile.MaxLat,
-        Lon = tile.MinLon,
-        UserId = supervisor1.Id,
-        Status = NoteStatus.Created,
-        TileId = tile.Id
-      };
-
-      DbNote note5 = new DbNote
-      {
-        Text = "Editor 2",
-        Lat = tile.MaxLat,
-        Lon = tile.MinLon,
-        UserId = editor2.Id,
-        Status = NoteStatus.Created,
-        TileId = tile.Id
-      };
-
-      db.Notes.Add(note1);
-      db.Notes.Add(note2);
-      db.Notes.Add(note3);
-      db.Notes.Add(note4);
-      db.Notes.Add(note5);
       db.SaveChanges();
     }
 
@@ -178,8 +114,7 @@ namespace OsmIntegrator.Database.DataInitialization
             connections.Add(new DbConnection()
             {
               GtfsStop = gtfsStop,
-              OsmStop = osmStop,
-              Imported = true
+              OsmStop = osmStop
             });
           }
         }
@@ -216,107 +151,6 @@ namespace OsmIntegrator.Database.DataInitialization
       }
     }
 
-    public void MigrateNotes(ApplicationDbContext db)
-    {
-      using (var transaction = db.Database.BeginTransaction())
-      {
-        if (db.Conversations.Count() > 0)
-        {
-          return;
-        }
-
-        try
-        {
-          foreach (DbNote note in db.Notes)
-          {
-            DbConversation conversation = new DbConversation()
-            {
-              Id = new Guid(),
-              Lat = note.Lat,
-              Lon = note.Lon,
-              TileId = note.TileId,
-            };
-            db.Conversations.Add(conversation);
-
-            db.Messages.Add(new DbMessage()
-            {
-              Id = new Guid(),
-              ConversationId = conversation.Id,
-              Status = NoteStatus.Created,
-              Text = note.Text,
-              UserId = note.UserId,
-              CreatedAt = DateTime.Now.AddMinutes(-5),
-            });
-
-            if (note.Status != NoteStatus.Created)
-            {
-              db.Messages.Add(new DbMessage()
-              {
-                Id = new Guid(),
-                ConversationId = conversation.Id,
-                Status = note.Status,
-                UserId = note.UserId,
-                CreatedAt = DateTime.Now,
-              });
-            }
-          }
-          db.SaveChanges();
-          transaction.Commit();
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine(e);
-          transaction.Rollback();
-          throw;
-        }
-      }
-    }
-
-    public void MigrateTileUsers(ApplicationDbContext db)
-    {
-      using (var transaction = db.Database.BeginTransaction())
-      {
-        if (db.TileUsers.Count() > 0)
-        {
-          return;
-        }
-        try
-        {
-          ApplicationUser supervisor = db.Users.First(x => x.UserName == "supervisor1");
-
-          foreach (ApplicationUser user in db.Users.Include(x => x.Tiles).ToList())
-          {
-            foreach (DbTile tile in user.Tiles)
-            {
-              db.TileUsers.Add(new DbTileUser()
-              {
-                Id = new Guid(),
-                User = user,
-                Tile = tile,
-                Role = db.Roles.Where(x => x.Name == UserRoles.EDITOR).First()
-              });
-
-              db.TileUsers.Add(new DbTileUser()
-              {
-                Id = new Guid(),
-                User = supervisor,
-                Tile = tile,
-                Role = db.Roles.Where(x => x.Name == UserRoles.SUPERVISOR).First()
-              });
-            }
-          }
-
-          db.SaveChanges();
-          transaction.Commit();
-        }
-        catch (Exception e)
-        {
-          Console.WriteLine(e);
-          transaction.Rollback();
-          throw;
-        }
-      }
-    }
     public void AddRole(DbSet<ApplicationRole> roles, Guid id, string name)
     {
       roles.Add(new ApplicationRole()
@@ -439,15 +273,6 @@ namespace OsmIntegrator.Database.DataInitialization
           DbTile existingTile = result[tileXY];
           stop.TileId = existingTile.Id;
 
-          if (stop.StopType == StopType.Gtfs)
-          {
-            existingTile.GtfsStopsCount++;
-          }
-          else
-          {
-            existingTile.OsmStopsCount++;
-          }
-
           continue;
         }
 
@@ -464,15 +289,6 @@ namespace OsmIntegrator.Database.DataInitialization
             rightBottomCorner.Y, leftUpperCorner.Y,
             _overlapFactor);
 
-        if (stop.StopType == StopType.Gtfs)
-        {
-          newTile.GtfsStopsCount++;
-        }
-        else
-        {
-          newTile.OsmStopsCount++;
-        }
-
         stop.TileId = newTile.Id;
         result.Add(tileXY, newTile);
       }
@@ -482,14 +298,12 @@ namespace OsmIntegrator.Database.DataInitialization
 
     public void ClearDatabase(ApplicationDbContext db)
     {
-      db.Notes.RemoveRange(db.Notes);
       db.Connections.RemoveRange(db.Connections);
       db.Stops.RemoveRange(db.Stops);
       db.Tiles.RemoveRange(db.Tiles);
 
       db.Conversations.RemoveRange(db.Conversations);
       db.Messages.RemoveRange(db.Messages);
-      db.TileUsers.RemoveRange(db.TileUsers);
 
       db.Roles.RemoveRange(db.Roles);
       db.Users.RemoveRange(db.Users);

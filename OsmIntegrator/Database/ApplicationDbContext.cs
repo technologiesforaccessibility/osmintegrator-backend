@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
-using Microsoft.AspNetCore.Identity;
 using System;
 
 namespace OsmIntegrator.Database
@@ -22,15 +21,13 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbConnection> Connections { get; set; }
 
-    public DbSet<DbNote> Notes { get; set; }
-
     public DbSet<DbConversation> Conversations { get; set; }
 
     public DbSet<DbMessage> Messages { get; set; }
 
-    public DbSet<DbTileUser> TileUsers { get; set; }
+    public DbSet<DbTileImportReport> ChangeReports { get; set; }
 
-    public DbSet<DbChangeReport> ChangeReports { get; set; }
+    public DbSet<DbTileExportReport> ExportReports { get; set; }
 
     private DataInitializer _dataInitializer { get; set; }
 
@@ -56,19 +53,6 @@ namespace OsmIntegrator.Database
           .HasColumnType("timestamp without time zone")
           .HasDefaultValueSql("NOW()")
           .ValueGeneratedOnAdd();
-
-      modelBuilder.Entity<DbTile>()
-          .HasOne(t => t.EditorApproved)
-          .WithMany();
-
-      modelBuilder.Entity<DbTile>()
-          .HasOne(t => t.SupervisorApproved)
-          .WithMany();
-
-      modelBuilder.Entity<DbTile>()
-          .HasMany(t => t.Users)
-          .WithMany(u => u.Tiles)
-          .UsingEntity(j => j.ToTable("ApplicationUserDbTile"));
 
       base.OnModelCreating(modelBuilder);
     }

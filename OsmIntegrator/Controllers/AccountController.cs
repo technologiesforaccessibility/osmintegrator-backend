@@ -18,7 +18,6 @@ using System.Net.Mime;
 using OsmIntegrator.Database.Models;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Roles;
-using MimeKit;
 
 namespace OsmIntegrator.Controllers
 {
@@ -32,32 +31,31 @@ namespace OsmIntegrator.Controllers
   {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<AccountController> _logger;
     private readonly RoleManager<ApplicationRole> _roleManager;
     private readonly ITokenHelper _tokenHelper;
     private readonly IStringLocalizer<AccountController> _localizer;
+    private readonly IEmailHelper _emailHelper;
 
     public AccountController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IEmailService emailService,
         IConfiguration configuration,
         ILogger<AccountController> logger,
         RoleManager<ApplicationRole> roleManager,
         ITokenHelper tokenHelper,
-        IStringLocalizer<AccountController> localizer
-        )
+        IStringLocalizer<AccountController> localizer,
+        IEmailHelper emailHelper)
     {
-      _logger = logger;
-      _userManager = userManager;
-      _signInManager = signInManager;
-      _emailService = emailService;
-      _configuration = configuration;
-      _roleManager = roleManager;
-      _tokenHelper = tokenHelper;
-      _localizer = localizer;
+      _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+      _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+      _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+      _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+      _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+      _tokenHelper = tokenHelper ?? throw new ArgumentNullException(nameof(tokenHelper));
+      _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+      _emailHelper = emailHelper ?? throw new ArgumentNullException(nameof(emailHelper));
     }
 
     [HttpGet]
@@ -164,10 +162,9 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(errorMessage);
       }
 
-      _emailService.Send(ConfirmRegistrationMessageBuilder(user));
+      await _emailHelper.SendConfirmRegistrationMessageAsync(user);
 
       return Ok(_localizer["Your account has been activated"]);
-
     }
 
     [HttpPost]
@@ -210,96 +207,28 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["An error occurred when registering the user"]);
       }
 
-      if (!bool.Parse(_configuration["RegisterConfirmationRequired"]))
+      await _userManager.AddToRoleAsync(user, UserRoles.EDITOR);
+
+      if (bool.Parse(_configuration["RegisterConfirmationRequired"]))
+      {
+        await _emailHelper.SendRegisterMessageAsync(model, user);
+
+        return Ok(_localizer["Confirmation email sent"]);
+      }
+      else
       {
         string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         await _userManager.ConfirmEmailAsync(user, token);
-        await _userManager.AddToRoleAsync(user, UserRoles.EDITOR);
+
         return Ok(_localizer["User registered. No email confirmation required"]);
       }
 
-      string t = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-      _emailService.Send(RegisterMessageBuilder(model, _configuration["FrontendUrl"] + "/Account/ConfirmRegistration?email=" + model.Email + "&token=" + t));
-      await _userManager.AddToRoleAsync(user, UserRoles.EDITOR);
-      return Ok(_localizer["Confirmation email sent"]);
     }
 
-    private MimeMessage ConfirmRegistrationMessageBuilder(ApplicationUser user)
-    {
-      string slackInvitation = "https://join.slack.com/t/techforaccessibility/shared_invite/zt-y7auomk3-iFugUKhN_Qz6_8Y37jySNw";
-      string slackDownload = "https://slack.com/downloads";
-      string userManualLink = "https://drive.google.com/file/d/14IfcF7DjK6fvD6V8GaOd7xAyUPWpCrZh/view?usp=sharing";
-      string facebookGroupLink = "https://www.facebook.com/groups/282362010475827";
 
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(user.Email));
 
-      message.Subject = _emailService.BuildSubject(_localizer["Information for new users"]);
 
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
-{_localizer["You have successfully created an account on"]} www.osmintegrator.pl. 
-{_localizer["Next steps:"]}
-{_localizer["Join our community on Slack. Click on this link to create new account:"]} {slackInvitation}
-{_localizer["Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:"]} {slackDownload}
-{_localizer["Read user manual available at this link:"]} {userManualLink}
-{_localizer["Join our Facebook group:"]} {facebookGroupLink}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["You have successfully created an account on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>.</p><br/>
-<p>{_localizer["Next steps:"]}</p>
-<ul>
-  <li>{_localizer["Join our community on Slack. Click on this link to create new account:"]} <a href=""{slackInvitation}"">LINK</a></li>
-  <li>{_localizer["Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:"]} <a href=""{slackDownload}"">LINK</a></li>
-  <li>{_localizer["Read user manual available at this link:"]} <a href=""{userManualLink}"">LINK</a></li>
-  <li>{_localizer["Join our Facebook group:"]} <a href=""{facebookGroupLink}"">LINK</a></li>
-</ul>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
-    }
-
-    private MimeMessage RegisterMessageBuilder(RegisterData model, string url)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _emailService.BuildSubject(_localizer["Confirm account registration"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {model.Username},
-{_localizer["You have just created an account on the site"]} www.osmintegrator.pl. {_localizer["To activate your account, click on the link below."]}
-{url}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {model.Username},</h3>
-<p>{_localizer["You have just created an account on the site"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To activate your account, click on the link below."]}</p><br/>
-<a href=""{url}"">{url}</a>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
-    }
 
     private async void RemoveUser(ApplicationUser user)
     {
@@ -314,56 +243,9 @@ rozwiazaniadlaniewidomych.org
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword model)
     {
-      ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
+      await _emailHelper.SendForgotPasswordMessageAsync(model.Email.Trim().ToLower());
 
-      if (user != null && await _userManager.IsEmailConfirmedAsync(user))
-      {
-        string token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-        //Generate reset password link using url to frontend service, email and reset password token
-        //for example:
-        string urlToResetPassword = _configuration["FrontendUrl"] + "/Account/ResetPassword?email=" + model.Email + "&token=" + token;
-        // to do: create function to generate email message and subject
-        // containing instruction what to do and url link to reset password
-
-        _emailService.Send(ForgotPasswordMessageBuilder(model, user, urlToResetPassword));
-        return Ok(_localizer["Reset password email has been sent"]);
-      }
-      else
-      {
-        return Unauthorized(new AuthorizationError() { Message = _localizer["User with this email does not exist or email was not confirmed"] });
-      }
-    }
-
-    private MimeMessage ForgotPasswordMessageBuilder(ForgotPassword model, ApplicationUser user, string url)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _emailService.BuildSubject(_localizer["Resset password"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
-{_localizer["You have requested password reset on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
-{url}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["You have requested password reset on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
-<a href=""{url}"">{url}</a>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
+      return Ok(_localizer["Reset password email has been sent"]);
     }
 
     [HttpPost]
@@ -394,48 +276,9 @@ rozwiazaniadlaniewidomych.org
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> ChangeEmail([FromBody] ResetEmail model)
     {
+      await _emailHelper.SendChangeEmailMessageAsync(model.Email, User);
 
-      model.Email = model.Email.ToLower().Trim();
-
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-      string token = await _userManager.GenerateChangeEmailTokenAsync(user, model.Email);
-
-      string urlToResetPassword =
-          _configuration["FrontendUrl"] + "/Account/ConfirmEmail?newEmail=" + model.Email + "&oldEmail=" + user.Email + "&token=" + token;
-
-      _emailService.Send(ChangeEmailMessageBuilder(model, user, urlToResetPassword));
       return Ok(_localizer["Confirmation email sent"]);
-    }
-
-    private MimeMessage ChangeEmailMessageBuilder(ResetEmail model, ApplicationUser user, string url)
-    {
-      MimeMessage message = new MimeMessage();
-      message.From.Add(MailboxAddress.Parse(_configuration["Email:SmtpUser"]));
-      message.To.Add(MailboxAddress.Parse(model.Email));
-      message.Subject = _emailService.BuildSubject(_localizer["Confirm new email"]);
-
-      BodyBuilder builder = new BodyBuilder();
-
-      builder.TextBody = $@"{_localizer["Hello"]} {user.UserName},
-{_localizer["You have requested changing an email address on"]} www.osmintegrator.pl. {_localizer["To do so, click on the link below."]}
-{url}
-{_emailService.BuildServerName(false)}
-{_localizer["Regards"]},
-{_localizer["OsmIntegrator Team"]},
-rozwiazaniadlaniewidomych.org
-      ";
-      builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {user.UserName},</h3>
-<p>{_localizer["You have requested changing an email address on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
-<a href=""{url}"">{url}</a>
-{_emailService.BuildServerName(true)}
-<p>{_localizer["Regards"]},</p>
-<p>{_localizer["OsmIntegrator Team"]},</p>
-<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
-      ";
-
-      message.Body = builder.ToMessageBody();
-
-      return message;
     }
 
     [HttpPost]

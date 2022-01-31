@@ -39,13 +39,13 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
       Assert.True(actualStop1.IsDeleted);
 
-      ReportTile actualReportTile =
+      TileImportReport actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
 
       TurnOnDbTracking();

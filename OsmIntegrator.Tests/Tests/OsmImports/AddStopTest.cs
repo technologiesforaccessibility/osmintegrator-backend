@@ -41,13 +41,13 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Assert.Equal("Brynów Dworska", actualStop1.Name);
       Assert.Equal(5, actualStop1.Tags.Count);
 
-      ReportTile actualReportTile =
+      TileImportReport actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(AddStopTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(AddStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
   }

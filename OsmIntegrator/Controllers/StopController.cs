@@ -95,7 +95,6 @@ namespace OsmIntegrator.Controllers
       dbStop.Lon = stop.Lon;
 
       Stop result = _mapper.Map<Stop>(dbStop);
-      result.Tile = null;
 
       await _dbContext.SaveChangesAsync();
       return Ok(result);
@@ -139,11 +138,7 @@ namespace OsmIntegrator.Controllers
       CancellationToken cancellationToken = new CancellationToken();
       Osm osm = await _overpass.GetFullArea(_dbContext, cancellationToken);
 
-      List<DbTile> tilesToRefresh = _dbContext.Tiles
-        .Include(x => x.Stops)
-        .Include(x => x.TileUsers)
-        .Where(x => x.TileUsers.Count() == 0)
-        .ToList();
+      List<DbTile> tilesToRefresh = _dbContext.Tiles.ToList();
 
       foreach (DbTile tile in tilesToRefresh)
       {

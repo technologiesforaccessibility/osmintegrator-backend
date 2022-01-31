@@ -7,11 +7,13 @@ using OsmIntegrator.ApiModels;
 using OsmIntegrator.ApiModels.Auth;
 using OsmIntegrator.ApiModels.Connections;
 using OsmIntegrator.ApiModels.Reports;
+using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tests.Mocks;
+using OsmIntegrator.Tools;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -139,8 +141,7 @@ namespace OsmIntegrator.Tests.Fixtures
 
       UpdateTileInput input = new UpdateTileInput
       {
-        EditorId = editorId,
-        SupervisorId = supervisorId
+        EditorId = editorId
       };
 
       foreach (DbTile tile in _dbContext.Tiles.ToList())
@@ -156,9 +157,16 @@ namespace OsmIntegrator.Tests.Fixtures
 
     #region API Client
 
-    public async Task<OsmChangeOutput> Get_OsmExport_GetChangeFile(string tileId)
+    public async Task<OsmChange> Get_OsmExport_GetChangeFile(string tileId)
     {
-      HttpResponseMessage response = await _client.GetAsync($"/api/OsmExport/GetChangeFile/{tileId}");
+      HttpResponseMessage response = await _client.GetAsync($"/api/tiles/{tileId}/export/osc");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return  SerializationHelper.XmlDeserialize<OsmChange>(jsonResponse);
+    }
+
+    public async Task<OsmChangeOutput> Get_OsmExport_GetChanges(string tileId)
+    {
+      HttpResponseMessage response = await _client.GetAsync($"/api/tiles/{tileId}/export/changes");
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<OsmChangeOutput>(jsonResponse);
     }

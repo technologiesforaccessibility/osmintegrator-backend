@@ -47,15 +47,16 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       DbStop actualStop2 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_2);
       Assert.Equal(5, actualStop2.Tags.Count);
       Assert.Contains(actualStop2.Tags, x => x.Key == "very_public_transport" && x.Value == "stop_position");
-      Assert.False(actualStop2.Tags.Any(x => x.Key == "public_transport"));
 
-      ReportTile actualReportTile =
+      Assert.DoesNotContain(actualStop2.Tags, x => x.Key == "public_transport");
+
+      TileImportReport actualReportTile =
         _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
 
-      ReportTile expectedReportTile =
-        SerializationHelper.JsonDeserialize<ReportTile>($"{TestDataFolder}{nameof(TagsTest)}/ReportTile.json");
+      TileImportReport expectedReportTile =
+        SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(TagsTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<ReportTile>(
+      Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
   }

@@ -4,7 +4,6 @@ using System.Xml.Serialization;
 
 namespace OsmIntegrator.Tools
 {
-
   [XmlRoot(ElementName = "osmChange")]
   public class OsmChange
   {
@@ -20,6 +19,7 @@ namespace OsmIntegrator.Tools
     public Modify Mod { get; set; }
   }
   [XmlRoot(ElementName = "modify")]
+
   public class Modify
   {
     [XmlElement(ElementName = "node")]
@@ -32,6 +32,7 @@ namespace OsmIntegrator.Tools
     [XmlAttribute(AttributeName = "osm_base")]
     public string Osm_base { get; set; }
   }
+
   [XmlRoot(ElementName = "tag")]
   public class Tag
   {
@@ -73,4 +74,11 @@ namespace OsmIntegrator.Tools
     public string Generator { get; set; }
   }
 
+  [XmlRoot(ElementName = "osm")]
+  public class OsmChangeset
+  {
+    [XmlArray(ElementName = "changeset")]
+    [XmlArrayItem(ElementName = "tag")]
+    public List<Tag> Tags { get; set; }
+  }
 }

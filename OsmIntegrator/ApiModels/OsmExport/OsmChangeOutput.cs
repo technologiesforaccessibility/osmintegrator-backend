@@ -1,5 +1,7 @@
+using System.Collections.Generic;
+
 public class OsmChangeOutput
 {
-  public string Comment { get; set; }
-  public string OsmChangeFileContent { get; set; }
+  public string Changes { get; set; }
+  public IReadOnlyDictionary<string, string> Tags { get; set; }
 }

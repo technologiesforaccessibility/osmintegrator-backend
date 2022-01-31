@@ -6,6 +6,8 @@
       "editor.defaultFormatter": "ms-dotnettools.csharp"
     },
     "cSpell.words": [
+      "Uncommited",
+      "Unexported",
       "Xunit"
     ]
 }

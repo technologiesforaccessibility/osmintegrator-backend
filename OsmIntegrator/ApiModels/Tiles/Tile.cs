@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using OsmIntegrator.ApiModels.Stops;
 
-namespace OsmIntegrator.ApiModels
+namespace OsmIntegrator.ApiModels.Tiles
 {
   public class Tile
   {
@@ -29,14 +27,9 @@ namespace OsmIntegrator.ApiModels
     public double OverlapMinLat { get; set; }
     [Required]
     public double OverlapMaxLon { get; set; }
-    public int OsmStopsCount { get; set; } = 0;
-    public int GtfsStopsCount { get; set; } = 0;
-    public int? UsersCount { get; set; }
-    public List<Stop> Stops { get; set; }
-    [Required]
-    public bool ApprovedByEditor { get; set; } = false;
-    [Required]
-    public bool ApprovedBySupervisor { get; set; } = false;
+    public int GtfsStopsCount { get; set; }
     public byte ZoomLevel { get; set; }
+    public string AssignedUserName { get; set; }
+    public ushort UnconnectedGtfsStops { get; set; }
   }
 }

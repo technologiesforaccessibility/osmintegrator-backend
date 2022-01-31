@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OsmIntegrator.Database.Models.JsonFields
 {
-  public class ReportTile
+  public class TileImportReport
   {
     public List<ReportStop> Stops { get; set; } = new();
     public Guid TileId { get; set; }

@@ -22,6 +22,7 @@ using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Errors;
 using OsmIntegrator.Interfaces;
+using OsmIntegrator.OsmApi;
 using OsmIntegrator.Services;
 using OsmIntegrator.Tools;
 using OsmIntegrator.Validators;
@@ -49,6 +50,7 @@ namespace osmintegrator
         config.ErrorResponses = new ApiVersioningErrorResponseProvider();
       });
 
+      services.AddSingleton<IExternalServicesConfiguration, ExternalServicesConfiguration>();
       services.AddSingleton<DataInitializer>();
       // ===== Add our DbContext ========
       services.AddDbContext<ApplicationDbContext>();
@@ -145,21 +147,24 @@ namespace osmintegrator
 
       services.AddAutoMapper((cfg) =>
       {
-          cfg.AddProfile(new TileProfile(Configuration));
-          cfg.AddProfile<StopProfile>();
-          cfg.AddProfile<TagProfile>();
-          cfg.AddProfile<ApplicationUserProfile>();
-          cfg.AddProfile<ConnectionProfile>();
-          cfg.AddProfile<ExistingNoteProfile>();
-          cfg.AddProfile<NewNoteProfile>();
-          cfg.AddProfile<ConversationProfile>();
-          cfg.AddProfile<MessageProfile>();
+        cfg.AddProfile(new TileProfile(Configuration));
+        cfg.AddProfile<UncommitedTileProfile>();
+        cfg.AddProfile<StopProfile>();
+        cfg.AddProfile<TagProfile>();
+        cfg.AddProfile<ApplicationUserProfile>();
+        cfg.AddProfile<ConnectionProfile>();
+        cfg.AddProfile<ConversationProfile>();
+        cfg.AddProfile<MessageProfile>();
       });
 
       services.AddSingleton<IEmailService, EmailService>();
       services.AddSingleton<ITokenHelper, TokenHelper>();
       services.AddSingleton<ITileValidator, TileValidator>();
       services.AddScoped<IOsmExporter, OsmExporter>();
+      services.AddScoped<IEmailHelper, EmailHelper>();
+      services.AddScoped<IOsmApiClient, OsmApiClient>();
+      services.AddScoped<IOsmExportBuilder, OsmExportBuilder>();
+      services.AddScoped<ITileExportValidator, TileExportValidator>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

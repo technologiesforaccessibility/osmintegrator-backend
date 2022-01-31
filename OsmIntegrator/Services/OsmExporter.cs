@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,18 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Database.Models.Enums;
-using OsmIntegrator.Enums;
 using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Services
 {
-  public interface IOsmExporter
-  {
-    Task<string> GetOsmChangeFile(DbTile tile);
-    string GetComment(long x, long y, int zoom);
-  }
-
   public class OsmExporter : IOsmExporter
   {
     public readonly ApplicationDbContext _dbContext;
@@ -31,23 +25,15 @@ namespace OsmIntegrator.Services
       _config = config;
 
     }
-    public async Task<string> GetOsmChangeFile(DbTile tile)
+    public async Task<OsmChange> GetOsmChangeAsync(Guid tileId, uint changesetId)
     {
-      List<DbStop> stops = await _dbContext.Stops
-        .Where(x => x.TileId == tile.Id && x.StopType == StopType.Osm && x.OsmConnections.Count > 0)
-        .Include(x => x.OsmConnections
-          .OrderByDescending(y => y.CreatedAt)
-          .Take(1))
-        .ThenInclude(x => x.GtfsStop)
-        .ToListAsync();
+      DbTile tile = await _dbContext.Tiles
+        .Include(x => x.Stops)
+        .ThenInclude(x => x.OsmConnections)
+        .Include(t => t.ExportReports)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      List<DbConnection> connections = new();
-      foreach (DbStop stop in stops)
-      {
-        DbConnection currentConnection = stop.OsmConnections.First();
-        if (currentConnection.OperationType == ConnectionOperationType.Added)
-          connections.Add(currentConnection);
-      }
+      List<DbConnection> connections = tile.ActiveConnections(false).ToList();
 
       OsmChange root = new OsmChange()
       {
@@ -58,21 +44,23 @@ namespace OsmIntegrator.Services
           Nodes = new List<Node>()
         }
       };
+
       foreach (DbConnection connection in connections)
       {
-        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
+        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop, changesetId));
       };
-      return SerializationHelper.XmlSerialize(root);
+
+      return root;
     }
-    private Node CreateNode(DbStop osmStop, DbStop gtfsStop)
+    private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint changesetId)
     {
       Node node = new()
       {
         Tag = new List<Tag>(),
-        Changeset = osmStop.Changeset,
+        Changeset = changesetId.ToString(),
         Version = osmStop.Version,
-        Lat = osmStop.Lat.ToString(),
-        Lon = osmStop.Lon.ToString(),
+        Lat = osmStop.Lat.ToString(CultureInfo.InvariantCulture),
+        Lon = osmStop.Lon.ToString(CultureInfo.InvariantCulture),
         Id = osmStop.StopId.ToString()
       };
 
@@ -104,14 +92,39 @@ namespace OsmIntegrator.Services
       tag.V = value;
     }
 
-    public string GetComment(long x, long y, int zoom)
+    public OsmChangeset CreateChangeset(string comment)
+    {
+      var tags = GetTags(comment)
+        .Select(t => new Tag
+        {
+          K = t.Key,
+          V = t.Value
+        })
+        .ToList();
+
+      OsmChangeset changeset = new()
+      {
+        Tags = tags
+      };
+
+      return changeset;
+    }
+
+    public string GetComment(long x, long y, byte zoom)
     {
       StringBuilder sb = new StringBuilder();
-      sb.Append("This change is about update name, ref and local_ref tags inside bus and tram stops. ");
-      sb.Append($"The change affects the tile at: X - {x}; Y - {y}; zoom - {zoom}. ");
-      sb.Append("Wiki page: https://wiki.openstreetmap.org/wiki/OsmIntegrator, ");
-      sb.Append("project page: https://osmintegrator.eu");
+      sb.Append("Updating ref and local_ref with GTFS data. ");
+      sb.Append($"Tile X: {x}, Y: {y}, Zoom: {zoom}. ");
+      sb.Append("Wiki: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind");
       return sb.ToString();
     }
+
+    public IReadOnlyDictionary<string, string> GetTags(string comment) => new Dictionary<string, string> {
+      {"comment", comment},
+      {"import", "yes"},
+      {"created_by", "osmintegrator"},
+      {"source", "Zarząd Transportu Metropolitalnego"},
+      {"hashtags", "#osmintegrator;#ztm;#silesia"}
+    };
   }
 }

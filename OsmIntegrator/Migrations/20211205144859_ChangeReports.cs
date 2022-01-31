@@ -22,7 +22,7 @@ namespace osmintegrator.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    TileReport = table.Column<ReportTile>(type: "jsonb", nullable: false),
+                    TileReport = table.Column<TileImportReport>(type: "jsonb", nullable: false),
                     TileId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
