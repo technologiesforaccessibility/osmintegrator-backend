@@ -23,18 +23,21 @@ namespace OsmIntegrator.Services
       _dbContext = dbContext;
       _mapper = mapper;
       _config = config;
-
     }
-    public async Task<OsmChange> GetOsmChangeAsync(Guid tileId, uint changesetId)
+
+    public async Task<IReadOnlyCollection<DbConnection>> GetUnexportedOsmConnectionsAsync(Guid tileId)
     {
       DbTile tile = await _dbContext.Tiles
-        .Include(x => x.Stops)
-        .ThenInclude(x => x.OsmConnections)
-        .Include(t => t.ExportReports)
-        .FirstOrDefaultAsync(x => x.Id == tileId);
+              .Include(x => x.Stops)
+              .ThenInclude(x => x.OsmConnections)
+              .Include(t => t.ExportReports)
+              .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      List<DbConnection> connections = tile.ActiveConnections(false).ToList();
+      return tile.GetUnexportedOsmConnections();
+    }
 
+    public OsmChange GetOsmChange(IReadOnlyCollection<DbConnection> connections, uint? changesetId = null)
+    {
       OsmChange root = new OsmChange()
       {
         Generator = "osm integrator v0.1",
@@ -52,12 +55,12 @@ namespace OsmIntegrator.Services
 
       return root;
     }
-    private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint changesetId)
+    private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint? changesetId = null)
     {
       Node node = new()
       {
         Tag = new List<Tag>(),
-        Changeset = changesetId.ToString(),
+        Changeset = changesetId?.ToString(),
         Version = osmStop.Version,
         Lat = osmStop.Lat.ToString(CultureInfo.InvariantCulture),
         Lon = osmStop.Lon.ToString(CultureInfo.InvariantCulture),

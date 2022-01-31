@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Extensions;
 
@@ -58,57 +59,79 @@ namespace OsmIntegrator.Database.Models
 
     public DateTime? LastExportAt => ExportReports.Any() ? ExportReports.Select(r => r.CreatedAt).Max() : null;
 
-    public string GetUnexportedChanges(IStringLocalizer _localizer)
+    public string GetUnexportedChanges(IStringLocalizer localizer)
     {
-      var connections = Stops.SelectMany(s => s.GtfsConnections)
-        .Where(c => !c.Exported)
-        .OnlyLatest()
-        .ToList();
+      IReadOnlyCollection<DbConnection> connections = GetUnexportedOsmConnections();
 
-      StringBuilder sb = new StringBuilder();
-      sb.AppendFormat(_localizer["Tile coordinates"], X, Y);
+      StringBuilder sb = new();
+      sb.AppendFormat(localizer["Tile coordinates"], X, Y);
       sb.AppendLine(string.Empty);
 
       if (!connections.Any())
       {
         sb.AppendLine(string.Empty);
-        sb.AppendLine(_localizer["No changes"]);
+        sb.AppendLine(localizer["No changes"]);
         return sb.ToString();
       }
 
-      var addedConnections = connections
-        .Where(c => c.OperationType == ConnectionOperationType.Added)
-        .ToList();
-
-      if (addedConnections.Any())
+      foreach (var osmStopGroup in connections.GroupBy(c => c.OsmStop).OrderBy(s => s.Key.Name))
       {
-        sb.AppendLine(string.Empty);
-        sb.AppendLine(_localizer["New connections"]);
-        sb.AppendLine(string.Empty);
-        foreach (var connection in addedConnections)
-        {
-          sb.AppendLine($"{connection.GtfsStop.Name} <=> {connection.OsmStop.Name}");
-        }
-        sb.AppendLine(string.Empty);
-      }
+        DbStop osmStop = osmStopGroup.Key;
+        DbConnection connection = osmStopGroup.FirstOrDefault(s => s.GtfsStop != null);
+        string stopDiff = GetStopDiff(osmStop, connection, localizer);
 
-      var removedConnections = connections
-        .Where(c => c.OperationType == ConnectionOperationType.Removed)
-        .ToList();
-
-      if (removedConnections.Any())
-      {
-        sb.AppendLine(_localizer["Removed connections"]);
-        sb.AppendLine(string.Empty);
-        foreach (var connection in addedConnections)
+        if (!string.IsNullOrWhiteSpace(stopDiff))
         {
-          sb.AppendLine($"{connection.GtfsStop.Name} <=> {connection.OsmStop.Name}");
+          sb.AppendLine(string.Empty);
+          sb.AppendLine($"{localizer["Stop modified"]} {osmStopGroup.Key.Name}, Ver: {osmStopGroup.Key.Version}");
+          sb.Append(stopDiff);
         }
-        sb.AppendLine(string.Empty);
       }
 
       return sb.ToString();
     }
+
+    private static string GetStopDiff(DbStop osmStop, DbConnection connection, IStringLocalizer localizer)
+    {
+      Tag oldRefTag = osmStop.GetTag(Constants.REF);
+      Tag oldLocalRefTag = osmStop.GetTag(Constants.LOCAL_REF);
+      Tag oldNameTag = osmStop.GetTag(Constants.NAME);
+
+      string newRef = connection.GtfsStop.StopId.ToString();
+      string newLocalRef = connection.GtfsStop.Number;
+      string newName = connection.GtfsStop.Name;
+
+      string refTagDiff = GetTagDiff(connection.OperationType, Constants.REF, oldRefTag?.Value, newRef, localizer);
+      string localRefTagDiff = GetTagDiff(connection.OperationType, Constants.LOCAL_REF, oldLocalRefTag?.Value, newLocalRef, localizer);
+      string nameTagDiff = GetTagDiff(connection.OperationType, Constants.NAME, oldNameTag?.Value, newName, localizer);
+
+      StringBuilder stopDiffBuilder = new();
+      stopDiffBuilder.Append(refTagDiff);
+      stopDiffBuilder.Append(localRefTagDiff);
+      stopDiffBuilder.Append(nameTagDiff);
+
+      return stopDiffBuilder.ToString();
+    }
+
+    private static string GetTagDiff(ConnectionOperationType operationType, string tagName, string oldValue, string newValue, IStringLocalizer localizer)
+    {
+      StringBuilder stopDiffBuilder = new();
+
+      if (operationType == ConnectionOperationType.Added)
+      {
+        if (string.IsNullOrWhiteSpace(oldValue))
+        {
+          stopDiffBuilder.AppendLine($"\t{localizer["Tag added"]} {tagName}: {newValue}");
+        }
+        else if (oldValue != newValue)
+        {
+          stopDiffBuilder.AppendLine($"\t{localizer["Tag modified"]} {tagName}: {oldValue} => {newValue}");
+        }
+      }
+
+      return stopDiffBuilder.ToString();
+    }
+
     public DbTile()
     {
 
@@ -149,11 +172,12 @@ namespace OsmIntegrator.Database.Models
       .OnlyActive()
       .Any(c => c.UserId.HasValue && c.UserId != userId);
 
-    public IEnumerable<DbConnection> ActiveConnections(bool exported) => Stops
+    public IReadOnlyCollection<DbConnection> GetUnexportedOsmConnections() => Stops
       .Where(s => s.StopType == StopType.Osm)
       .SelectMany(s => s.OsmConnections)
       .OnlyActive()
-      .Where(c => c.Exported == exported);
+      .Where(c => !c.Exported)
+      .ToList();
 
     public ApplicationUser AssignedUser => Stops
       .Where(s => s.StopType == StopType.Gtfs)
