@@ -48,6 +48,8 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
       HttpResponseMessage response = await Put_Connections(connectionAction);
       response.StatusCode.Should().Be(HttpStatusCode.OK);
 
+      await Put_Tile_UpdateStops(tile.Id.ToString());
+
       OsmChange actualFile = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
       OsmChangeOutput actualChanges = await Get_OsmExport_GetChanges(tile.Id.ToString());  
 

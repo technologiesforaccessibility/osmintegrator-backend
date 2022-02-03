@@ -14,6 +14,7 @@ namespace OsmIntegrator.OsmApi
     private const string CREATE_CHANGESET = "/api/0.6/changeset/create";
     private const string UPLOAD_CHANGE = "/api/0.6/changeset/{0}/upload";
     private const string CLOSE_CHANGESET = "/api/0.6/changeset/{0}/close";
+    private const string GET_PERMISSIONS = "/api/0.6/permissions";
 
     private readonly HttpClient _httpClient;
 
@@ -67,15 +68,15 @@ namespace OsmIntegrator.OsmApi
       StringContent httpBodyContent = new(changeset.ToXml(), Encoding.UTF8, "text/xml");
       Uri createChangesetUrl = _baseUrl.UseRelativePath(CREATE_CHANGESET);
 
-      string responseBody = await SendAuthRequest(HttpMethod.Put, createChangesetUrl, httpBodyContent);
+      string responseContent = await SendAuthRequest(HttpMethod.Put, createChangesetUrl, httpBodyContent);
 
-      return uint.Parse(responseBody);
+      return uint.Parse(responseContent);
     }
 
     public async Task CloseChangesetAsync(uint changesetId)
     {
       StringContent emptyHttpBodyContent = new(string.Empty, Encoding.UTF8);
-      Uri closeChangesetUrl = new Uri(_baseUrl, string.Format(CLOSE_CHANGESET, changesetId.ToString()));
+      Uri closeChangesetUrl = _baseUrl.UseRelativePath(CLOSE_CHANGESET, changesetId);
 
       await SendAuthRequest(HttpMethod.Put, closeChangesetUrl, emptyHttpBodyContent);
     }
@@ -93,6 +94,17 @@ namespace OsmIntegrator.OsmApi
       await SendAuthRequest(HttpMethod.Post, uploadToChangesetUrl, httpBodyContent);
     }
 
+    public async Task<OsmPermissions> GetPermissionsAsync()
+    {
+      Uri getPermissionsUrl = _baseUrl.UseRelativePath(GET_PERMISSIONS);
+
+      string responseContent = await SendAuthRequest(HttpMethod.Get, getPermissionsUrl);
+
+      OsmPermissions permissions = SerializationHelper.XmlDeserialize<OsmPermissions>(responseContent);
+
+      return permissions;
+    }
+
     private async Task<string> SendAuthRequest(HttpMethod method, Uri address, HttpContent requestContent = null)
     {
       using (HttpRequestMessage request = new HttpRequestMessage(method, address))
@@ -101,9 +113,9 @@ namespace OsmIntegrator.OsmApi
         request.Content = requestContent;
         HttpResponseMessage response = await _httpClient.SendAsync(request);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-          throw new Exception(response.ReasonPhrase);
+          throw new UnauthorizedAccessException();
         }
 
         return await response.Content.ReadAsStringAsync();

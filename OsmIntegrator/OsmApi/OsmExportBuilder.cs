@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using OsmIntegrator.ApiModels.OsmExport;
+using OsmIntegrator.Database.Models;
 using OsmIntegrator.Extensions;
 using OsmIntegrator.Tools;
 
@@ -74,32 +77,36 @@ namespace OsmIntegrator.OsmApi
       return this;
     }
 
-    public async Task<uint> ExportAsync()
+    public async Task<OsmExportResult> ExportAsync()
     {
-      if (!_tileId.HasValue)
-      {
-        throw new ArgumentNullException(nameof(_tileId));
-      }
-
       IOsmApiClient osmApiClient = _osmApiClient
         .WithBaseUrl(_osmApiUrl)
         .WithUsername(_username)
         .WithPassword(_password);
 
-      OsmChangeset osmChangeset = _osmExporter.CreateChangeset(_changesetComment);
-
-      uint changesetId = await osmApiClient.CreateChangesetAsync(osmChangeset);
-
-      OsmChange osmChange = await _osmExporter.GetOsmChangeAsync(_tileId.Value, changesetId);
-
-      await osmApiClient.UploadChangesAsync(changesetId, osmChange);
-
-      if (_close)
+      try
       {
-        await osmApiClient.CloseChangesetAsync(changesetId);
-      }
+        IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(_tileId.Value);
 
-      return changesetId;
+        OsmChangeset osmChangeset = _osmExporter.CreateChangeset(_changesetComment);
+
+        uint changesetId = await osmApiClient.CreateChangesetAsync(osmChangeset);
+
+        OsmChange osmChange = _osmExporter.GetOsmChange(connections, changesetId);
+
+        await osmApiClient.UploadChangesAsync(changesetId, osmChange);
+
+        if (_close)
+        {
+          await osmApiClient.CloseChangesetAsync(changesetId);
+        }
+
+        return new OsmExportResult(OsmApiResponse.Success(changesetId), connections);
+      }
+      catch (UnauthorizedAccessException)
+      {
+        return new OsmExportResult(OsmApiResponse.Error(OsmApiStatusCode.Unauthorized));
+      }
     }
   }
 }

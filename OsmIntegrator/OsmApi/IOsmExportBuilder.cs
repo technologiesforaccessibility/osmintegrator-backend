@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using OsmIntegrator.ApiModels.OsmExport;
 
 namespace OsmIntegrator.OsmApi
 {
@@ -13,6 +14,6 @@ namespace OsmIntegrator.OsmApi
     IOsmExportBuilder UseChangesetComment(string comment);
     IOsmExportBuilder UseClose(bool close = true);
 
-    Task<uint> ExportAsync();
+    Task<OsmExportResult> ExportAsync();
   }
 }

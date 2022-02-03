@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database;
+using OsmIntegrator.Database.Models;
+using OsmIntegrator.Interfaces;
+using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Validators
 {
@@ -11,11 +14,19 @@ namespace OsmIntegrator.Validators
   {
     private IConfiguration _configuration;
     private readonly ApplicationDbContext _dbContext;
+    private readonly IOverpass _overpass;
+    private readonly IOsmUpdater _osmUpdater;
 
-    public TileExportValidator(IConfiguration configuration, ApplicationDbContext dbContext)
+    public TileExportValidator(
+      IConfiguration configuration,
+      ApplicationDbContext dbContext,
+      IOverpass overpass,
+      IOsmUpdater osmUpdater)
     {
       _configuration = configuration;
       _dbContext = dbContext;
+      _overpass = overpass;
+      _osmUpdater = osmUpdater;
     }
 
     public async Task<bool> ValidateDelayAsync(Guid tileId)
@@ -26,11 +37,24 @@ namespace OsmIntegrator.Validators
             .Select(r => r.CreatedAt)
             .FirstOrDefaultAsync();
 
-      var minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
-      var exportUnlocksAt = lastExportDate?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
-      var minExportDelayExceeded = exportUnlocksAt < DateTime.Now;
+      byte minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
+      DateTime exportUnlocksAt = lastExportDate?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
+      DateTime exportUnlocksAtUtc = DateTime.SpecifyKind(exportUnlocksAt, DateTimeKind.Utc);
+      var minExportDelayExceeded = exportUnlocksAtUtc < DateTime.UtcNow;
 
       return minExportDelayExceeded;
+    }
+
+    public async Task<bool> ValidateVersionAsync(Guid tileId)
+    {
+      var tile = await _dbContext.Tiles
+        .AsNoTracking()
+        .Include(tile => tile.Stops)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
+
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+      return !_osmUpdater.ContainsChanges(tile, osm);
     }
   }
 }

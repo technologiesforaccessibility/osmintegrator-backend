@@ -19,6 +19,8 @@ using OsmIntegrator.Tools;
 using OsmIntegrator.OsmApi;
 using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
+using OsmIntegrator.ApiModels.OsmExport;
+using System.Collections.Generic;
 
 namespace OsmIntegrator.Controllers
 {
@@ -73,9 +75,19 @@ namespace OsmIntegrator.Controllers
           UserRoles.ADMIN)]
     public async Task<ActionResult<OsmChangeOutput>> GetExportChanges(Guid tileId)
     {
+      if (!await _tileExportValidator.ValidateDelayAsync(tileId))
+      {
+        throw new BadHttpRequestException(_localizer["Delay required"]);
+      }
+
+      if (!await _tileExportValidator.ValidateVersionAsync(tileId))
+      {
+        throw new BadHttpRequestException(_localizer["Import required"]);
+      }
+
       DbTile tile = await _dbContext.Tiles
         .Include(x => x.Stops)
-        .ThenInclude(x => x.GtfsConnections)
+        .ThenInclude(x => x.OsmConnections)
         .FirstOrDefaultAsync(x => x.Id == tileId);
 
       var comment = _osmExporter.GetComment(tile.X, tile.Y, byte.Parse(_configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo));
@@ -99,11 +111,16 @@ namespace OsmIntegrator.Controllers
     {
       if (!await _tileExportValidator.ValidateDelayAsync(tileId))
       {
-        return BadRequest();
+        throw new BadHttpRequestException(_localizer["Delay required"]);
+      }
+
+      if (!await _tileExportValidator.ValidateVersionAsync(tileId))
+      {
+        throw new BadHttpRequestException(_localizer["Import required"]);
       }
 
       // send tile's changes to OSM
-      uint changesetId = await _osmExportBuilder
+      OsmExportResult exportResult = await _osmExportBuilder
         .UseTile(tileId)
         .UseChangesetComment(input.Comment)
         .UseOsmApiUrl(_externalServices.OsmApiUrl)
@@ -112,6 +129,11 @@ namespace OsmIntegrator.Controllers
         .UseClose()
         .ExportAsync();
 
+      if (exportResult.ApiResponse.Status == OsmApiStatusCode.Unauthorized)
+      {
+        throw new BadHttpRequestException(_localizer["Invalid OSM Credentials"]);
+      }
+
       // Get current user roles
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
@@ -119,11 +141,16 @@ namespace OsmIntegrator.Controllers
       await _dbContext.ExportReports.AddAsync(new DbTileExportReport
       {
         TileId = tileId,
-        CreatedAt = DateTime.Now.ToUniversalTime(),
+        CreatedAt = DateTime.UtcNow,
         UserId = user.Id,
         TileReport = new(),
-        ChangesetId = changesetId
+        ChangesetId = exportResult.ChangesetId.Value
       });
+
+      foreach (DbConnection connection in exportResult.ExportedConnections)
+      {
+        connection.Exported = true;
+      }
 
       await _dbContext.SaveChangesAsync();
 
@@ -134,7 +161,8 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR + "," + UserRoles.ADMIN)]
     public async Task<ActionResult> GetExportFile(Guid tileId)
     {
-      OsmChange osmChange = await _osmExporter.GetOsmChangeAsync(tileId, 0);
+      IReadOnlyCollection<DbConnection> unexportedConnections = await _osmExporter.GetUnexportedOsmConnectionsAsync(tileId);
+      OsmChange osmChange = _osmExporter.GetOsmChange(unexportedConnections);
 
       return File(osmChange.ToXml().ToBytes(), "text/xml", "osmchange.osc");
     }

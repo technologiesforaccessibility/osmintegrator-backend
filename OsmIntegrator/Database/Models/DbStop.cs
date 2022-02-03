@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Database.Models.JsonFields;
 
@@ -55,5 +56,7 @@ namespace OsmIntegrator.Database.Models
 
     public string Changeset { get; set; }
     public bool IsDeleted { get; set; }
+
+    public Tag GetTag(string key) => Tags.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.InvariantCultureIgnoreCase));
   }
 }
