@@ -81,4 +81,18 @@ namespace OsmIntegrator.Tools
     [XmlArrayItem(ElementName = "tag")]
     public List<Tag> Tags { get; set; }
   }
+
+  [XmlRoot("osm")]
+  public class OsmPermissions
+  {
+    [XmlArray(ElementName = "permissions")]
+    [XmlArrayItem(ElementName = "permission")]
+    public List<Permission> Permissions { get; set; } = new List<Permission>();
+  }
+
+  public class Permission
+  {
+    [XmlAttribute(AttributeName = "name")]
+    public string Name { get; set; }
+  }
 }

@@ -2,7 +2,7 @@
 <osmChange xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="0.6" comment="Bus and tram stops tags update" mechanical="yes" generator="osm integrator v0.1">
   <modify>
-    <node id="1831944331" lat="50.2313802" lon="18.9886732" version="4" changeset="0">
+    <node id="1831944331" lat="50.2313802" lon="18.9886732" version="4">
       <tag k="name" v="Brynów Orkana Updated" />
       <tag k="bus" v="yes" />
       <tag k="highway" v="bus_stop" />

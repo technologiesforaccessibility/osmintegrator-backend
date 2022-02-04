@@ -26,6 +26,8 @@ using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
 using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Errors;
+using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Controllers
 {
@@ -198,10 +200,26 @@ namespace OsmIntegrator.Controllers
       return Ok(_localizer["User has been added to the tile"]);
     }
 
+    [HttpGet("{tileId}")]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<bool>> ContainsChanges(Guid tileId)
+    {
+      DbTile tile = await GetTileAsync(tileId);
+
+      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+      return _osmUpdater.ContainsChanges(tile, osm);
+    }
+
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<Report>> UpdateStops(Guid id)
     {
+      if (!await _tileExportValidator.ValidateDelayAsync(id))
+      {
+        throw new BadHttpRequestException(_localizer["Delay required"]);
+      }
+
       DbTile tile = await GetTileAsync(id);
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
@@ -211,33 +229,17 @@ namespace OsmIntegrator.Controllers
       return Ok(new Report { Value = tileReport.ToString() });
     }
 
-    [HttpGet("{id}")]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<bool>> ContainsChanges(Guid id)
-    {
-      if (!await _tileExportValidator.ValidateDelayAsync(id))
-      {
-        return BadRequest();
-      }
-
-      DbTile tile = await GetTileAsync(id);
-
-      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
-
-      bool containsChanges = _osmUpdater.ContainsChanges(tile, osm);
-
-      return Ok(containsChanges);
-    }
-
     private async Task<DbTile> GetTileAsync(Guid tileId)
     {
       DbTile currentTile = await _dbContext.Tiles
         .Include(tile => tile.Stops)
         .SingleOrDefaultAsync(x => x.Id == tileId);
+
       if (currentTile == null)
       {
         throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
       }
+
       return currentTile;
     }
   }

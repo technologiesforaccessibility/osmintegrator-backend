@@ -9,6 +9,7 @@ namespace OsmIntegrator.OsmApi
     Task CloseChangesetAsync(uint changesetId);
     Task<uint> CreateChangesetAsync(OsmChangeset changeset);
     Task UploadChangesAsync(uint changesetId, OsmChange change);
+    Task<OsmPermissions> GetPermissionsAsync();
     IOsmApiClient WithPassword(string password);
     IOsmApiClient WithUsername(string username);
     IOsmApiClient WithBaseUrl(string baseUrl);
