@@ -203,12 +203,11 @@ namespace OsmIntegrator.Controllers
           "FROM \"Connections\" c " +
           "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-      List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
-          query).Include(x => x.OsmStop).ToListAsync();
-
-      connections = connections.Where(
-          x => x.OsmStop.TileId == Guid.Parse(id) && x.OperationType != ConnectionOperationType.Removed)
-          .ToList();
+      List<DbConnection> connections = await _dbContext.Connections
+      .FromSqlRaw(query)
+      .Where(x => x.GtfsStop.TileId == Guid.Parse(id))
+      .Where(x => x.OperationType == ConnectionOperationType.Added)
+      .ToListAsync();
 
       List<Connection> result = _mapper.Map<List<Connection>>(connections);
       return Ok(result);
