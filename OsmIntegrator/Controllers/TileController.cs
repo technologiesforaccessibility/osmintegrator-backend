@@ -26,8 +26,8 @@ using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
 using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
-using OsmIntegrator.Errors;
 using OsmIntegrator.Enums;
+using OsmIntegrator.Database.QueryObjects;
 
 namespace OsmIntegrator.Controllers
 {
@@ -86,12 +86,12 @@ namespace OsmIntegrator.Controllers
 
       if (roles.Contains(UserRoles.EDITOR))
       {
-        List<DbTile> editorTiles = await _dbContext.Tiles
+
+        tiles = await _dbContext.Tiles
           .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections)
           .Where(x => x.Stops.Any(s => s.StopType == StopType.Gtfs))
           .OnlyAccessibleBy(user.Id)
           .ToListAsync();
-        tiles.AddRange(editorTiles);
       }
 
       return Ok(_mapper.Map<List<Tile>>(tiles));
@@ -101,9 +101,7 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.SUPERVISOR)]
     public async Task<ActionResult<List<Tile>>> GetUncommitedTiles()
     {
-      IReadOnlyCollection<UncommitedTile> uncommitedTiles = await GetUncommitedTilesAsync();
-
-      return Ok(uncommitedTiles);
+      return Ok(await GetUncommitedTilesAsync());
     }
 
     [HttpGet("{id}")]
@@ -160,7 +158,7 @@ namespace OsmIntegrator.Controllers
       }
 
       // Remove OSM stops outside the tile
-      stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == 0);
+      stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == StopType.Osm);
 
       tile.Stops = stops;
       tile.Stops.ForEach(x => x.Tile = null);
@@ -233,58 +231,40 @@ namespace OsmIntegrator.Controllers
       return currentTile;
     }
 
-    private async Task<IReadOnlyCollection<UncommitedTile>> GetUncommitedTilesAsync()
-    {
-      var connections = await _dbContext.Connections
-              .AsNoTracking()
-              .Select(c => new
-              {
-                c.GtfsStopId,
-                c.OsmStopId,
-                c.CreatedAt,
-                c.OperationType,
-                c.GtfsStop.TileId,
-                Username = c.User == null ? null : c.User.UserName
-              })
-              .ToListAsync();
-
-      var activeConnectionsTileGroup = connections
+    private Dictionary<Guid, List<ConnectionQuery>> ActiveConnections(List<ConnectionQuery> connections) =>
+      connections
         .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
         .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
         .Where(c => c.OperationType == ConnectionOperationType.Added)
         .GroupBy(c => c.TileId)
-        .ToDictionary(c => c.Key, c => c);
+        .ToDictionary(c => c.Key, c => c.ToList());
 
-      var dbTiles = await _dbContext.Tiles
-        .AsNoTracking()
-        .Where(t => activeConnectionsTileGroup.Keys.Contains(t.Id))
-        .Select(t => new
-        {
-          t.Id,
-          t.MaxLat,
-          t.MaxLon,
-          t.MinLat,
-          t.MinLon,
-          t.X,
-          t.Y,
-          GtfsStopsCount = t.Stops.Where(s => s.StopType == StopType.Gtfs).Count()
-        })
-        .ToListAsync();
+    private async Task<IReadOnlyCollection<UncommitedTile>> GetUncommitedTilesAsync()
+    {
+      List<ConnectionQuery> connections =
+        await _dbContext.GetAllConnectionsWithUserName();
 
-      List<UncommitedTile> uncommitedTiles = dbTiles.Join(activeConnectionsTileGroup, t => t.Id, g => g.Key, (t, g) => new UncommitedTile
-      {
-        AssignedUserName = g.Value.FirstOrDefault(c => c.Username != null)?.Username ?? null,
-        GtfsStopsCount = t.GtfsStopsCount,
-        Id = t.Id,
-        MinLon = t.MinLon,
-        MinLat = t.MinLat,
-        MaxLat = t.MaxLat,
-        MaxLon = t.MaxLon,
-        Y = t.Y,
-        X = t.X,
-        UnconnectedGtfsStops = t.GtfsStopsCount - g.Value.Count()
-      })
-      .ToList();
+      Dictionary<Guid, List<ConnectionQuery>> activeConnectionsTileGroup =
+        ActiveConnections(connections);
+
+      List<TileQuery> dbTiles = await _dbContext.GetTileQuery(activeConnectionsTileGroup);
+
+      List<UncommitedTile> uncommitedTiles =
+        dbTiles.Join(activeConnectionsTileGroup, t => t.Id, g => g.Key, (t, g) =>
+          new UncommitedTile
+          {
+            AssignedUserName = g.Value.FirstOrDefault(c => c.UserName != null)?.UserName ?? null,
+            GtfsStopsCount = t.GtfsStopsCount,
+            Id = t.Id,
+            MinLon = t.MinLon,
+            MinLat = t.MinLat,
+            MaxLat = t.MaxLat,
+            MaxLon = t.MaxLon,
+            Y = t.Y,
+            X = t.X,
+            UnconnectedGtfsStops = t.GtfsStopsCount - g.Value.Count()
+          })
+          .ToList();
 
       return uncommitedTiles;
     }

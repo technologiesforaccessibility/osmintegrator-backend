@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.DataInitialization
 {
@@ -77,28 +78,11 @@ namespace OsmIntegrator.Database.DataInitialization
       db.SaveChanges();
     }
 
-    public void InitializeFakeData(ApplicationDbContext db)
-    {
-      List<DbTile> tiles = db.Tiles.ToList();
-      DbTile tile_2263_1385 = tiles.FirstOrDefault(x => x.X == 2263 && x.Y == 1385);
-
-      List<ApplicationUser> users = db.Users.Where(x => x.UserName.Contains("editor")).ToList();
-      ApplicationUser editor1 = users[0];
-      ApplicationUser editor2 = users[1];
-
-      List<ApplicationUser> supervisors = db.Users.Where(x => x.UserName.Contains("supervisor")).ToList();
-      ApplicationUser supervisor1 = supervisors[0];
-
-      db.SaveChanges();
-
-      DbTile tile = db.Tiles.First(x => x.X == 2263 && x.Y == 1385);
-
-      db.SaveChanges();
-    }
-
     public void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
     {
       if(gtfsStops == null || osmStops == null) return;
+
+      ApplicationUser supervisor = db.Users.First(x => x.UserName == "supervisor2");
 
       List<DbConnection> connections = new List<DbConnection>();
 
@@ -114,7 +98,10 @@ namespace OsmIntegrator.Database.DataInitialization
             connections.Add(new DbConnection()
             {
               GtfsStop = gtfsStop,
-              OsmStop = osmStop
+              OsmStop = osmStop,
+              UserId = supervisor.Id,
+              OperationType = ConnectionOperationType.Added,
+              CreatedAt = DateTime.UtcNow
             });
           }
         }
@@ -137,7 +124,6 @@ namespace OsmIntegrator.Database.DataInitialization
 
           InitializeUsers(db);
           InitializeStopsAndTiles(db, gtfsStops, osmStops);
-          InitializeFakeData(db);
           InitializeOsmConnections(db, gtfsStops, osmStops);
 
           transaction.Commit();
