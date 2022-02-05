@@ -100,8 +100,7 @@ namespace OsmIntegrator.Database.DataInitialization
               GtfsStop = gtfsStop,
               OsmStop = osmStop,
               UserId = supervisor.Id,
-              OperationType = ConnectionOperationType.Added,
-              CreatedAt = DateTime.UtcNow
+              OperationType = ConnectionOperationType.Added
             });
           }
         }
