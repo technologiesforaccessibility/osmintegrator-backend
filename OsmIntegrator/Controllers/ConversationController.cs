@@ -86,7 +86,7 @@ namespace OsmIntegrator.Controllers
         UserId = user.Id,
         Status = NoteStatus.Created,
         Text = messageInput.Text,
-        CreatedAt = DateTime.Now
+        CreatedAt = DateTime.UtcNow
       };
 
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
@@ -196,7 +196,7 @@ namespace OsmIntegrator.Controllers
         UserId = user.Id,
         ConversationId = dbConversation.Id,
         Status = NoteStatus.Approved,
-        CreatedAt = DateTime.Now,
+        CreatedAt = DateTime.UtcNow,
         Text = messageInput.Text,
       };
       DbMessage dbMessage = _mapper.Map<DbMessage>(message);
