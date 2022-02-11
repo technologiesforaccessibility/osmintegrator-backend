@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
@@ -42,9 +41,7 @@ namespace OsmIntegrator.Controllers
     private readonly ILogger<TileController> _logger;
     private readonly ApplicationDbContext _dbContext;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
-    private readonly RoleManager<ApplicationRole> _roleManger;
     private readonly IStringLocalizer<TileController> _localizer;
     private readonly IOverpass _overpass;
     private readonly IOsmUpdater _osmUpdater;
@@ -52,23 +49,18 @@ namespace OsmIntegrator.Controllers
 
     public TileController(
         ILogger<TileController> logger,
-        IConfiguration configuration,
         ApplicationDbContext dbContext,
         IMapper mapper,
         UserManager<ApplicationUser> userManager,
-        RoleManager<ApplicationRole> roleManager,
         IStringLocalizer<TileController> localizer,
-        IEmailService emailService,
         IOsmUpdater refresherHelper,
         IOverpass overpass,
         ITileExportValidator tileExportValidator)
     {
       _logger = logger;
       _dbContext = dbContext;
-      _configuration = configuration;
       _mapper = mapper;
       _userManager = userManager;
-      _roleManger = roleManager;
       _localizer = localizer;
       _osmUpdater = refresherHelper;
       _overpass = overpass;
@@ -109,15 +101,15 @@ namespace OsmIntegrator.Controllers
     public async Task<ActionResult<List<Stop>>> GetStops(string id)
     {
       // Validate tile id
-      Guid tileId;
-      if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
+      if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid tileId))
       {
         throw new BadHttpRequestException(_localizer["Invalid tile"]);
       }
 
       // Check if tile exists
-      var tile = await _dbContext.Tiles
-          .Include(t => t.Stops).ThenInclude(s => s.GtfsConnections)
+      DbTile tile = await _dbContext.Tiles
+          .Include(t => t.Stops)
+            .ThenInclude(s => s.GtfsConnections)
           .SingleOrDefaultAsync(x => x.Id == tileId);
       if (tile == null)
       {
@@ -128,12 +120,8 @@ namespace OsmIntegrator.Controllers
       ApplicationUser user = await _userManager.GetUserAsync(User);
       IList<string> roles = await _userManager.GetRolesAsync(user);
 
-      // Check if user is assigned to a tile?
-      // When user is SUPERVISOR or ADMIN this validation is not required.
-      if (
-        !roles.Contains(UserRoles.SUPERVISOR) &&
-        !roles.Contains(UserRoles.COORDINATOR) &&
-        (roles.Contains(UserRoles.EDITOR) && !tile.IsAccessibleBy(user.Id)))
+      // Check if the user is assigned to a tile?
+      if (!tile.IsAccessibleBy(user.Id))
       {
         throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
       }
@@ -157,8 +145,8 @@ namespace OsmIntegrator.Controllers
         stop.OutsideSelectedTile = true;
       }
 
-      // Remove OSM stops outside the tile
-      stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == StopType.Osm);
+      // Remove GTFS stops outside the tile
+      stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == StopType.Gtfs);
 
       tile.Stops = stops;
       tile.Stops.ForEach(x => x.Tile = null);
@@ -166,24 +154,30 @@ namespace OsmIntegrator.Controllers
       return Ok(result);
     }
 
+    /// <summary>
+    /// Assign a user to all not exported connections in the tile.
+    /// </summary>
+    /// <param name="id">Tile id</param>
+    /// <param name="updateTileInput">New user id</param>
     [HttpPut("{id}")]
     [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
     public async Task<ActionResult<string>> UpdateUsers(Guid id, [FromBody] UpdateTileInput updateTileInput)
     {
+      if (updateTileInput.EditorId == null)
+      {
+        throw new BadHttpRequestException(_localizer["EditorId cannot be null"]);
+      }
+      
       List<DbConnection> connections = (await _dbContext.Connections
         .Where(c => c.GtfsStop.TileId == id)
-        .Where(c => c.UserId != null)
         .ToListAsync())
         .OnlyActive()
         .Where(c => c.UserId != updateTileInput.EditorId)
         .ToList();
 
-      foreach (var connection in connections)
-      {
-        connection.UserId = updateTileInput.EditorId;
-      }
+      connections.ForEach(x => x.UserId = (Guid)updateTileInput.EditorId);
 
-      _dbContext.SaveChanges();
+      await _dbContext.SaveChangesAsync();
 
       return Ok(_localizer["User has been added to the tile"]);
     }
@@ -231,11 +225,11 @@ namespace OsmIntegrator.Controllers
       return currentTile;
     }
 
-    private Dictionary<Guid, List<ConnectionQuery>> ActiveConnections(List<ConnectionQuery> connections) =>
+    private static Dictionary<Guid, List<ConnectionQuery>> ActiveConnections(List<ConnectionQuery> connections) =>
       connections
         .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
         .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
-        .Where(c => c.OperationType == ConnectionOperationType.Added)
+        .Where(c => c?.OperationType == ConnectionOperationType.Added)
         .GroupBy(c => c.TileId)
         .ToDictionary(c => c.Key, c => c.ToList());
 
@@ -253,16 +247,16 @@ namespace OsmIntegrator.Controllers
         dbTiles.Join(activeConnectionsTileGroup, t => t.Id, g => g.Key, (t, g) =>
           new UncommitedTile
           {
-            AssignedUserName = g.Value.FirstOrDefault(c => c.UserName != null)?.UserName ?? null,
-            GtfsStopsCount = t.GtfsStopsCount,
             Id = t.Id,
+            Y = t.Y,
+            X = t.X,
             MinLon = t.MinLon,
             MinLat = t.MinLat,
             MaxLat = t.MaxLat,
             MaxLon = t.MaxLon,
-            Y = t.Y,
-            X = t.X,
-            UnconnectedGtfsStops = t.GtfsStopsCount - g.Value.Count()
+            AssignedUserName = g.Value.FirstOrDefault(c => c.UserName != null)?.UserName,
+            GtfsStopsCount = t.GtfsStopsCount,
+            UnconnectedGtfsStops = t.GtfsStopsCount - g.Value.Count(c => c.TileId == t.Id)
           })
           .ToList();
 

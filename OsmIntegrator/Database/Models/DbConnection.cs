@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics.CodeAnalysis;
 using OsmIntegrator.Enums;
 
 namespace OsmIntegrator.Database.Models
@@ -24,8 +22,9 @@ namespace OsmIntegrator.Database.Models
     [Required]
     public DbStop GtfsStop { get; set; }
 
-    public Guid? UserId { get; set; }
-
+    [Required]
+    public Guid UserId { get; set; }
+    
     public ApplicationUser User { get; set; }
 
     public ConnectionOperationType OperationType { get; set; }

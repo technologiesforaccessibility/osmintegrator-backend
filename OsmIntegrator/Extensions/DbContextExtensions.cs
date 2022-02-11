@@ -11,7 +11,7 @@ namespace OsmIntegrator.Extensions;
 
 public static class DbContextExtensions
 {
-  public async static Task<List<ConnectionQuery>> GetAllConnectionsWithUserName(this ApplicationDbContext dbContext) =>
+  public static async Task<List<ConnectionQuery>> GetAllConnectionsWithUserName(this ApplicationDbContext dbContext) =>
     await dbContext.Connections
       .AsNoTracking()
       .Select(c => new ConnectionQuery
@@ -25,7 +25,7 @@ public static class DbContextExtensions
       })
       .ToListAsync();
 
-  public async static Task<List<TileQuery>> GetTileQuery(this ApplicationDbContext dbContext,
+  public static async Task<List<TileQuery>> GetTileQuery(this ApplicationDbContext dbContext,
     Dictionary<Guid, List<ConnectionQuery>> activeConnectionsTileGroup) =>
     await dbContext.Tiles
       .AsNoTracking()
@@ -39,7 +39,7 @@ public static class DbContextExtensions
         MinLon = t.MinLon,
         X = t.X,
         Y = t.Y,
-        GtfsStopsCount = t.Stops.Where(s => s.StopType == StopType.Gtfs).Count()
+        GtfsStopsCount = t.Stops.Count(s => s.StopType == StopType.Gtfs)
       })
       .ToListAsync();
 }

@@ -144,6 +144,9 @@
     <data name="User has been added to the tile" xml:space="preserve">
         <value>Użytkownik został przypisany do kafelka</value>
     </data>
+    <data name="EditorId cannot be null" xml:space="preserve">
+        <value>EditorId nie może mieć wartości null</value>
+    </data>
     <data name="Unable to assign. User already assigned to this tile" xml:space="preserve">
         <value>Nie można przypisać. Użytkownik jest już przypisany do tego kafelka</value>
     </data>

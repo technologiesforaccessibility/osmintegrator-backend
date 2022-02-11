@@ -158,19 +158,18 @@ namespace OsmIntegrator.Database.Models
       OverlapMaxLat = maxLat + latOverlap;
     }
 
-    public int GtfsStopsCount => Stops.Where(s => s.StopType == StopType.Gtfs).Count();
+    public int GtfsStopsCount => Stops.Count(s => s.StopType == StopType.Gtfs);
 
     public bool HasNewGtfsConnections => Stops
       .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
-      .OnlyActive()
-      .Any(c => c.UserId.HasValue);
+      .OnlyActive().Any();
 
-    public bool IsAccessibleBy(Guid userId) => !Stops
-      .Where(s => s.StopType == StopType.Gtfs)
-      .SelectMany(s => s.GtfsConnections)
-      .OnlyActive()
-      .Any(c => c.UserId.HasValue && c.UserId != userId);
+    public bool IsAccessibleBy(Guid userId) =>
+      Stops.Where(s => s.StopType == StopType.Gtfs)
+        .SelectMany(s => s.GtfsConnections)
+        .OnlyActive()
+        .All(c => c.UserId == userId);
 
     public IReadOnlyCollection<DbConnection> GetUnexportedOsmConnections() => Stops
       .Where(s => s.StopType == StopType.Osm)
@@ -188,7 +187,6 @@ namespace OsmIntegrator.Database.Models
 
     public int UnconnectedGtfsStops => Stops
       .Where(s => s.StopType == StopType.Gtfs)
-      .Where(s => !s.GtfsConnections.OnlyActive().Any())
-      .Count();
+      .Count(s => !s.GtfsConnections.OnlyActive().Any());
   }
 }

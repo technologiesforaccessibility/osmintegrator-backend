@@ -125,8 +125,8 @@
     <value>Przystanki nie mogą być tego samego typu</value>
     <comment/>
   </data>
-  <data name="OSM stop needs to be placed inside the tile" xml:space="preserve">
-    <value>Przystanek OSM musi być położony wewnątrz kafelka</value>
+  <data name="GTFS stop needs to be placed inside the tile" xml:space="preserve">
+    <value>Przystanek GTFS musi być położony wewnątrz kafelka</value>
     <comment/>
   </data>
   <data name="Connection approved" xml:space="preserve">
@@ -145,8 +145,12 @@
     <value>Połączenie usunięto!</value>
     <comment/>
   </data>
-  <data name="Connot remove connection which doesn't exist" xml:space="preserve">
+  <data name="Cannot remove connection which doesn't exist" xml:space="preserve">
     <value>Nie można usunać połączenia, gdyż ono nie istnieje</value>
+    <comment/>
+  </data>
+  <data name="OsmStopId or GtfsStopId cannot be null" xml:space="preserve">
+    <value>OsmStopId lub GtfsStopId nie mogą być nullem</value>
     <comment/>
   </data>
   <data name="The connection have already been removed" xml:space="preserve">
