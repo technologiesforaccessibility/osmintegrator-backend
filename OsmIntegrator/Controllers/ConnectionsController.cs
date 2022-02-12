@@ -70,12 +70,11 @@ public class ConnectionsController : ControllerBase
     {
       throw new BadHttpRequestException(_localizer["The connection already exists"]);
     }
-
+    
     // Check if GTFS stop has already been connected to another stop.
     DbStop gtfsStop = await _dbContext.Stops
+      .Include(s => s.GtfsConnections)
       .Include(x => x.Tile)
-      .ThenInclude(t => t.Stops)
-      .ThenInclude(s => s.GtfsConnections)
       .FirstOrDefaultAsync(x => x.Id == connectionAction.GtfsStopId);
 
     if (gtfsStop == null)
@@ -84,7 +83,7 @@ public class ConnectionsController : ControllerBase
     }
 
     DbConnection gtfsConnection = gtfsStop.GtfsConnections
-      .OrderByDescending(link => link.CreatedAt)
+      .OrderByDescending(x => x.CreatedAt)
       .FirstOrDefault();
 
     if (gtfsConnection?.OperationType == ConnectionOperationType.Added)
@@ -95,7 +94,6 @@ public class ConnectionsController : ControllerBase
     // Check if OSM stop has already been connected to another stop.
     DbStop osmStop = await _dbContext.Stops
       .Include(x => x.OsmConnections)
-      .Include(x => x.Tile)
       .FirstOrDefaultAsync(x => x.Id == connectionAction.OsmStopId);
 
     if (osmStop == null)
@@ -112,7 +110,7 @@ public class ConnectionsController : ControllerBase
       .OrderByDescending(link => link.CreatedAt)
       .FirstOrDefault();
 
-    if (osmConnection != null && osmConnection.OperationType == ConnectionOperationType.Added)
+    if (osmConnection?.OperationType == ConnectionOperationType.Added)
     {
       throw new BadHttpRequestException(_localizer["The OSM stop has already been connected with different stop"]);
     }
@@ -121,6 +119,15 @@ public class ConnectionsController : ControllerBase
     if (gtfsStop.Tile.Id != connectionAction.TileId)
     {
       throw new BadHttpRequestException(_localizer["GTFS stop needs to be placed inside the tile"]);
+    }
+
+    DbTile tile = gtfsStop.Tile;
+    if (osmStop.Lon <= tile.OverlapMinLon || 
+        osmStop.Lon > tile.OverlapMaxLon ||
+        osmStop.Lat <= tile.OverlapMinLat || 
+        osmStop.Lat > tile.OverlapMaxLat)
+    {
+      throw new BadHttpRequestException(_localizer["OSM stop is outside of the margin"]);
     }
 
     ApplicationUser currentUser = await _userManager.GetUserAsync(User);

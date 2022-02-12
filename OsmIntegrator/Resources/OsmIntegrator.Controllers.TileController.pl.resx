@@ -133,6 +133,10 @@
         <value>Nie możesz edytować tego kafelka</value>
         <comment/>
     </data>
+    <data name="OSM stop is outside of the margin" xml:space="preserve">
+        <value>Przystanek OSM jest leży poza marginesem</value>
+        <comment/>
+    </data>
     <data name="Invalid tile" xml:space="preserve">
         <value>Błędny kafelek</value>
         <comment/>

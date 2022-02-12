@@ -125,7 +125,7 @@ namespace OsmIntegrator.Controllers
       {
         throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
       }
-
+      
       // Get all stops in selected tile + stops around that tile
       var stops = await _dbContext.Stops
         .Where(x =>
