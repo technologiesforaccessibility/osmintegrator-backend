@@ -19,7 +19,7 @@ public class ConnectionTest : IntegrationTest
 {
   private readonly ConnectionHelper _connectionHelper;
 
-  private LoginData _defaultLoginData = new LoginData
+  private LoginData _defaultLoginData = new()
   {
     Email = "supervisor2@abcd.pl",
     Password = "supervisor2#12345678",

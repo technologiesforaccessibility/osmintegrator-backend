@@ -70,7 +70,7 @@ public class ConnectionsController : ControllerBase
     {
       throw new BadHttpRequestException(_localizer["The connection already exists"]);
     }
-    
+
     // Check if GTFS stop has already been connected to another stop.
     DbStop gtfsStop = await _dbContext.Stops
       .Include(s => s.GtfsConnections)
@@ -122,9 +122,9 @@ public class ConnectionsController : ControllerBase
     }
 
     DbTile tile = gtfsStop.Tile;
-    if (osmStop.Lon <= tile.OverlapMinLon || 
+    if (osmStop.Lon <= tile.OverlapMinLon ||
         osmStop.Lon > tile.OverlapMaxLon ||
-        osmStop.Lat <= tile.OverlapMinLat || 
+        osmStop.Lat <= tile.OverlapMinLat ||
         osmStop.Lat > tile.OverlapMaxLat)
     {
       throw new BadHttpRequestException(_localizer["OSM stop is outside of the margin"]);
@@ -161,7 +161,7 @@ public class ConnectionsController : ControllerBase
     {
       throw new BadHttpRequestException(_localizer["OsmStopId or GtfsStopId cannot be null"]);
     }
-    
+
     List<DbConnection> existingConnections =
       await _dbContext.Connections
         .Where(x => x.OsmStopId == connectionAction.OsmStopId &&
@@ -215,11 +215,12 @@ public class ConnectionsController : ControllerBase
       "FROM \"Connections\" c " +
       "ORDER BY \"GtfsStopId\", \"OsmStopId\", \"CreatedAt\" DESC";
 
-    List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(
-      query).Include(x => x.OsmStop).ToListAsync();
+    List<DbConnection> connections = await _dbContext.Connections.FromSqlRaw(query)
+      .Include(x => x.GtfsStop)
+      .ToListAsync();
 
     connections = connections.Where(
-        x => x.OsmStop.TileId == Guid.Parse(id) && x.OperationType != ConnectionOperationType.Removed)
+        x => x.GtfsStop.TileId == Guid.Parse(id) && x.OperationType != ConnectionOperationType.Removed)
       .ToList();
 
     List<Connection> result = _mapper.Map<List<Connection>>(connections);

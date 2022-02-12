@@ -232,8 +232,7 @@ namespace OsmIntegrator.Tests.Fixtures
       ignoredFields ??= new List<string>();
       ignoredFields.ForEach(x => comparer.IgnoreMember(x));
 
-      IEnumerable<Difference> differences;
-      comparer.Compare(expected, actual, out differences);
+      comparer.Compare(expected, actual, out IEnumerable<Difference> differences);
       return differences.ToList();
     }
 
