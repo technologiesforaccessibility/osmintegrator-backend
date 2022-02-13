@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OsmIntegrator.ApiModels.Tiles
 {
-  public class UncommitedTile
+  public class UncommittedTile
   {
     [Required]
     public Guid Id { get; set; }

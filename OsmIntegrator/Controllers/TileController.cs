@@ -120,9 +120,9 @@ public class TileController : ControllerBase
 
   [HttpGet]
   [Authorize(Roles = UserRoles.SUPERVISOR)]
-  public async Task<ActionResult<List<UncommitedTile>>> GetUncommitedTiles()
+  public async Task<ActionResult<List<UncommittedTile>>> GetUncommittedTiles()
   {
-    return Ok(await GetUncommitedTilesAsync());
+    return Ok(await GetUncommittedTilesAsync());
   }
 
   [HttpGet("{id}")]
@@ -282,7 +282,7 @@ public class TileController : ControllerBase
         x => x.Key,
         x => x.Value.Where(y => !y.Exported).ToList());
 
-  private async Task<IReadOnlyCollection<UncommitedTile>> GetUncommitedTilesAsync()
+  private async Task<IReadOnlyCollection<UncommittedTile>> GetUncommittedTilesAsync()
   {
     List<ConnectionQuery> connections =
       await _dbContext.GetAllConnectionsWithUserName();
@@ -292,11 +292,11 @@ public class TileController : ControllerBase
 
     Dictionary<Guid, List<ConnectionQuery>> activeConnections = GetTilesWithActiveConnections(addedConnections);
 
-    List<UncommittedTileQuery> activeTiles = await _dbContext.GetUncommitedTilesQuery(activeConnections);
+    List<UncommittedTileQuery> activeTiles = await _dbContext.GetUncommittedTilesQuery(activeConnections);
 
-    List<UncommitedTile> uncommitedTiles =
+    List<UncommittedTile> uncommittedTiles =
       activeTiles.Join(addedConnections, t => t.Id, g => g.Key, (t, g) =>
-          new UncommitedTile
+          new UncommittedTile
           {
             Id = t.Id,
             X = t.X,
@@ -311,6 +311,6 @@ public class TileController : ControllerBase
           })
         .ToList();
 
-    return uncommitedTiles;
+    return uncommittedTiles;
   }
 }

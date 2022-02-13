@@ -28,7 +28,7 @@ public static class DbContextExtensions
       })
       .ToListAsync();
 
-  public static async Task<List<UncommittedTileQuery>> GetUncommitedTilesQuery(this ApplicationDbContext dbContext,
+  public static async Task<List<UncommittedTileQuery>> GetUncommittedTilesQuery(this ApplicationDbContext dbContext,
     Dictionary<Guid, List<ConnectionQuery>> activeConnectionsTileGroup) =>
     await dbContext.Tiles
       .AsNoTracking()
