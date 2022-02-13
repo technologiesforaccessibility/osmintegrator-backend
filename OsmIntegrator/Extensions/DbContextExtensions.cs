@@ -28,12 +28,12 @@ public static class DbContextExtensions
       })
       .ToListAsync();
 
-  public static async Task<List<UncommitedTileQuery>> GetUncommitedTilesQuery(this ApplicationDbContext dbContext,
+  public static async Task<List<UncommittedTileQuery>> GetUncommitedTilesQuery(this ApplicationDbContext dbContext,
     Dictionary<Guid, List<ConnectionQuery>> activeConnectionsTileGroup) =>
     await dbContext.Tiles
       .AsNoTracking()
       .Where(t => activeConnectionsTileGroup.Keys.Contains(t.Id))
-      .Select(t => new UncommitedTileQuery
+      .Select(t => new UncommittedTileQuery
       {
         Id = t.Id,
         MaxLat = t.MaxLat,

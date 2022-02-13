@@ -292,7 +292,7 @@ public class TileController : ControllerBase
 
     Dictionary<Guid, List<ConnectionQuery>> activeConnections = GetTilesWithActiveConnections(addedConnections);
 
-    List<UncommitedTileQuery> activeTiles = await _dbContext.GetUncommitedTilesQuery(activeConnections);
+    List<UncommittedTileQuery> activeTiles = await _dbContext.GetUncommitedTilesQuery(activeConnections);
 
     List<UncommitedTile> uncommitedTiles =
       activeTiles.Join(addedConnections, t => t.Id, g => g.Key, (t, g) =>

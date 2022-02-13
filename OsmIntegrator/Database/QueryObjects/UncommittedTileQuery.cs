@@ -2,7 +2,7 @@ using System;
 
 namespace OsmIntegrator.Database.QueryObjects;
 
-public class UncommitedTileQuery
+public class UncommittedTileQuery
 {
   public Guid Id { get; set; }
   public long X { get; set; }
