@@ -22,6 +22,6 @@ namespace OsmIntegrator.ApiModels.Tiles
     [Required]
     public int GtfsStopsCount { get; set; }
     public string AssignedUserName { get; set; }
-    public int UnconnectedGtfsStops { get; set; }
+    public int UnconnectedGtfsStopsCount { get; set; }
   }
 }

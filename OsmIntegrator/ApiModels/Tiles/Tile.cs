@@ -30,6 +30,6 @@ namespace OsmIntegrator.ApiModels.Tiles
     public int GtfsStopsCount { get; set; }
     public byte ZoomLevel { get; set; }
     public string AssignedUserName { get; set; }
-    public ushort UnconnectedGtfsStops { get; set; }
+    public int UnconnectedGtfsStopsCount { get; set; }
   }
 }

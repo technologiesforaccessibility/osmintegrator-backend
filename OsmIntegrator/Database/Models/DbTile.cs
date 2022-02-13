@@ -183,9 +183,9 @@ namespace OsmIntegrator.Database.Models
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Select(c => c.User)
-      .FirstOrDefault(u => u != null);
+      .FirstOrDefault();
 
-    public int UnconnectedGtfsStops => Stops
+    public int UnconnectedGtfsStopsCount => Stops
       .Where(s => s.StopType == StopType.Gtfs)
       .Count(s => !s.GtfsConnections.OnlyActive().Any());
   }

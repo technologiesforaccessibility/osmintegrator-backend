@@ -9,6 +9,8 @@ public class ConnectionQuery
   public Guid GtfsStopId { get; set; }
   public Guid TileId { get; set; }
   public string UserName { get; set; }
+  public Guid UserId { get; set; }
   public ConnectionOperationType OperationType { get; set; }
   public DateTime CreatedAt { get; set; }
+  public bool Exported { get; set; }
 }
