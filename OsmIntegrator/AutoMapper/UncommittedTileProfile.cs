@@ -6,12 +6,12 @@ using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper
 {
-  public class UncommitedTileProfile : Profile
+  public class UncommittedTileProfile : Profile
   {
-    public UncommitedTileProfile()
+    public UncommittedTileProfile()
     {
       AllowNullCollections = true;
-      CreateMap<DbTile, UncommitedTile>()
+      CreateMap<DbTile, UncommittedTile>()
           .ForMember(x => x.AssignedUserName, 
             o => o.MapFrom(x => x.AssignedUser == null ? string.Empty : x.AssignedUser.UserName));
     }

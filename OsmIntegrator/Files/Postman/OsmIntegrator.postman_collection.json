@@ -956,7 +956,7 @@
 					"response": []
 				},
 				{
-					"name": "GetUncommitedTiles",
+					"name": "GetUncommittedTiles",
 					"event": [
 						{
 							"listen": "test",
@@ -991,14 +991,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetUncommitedTiles",
+							"raw": "{{host}}/api/Tile/GetUncommittedTiles",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"GetUncommitedTiles"
+								"GetUncommittedTiles"
 							]
 						}
 					},
@@ -1488,14 +1488,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Connections/e044ac55-294a-47a5-98de-971696146968",
+							"raw": "{{host}}/api/Connections/13fdb85d-6039-4171-af62-cbdf0abb2b9a",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								"e044ac55-294a-47a5-98de-971696146968"
+								"13fdb85d-6039-4171-af62-cbdf0abb2b9a"
 							]
 						}
 					},

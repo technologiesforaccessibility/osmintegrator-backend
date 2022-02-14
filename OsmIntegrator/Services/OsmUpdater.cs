@@ -93,7 +93,7 @@ namespace OsmIntegrator.Services
         {
           dbContext.ChangeReports.Add(new DbTileImportReport
           {
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTime.Now.ToUniversalTime(),
             TileId = tile.Id,
             TileReport = report
           });
@@ -128,7 +128,7 @@ namespace OsmIntegrator.Services
             {
               dbContext.ChangeReports.Add(new DbTileImportReport
               {
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now.ToUniversalTime(),
                 TileId = x.TileId, // Tile id was saved during the report creation
                 TileReport = x
               });

@@ -15,30 +15,27 @@ namespace OsmIntegrator.Tests.Helpers
 {
   public class ConnectionHelper
   {
-    private readonly HttpClient _client;
     private readonly ApplicationDbContext _dbContext;
 
-    private readonly Dictionary<int, int> _stops = new Dictionary<int, int>()
+    private readonly Dictionary<int, int> _stops = new()
     {
-      // Stop id / Stop type (1 = GTFS, 0 = OSM)
-      { 159541, 1 }, // Tile: 1 = LEFT
-      { 1831941739, 0}, // Tile: 1
-      { 159542, 1 }, // Tile: 1
-      { 1905028012, 0 }, // Tile: 1
-      { 159077, 1 }, // Tile: 2 = RIGHT
-      { 1831944331, 0 }, // Tile: 2
-      { 1905039171, 0 }, // Tile: 2
-      { 159076, 1 }, // Tile: 2
-      { 159061, 1 }, // Tile: 2
-      { 1584594015, 0} // Tile: 2
+      { 159541, 1 },      // [1]  Tile: 0 = LEFT    GTFS:   Stara Ligota Rolna 1
+      { 1831941739, 0},   // [2]  Tile: 0 = LEFT    OSM:    Stara Ligota Rolna
+      { 159542, 1 },      // [3]  Tile: 0 = LEFT    GTFS:   Stara Ligota Rolna 2  In margin of the right tile
+      { 1905028012, 0 },  // [4]  Tile: 0 = LEFT    OSM:    Stara Ligota Rolna    In margin of the right tile
+      { 159077, 1 },      // [5]  Tile: 1 = RIGHT   GTFS:   Brynów Orkana 2
+      { 1831944331, 0 },  // [6]  Tile: 1 = RIGHT   OSM:    Brynów Orkana
+      { 1905039171, 0 },  // [7]  Tile: 1 = RIGHT   OSM:    Brynów Orkana
+      { 159076, 1 },      // [8]  Tile: 1 = RIGHT   GTFS:   Brynów Orkana 1
+      { 159061, 1 },      // [9]  Tile: 1 = RIGHT   GTFS:   Brynów Dworska 1
+      { 1584594015, 0}    // [10] Tile: 1 = RIGHT   OSM:    Brynów Dworska
     };
 
-    public Dictionary<int, DbStop> Stops { get; private set; }
-    public List<DbTile> Tiles {get; private set; }
+    private Dictionary<int, DbStop> Stops { get; }
+    public List<DbTile> Tiles {get; }
 
-    public ConnectionHelper(HttpClient client, ApplicationDbContext dbContext)
+    public ConnectionHelper(ApplicationDbContext dbContext)
     {
-      _client = client;
       _dbContext = dbContext;
 
       Stops = GetStopsDict();
@@ -49,14 +46,14 @@ namespace OsmIntegrator.Tests.Helpers
 
     private Dictionary<int, DbStop> GetStopsDict()
     {
-      Dictionary<int, DbStop> result = new Dictionary<int, DbStop>();
+      Dictionary<int, DbStop> result = new();
 
       List<DbStop> stops = _dbContext.Stops.Include(x => x.Tile).ToList();
 
       int index = 1;
-      foreach (var pair in _stops)
+      foreach ((int key, int value) in _stops)
       {
-        result.Add(index, stops.First(x => x.StopId == pair.Key && (int)x.StopType == pair.Value));
+        result.Add(index, stops.First(x => x.StopId == key && (int)x.StopType == value));
         index++;
       }
 
@@ -65,7 +62,7 @@ namespace OsmIntegrator.Tests.Helpers
 
     public NewConnectionAction CreateConnection(int gtfsStopId, int osmStopId, int tileId)
     {
-      var connectionAction = new NewConnectionAction
+      NewConnectionAction connectionAction = new()
       {
         OsmStopId = Stops[osmStopId].Id,
         GtfsStopId = Stops[gtfsStopId].Id,

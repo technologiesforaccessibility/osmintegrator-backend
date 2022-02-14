@@ -47,7 +47,7 @@ namespace OsmIntegrator.Database.Models
     public double OverlapMinLat { get; set; }
 
     [Required]
-    public double OverlapMaxLon { get; set; } = 0;
+    public double OverlapMaxLon { get; set; }
 
     public List<DbStop> Stops { get; set; }
 
@@ -158,19 +158,18 @@ namespace OsmIntegrator.Database.Models
       OverlapMaxLat = maxLat + latOverlap;
     }
 
-    public int GtfsStopsCount => Stops.Where(s => s.StopType == StopType.Gtfs).Count();
+    public int GtfsStopsCount => Stops.Count(s => s.StopType == StopType.Gtfs);
 
     public bool HasNewGtfsConnections => Stops
       .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
-      .OnlyActive()
-      .Any(c => c.UserId.HasValue);
+      .OnlyActive().Any();
 
-    public bool IsAccessibleBy(Guid userId) => !Stops
-      .Where(s => s.StopType == StopType.Gtfs)
-      .SelectMany(s => s.GtfsConnections)
-      .OnlyActive()
-      .Any(c => c.UserId.HasValue && c.UserId != userId);
+    public bool IsAccessibleBy(Guid userId) =>
+      Stops.Where(s => s.StopType == StopType.Gtfs)
+        .SelectMany(s => s.GtfsConnections)
+        .OnlyActive()
+        .All(c => c.UserId == userId);
 
     public IReadOnlyCollection<DbConnection> GetUnexportedOsmConnections() => Stops
       .Where(s => s.StopType == StopType.Osm)
@@ -184,11 +183,10 @@ namespace OsmIntegrator.Database.Models
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
       .Select(c => c.User)
-      .FirstOrDefault(u => u != null);
+      .FirstOrDefault();
 
-    public int UnconnectedGtfsStops => Stops
+    public int UnconnectedGtfsStopsCount => Stops
       .Where(s => s.StopType == StopType.Gtfs)
-      .Where(s => !s.GtfsConnections.OnlyActive().Any())
-      .Count();
+      .Count(s => !s.GtfsConnections.OnlyActive().Any());
   }
 }

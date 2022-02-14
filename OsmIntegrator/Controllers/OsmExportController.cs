@@ -141,7 +141,7 @@ namespace OsmIntegrator.Controllers
       await _dbContext.ExportReports.AddAsync(new DbTileExportReport
       {
         TileId = tileId,
-        CreatedAt = DateTime.UtcNow,
+        CreatedAt = DateTime.Now.ToUniversalTime(),
         UserId = user.Id,
         TileReport = new(),
         ChangesetId = exportResult.ChangesetId.Value

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.ApiModels;
@@ -26,267 +25,292 @@ using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
 using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
-using OsmIntegrator.Errors;
 using OsmIntegrator.Enums;
+using OsmIntegrator.Database.QueryObjects;
 
-namespace OsmIntegrator.Controllers
+namespace OsmIntegrator.Controllers;
+
+[Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+[ApiController]
+[Route("api/[controller]/[action]")]
+[EnableCors("AllowOrigin")]
+public class TileController : ControllerBase
 {
-  [Produces(MediaTypeNames.Application.Json)]
-  [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ApiController]
-  [Route("api/[controller]/[action]")]
-  [EnableCors("AllowOrigin")]
-  public class TileController : ControllerBase
+  private readonly ILogger<TileController> _logger;
+  private readonly ApplicationDbContext _dbContext;
+  private readonly UserManager<ApplicationUser> _userManager;
+  private readonly IMapper _mapper;
+  private readonly IStringLocalizer<TileController> _localizer;
+  private readonly IOverpass _overpass;
+  private readonly IOsmUpdater _osmUpdater;
+  private readonly ITileExportValidator _tileExportValidator;
+
+  public TileController(
+    ILogger<TileController> logger,
+    ApplicationDbContext dbContext,
+    IMapper mapper,
+    UserManager<ApplicationUser> userManager,
+    IStringLocalizer<TileController> localizer,
+    IOsmUpdater refresherHelper,
+    IOverpass overpass,
+    ITileExportValidator tileExportValidator)
   {
-    private readonly ILogger<TileController> _logger;
-    private readonly ApplicationDbContext _dbContext;
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IConfiguration _configuration;
-    private readonly IMapper _mapper;
-    private readonly RoleManager<ApplicationRole> _roleManger;
-    private readonly IStringLocalizer<TileController> _localizer;
-    private readonly IOverpass _overpass;
-    private readonly IOsmUpdater _osmUpdater;
-    private readonly ITileExportValidator _tileExportValidator;
+    _logger = logger;
+    _dbContext = dbContext;
+    _mapper = mapper;
+    _userManager = userManager;
+    _localizer = localizer;
+    _osmUpdater = refresherHelper;
+    _overpass = overpass;
+    _tileExportValidator = tileExportValidator;
+  }
 
-    public TileController(
-        ILogger<TileController> logger,
-        IConfiguration configuration,
-        ApplicationDbContext dbContext,
-        IMapper mapper,
-        UserManager<ApplicationUser> userManager,
-        RoleManager<ApplicationRole> roleManager,
-        IStringLocalizer<TileController> localizer,
-        IEmailService emailService,
-        IOsmUpdater refresherHelper,
-        IOverpass overpass,
-        ITileExportValidator tileExportValidator)
+  [HttpGet]
+  [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
+  public async Task<ActionResult<List<Tile>>> GetTiles()
+  {
+    ApplicationUser user = await _userManager.GetUserAsync(User);
+    IList<string> roles = await _userManager.GetRolesAsync(user);
+
+    List<Tile> tiles = new();
+    
+    if (roles.Contains(UserRoles.EDITOR))
     {
-      _logger = logger;
-      _dbContext = dbContext;
-      _configuration = configuration;
-      _mapper = mapper;
-      _userManager = userManager;
-      _roleManger = roleManager;
-      _localizer = localizer;
-      _osmUpdater = refresherHelper;
-      _overpass = overpass;
-      _tileExportValidator = tileExportValidator;
-    }
+      List<ConnectionQuery> connections =
+        await _dbContext.GetAllConnectionsWithUserName();
 
-    [HttpGet]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<List<Tile>>> GetTiles()
-    {
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-      IList<string> roles = await _userManager.GetRolesAsync(user);
+      Dictionary<Guid, List<ConnectionQuery>> addedConnections = GetTilesWithAddedConnections(connections);
 
-      List<DbTile> tiles = new List<DbTile>();
+      Dictionary<Guid, Guid> activeTiles = GetActiveTiles(connections);
 
-      if (roles.Contains(UserRoles.EDITOR))
+      HashSet<Guid> unavailableTiles = activeTiles
+        .Where(x => x.Value != user.Id)
+        .Select(x => x.Key)
+        .ToHashSet();
+
+      HashSet<Guid> availableTiles = activeTiles
+        .Where(x => x.Value == user.Id)
+        .Select(x => x.Key)
+        .ToHashSet();
+      
+      tiles = await _dbContext.GetCurrentUserTiles(unavailableTiles);
+
+      foreach (Tile tile in tiles)
       {
-        List<DbTile> editorTiles = await _dbContext.Tiles
-          .Include(x => x.Stops).ThenInclude(x => x.GtfsConnections)
-          .Where(x => x.Stops.Any(s => s.StopType == StopType.Gtfs))
-          .OnlyAccessibleBy(user.Id)
-          .ToListAsync();
-        tiles.AddRange(editorTiles);
-      }
-
-      return Ok(_mapper.Map<List<Tile>>(tiles));
-    }
-
-    [HttpGet]
-    [Authorize(Roles = UserRoles.SUPERVISOR)]
-    public async Task<ActionResult<List<Tile>>> GetUncommitedTiles()
-    {
-      IReadOnlyCollection<UncommitedTile> uncommitedTiles = await GetUncommitedTilesAsync();
-
-      return Ok(uncommitedTiles);
-    }
-
-    [HttpGet("{id}")]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<List<Stop>>> GetStops(string id)
-    {
-      // Validate tile id
-      Guid tileId;
-      if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out tileId))
-      {
-        throw new BadHttpRequestException(_localizer["Invalid tile"]);
-      }
-
-      // Check if tile exists
-      var tile = await _dbContext.Tiles
-          .Include(t => t.Stops).ThenInclude(s => s.GtfsConnections)
-          .SingleOrDefaultAsync(x => x.Id == tileId);
-      if (tile == null)
-      {
-        throw new BadHttpRequestException(_localizer["Unable to find tile"]);
-      }
-
-      // Get current user roles
-      ApplicationUser user = await _userManager.GetUserAsync(User);
-      IList<string> roles = await _userManager.GetRolesAsync(user);
-
-      // Check if user is assigned to a tile?
-      // When user is SUPERVISOR or ADMIN this validation is not required.
-      if (
-        !roles.Contains(UserRoles.SUPERVISOR) &&
-        !roles.Contains(UserRoles.COORDINATOR) &&
-        (roles.Contains(UserRoles.EDITOR) && !tile.IsAccessibleBy(user.Id)))
-      {
-        throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
-      }
-
-      // Get all stops in selected tile + stops around that tile
-      var stops = await _dbContext.Stops
-        .Where(x =>
-          x.Lon > tile.OverlapMinLon && x.Lon <= tile.OverlapMaxLon &&
-          x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat)
-        .Where(x => !x.IsDeleted)
-        .ToListAsync();
-
-      foreach (DbStop stop in stops)
-      {
-        if (stop.Lon > tile.MinLon && stop.Lon <= tile.MaxLon &&
-            stop.Lat > tile.MinLat && stop.Lat <= tile.MaxLat)
+        if (addedConnections.TryGetValue(tile.Id, out List<ConnectionQuery> items))
         {
-          stop.OutsideSelectedTile = false;
-          continue;
+          tile.UnconnectedGtfsStopsCount = tile.GtfsStopsCount - items.Count;
         }
-        stop.OutsideSelectedTile = true;
-      }
-
-      // Remove OSM stops outside the tile
-      stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == 0);
-
-      tile.Stops = stops;
-      tile.Stops.ForEach(x => x.Tile = null);
-      List<Stop> result = _mapper.Map<List<Stop>>(tile.Stops);
-      return Ok(result);
-    }
-
-    [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<string>> UpdateUsers(Guid id, [FromBody] UpdateTileInput updateTileInput)
-    {
-      List<DbConnection> connections = (await _dbContext.Connections
-        .Where(c => c.GtfsStop.TileId == id)
-        .Where(c => c.UserId != null)
-        .ToListAsync())
-        .OnlyActive()
-        .Where(c => c.UserId != updateTileInput.EditorId)
-        .ToList();
-
-      foreach (var connection in connections)
-      {
-        connection.UserId = updateTileInput.EditorId;
-      }
-
-      _dbContext.SaveChanges();
-
-      return Ok(_localizer["User has been added to the tile"]);
-    }
-
-    [HttpGet("{tileId}")]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<bool>> ContainsChanges(Guid tileId)
-    {
-      DbTile tile = await GetTileAsync(tileId);
-
-      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
-
-      return _osmUpdater.ContainsChanges(tile, osm);
-    }
-
-    [HttpPut("{id}")]
-    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-    public async Task<ActionResult<Report>> UpdateStops(Guid id)
-    {
-      if (!await _tileExportValidator.ValidateDelayAsync(id))
-      {
-        throw new BadHttpRequestException(_localizer["Delay required"]);
-      }
-
-      DbTile tile = await GetTileAsync(id);
-
-      Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
-
-      TileImportReport tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
-
-      return Ok(new Report { Value = tileReport.ToString() });
-    }
-
-    private async Task<DbTile> GetTileAsync(Guid tileId)
-    {
-      DbTile currentTile = await _dbContext.Tiles
-        .Include(tile => tile.Stops)
-        .SingleOrDefaultAsync(x => x.Id == tileId);
-
-      if (currentTile == null)
-      {
-        throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
-      }
-
-      return currentTile;
-    }
-
-    private async Task<IReadOnlyCollection<UncommitedTile>> GetUncommitedTilesAsync()
-    {
-      var connections = await _dbContext.Connections
-              .AsNoTracking()
-              .Select(c => new
-              {
-                c.GtfsStopId,
-                c.OsmStopId,
-                c.CreatedAt,
-                c.OperationType,
-                c.GtfsStop.TileId,
-                Username = c.User == null ? null : c.User.UserName
-              })
-              .ToListAsync();
-
-      var activeConnectionsTileGroup = connections
-        .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
-        .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
-        .Where(c => c.OperationType == ConnectionOperationType.Added)
-        .GroupBy(c => c.TileId)
-        .ToDictionary(c => c.Key, c => c);
-
-      var dbTiles = await _dbContext.Tiles
-        .AsNoTracking()
-        .Where(t => activeConnectionsTileGroup.Keys.Contains(t.Id))
-        .Select(t => new
+        else
         {
-          t.Id,
-          t.MaxLat,
-          t.MaxLon,
-          t.MinLat,
-          t.MinLon,
-          t.X,
-          t.Y,
-          GtfsStopsCount = t.Stops.Where(s => s.StopType == StopType.Gtfs).Count()
-        })
-        .ToListAsync();
+          tile.UnconnectedGtfsStopsCount = tile.GtfsStopsCount;
+        }
 
-      List<UncommitedTile> uncommitedTiles = dbTiles.Join(activeConnectionsTileGroup, t => t.Id, g => g.Key, (t, g) => new UncommitedTile
+        if (availableTiles.Contains(tile.Id))
+        {
+          tile.AssignedUserName = user.UserName;
+        }
+      }
+    }
+
+    return Ok(tiles);
+  }
+
+  [HttpGet]
+  [Authorize(Roles = UserRoles.SUPERVISOR)]
+  public async Task<ActionResult<List<UncommittedTile>>> GetUncommittedTiles()
+  {
+    return Ok(await GetUncommittedTilesAsync());
+  }
+
+  [HttpGet("{id}")]
+  [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
+  public async Task<ActionResult<List<Stop>>> GetStops(string id)
+  {
+    // Validate tile id
+    if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid tileId))
+    {
+      throw new BadHttpRequestException(_localizer["Invalid tile"]);
+    }
+
+    // Check if tile exists
+    DbTile tile = await _dbContext.Tiles
+      .Include(t => t.Stops)
+      .ThenInclude(s => s.GtfsConnections)
+      .SingleOrDefaultAsync(x => x.Id == tileId);
+    if (tile == null)
+    {
+      throw new BadHttpRequestException(_localizer["Unable to find tile"]);
+    }
+
+    // Get current user roles
+    ApplicationUser user = await _userManager.GetUserAsync(User);
+
+    // Check if the user is assigned to a tile?
+    if (!tile.IsAccessibleBy(user.Id))
+    {
+      throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
+    }
+
+    // Get all stops in selected tile + stops around that tile
+    var stops = await _dbContext.Stops
+      .Where(x =>
+        x.Lon > tile.OverlapMinLon && x.Lon <= tile.OverlapMaxLon &&
+        x.Lat > tile.OverlapMinLat && x.Lat <= tile.OverlapMaxLat)
+      .Where(x => !x.IsDeleted)
+      .ToListAsync();
+
+    foreach (DbStop stop in stops)
+    {
+      if (stop.Lon > tile.MinLon && stop.Lon <= tile.MaxLon &&
+          stop.Lat > tile.MinLat && stop.Lat <= tile.MaxLat)
       {
-        AssignedUserName = g.Value.FirstOrDefault(c => c.Username != null)?.Username ?? null,
-        GtfsStopsCount = t.GtfsStopsCount,
-        Id = t.Id,
-        MinLon = t.MinLon,
-        MinLat = t.MinLat,
-        MaxLat = t.MaxLat,
-        MaxLon = t.MaxLon,
-        Y = t.Y,
-        X = t.X,
-        UnconnectedGtfsStops = t.GtfsStopsCount - g.Value.Count()
-      })
+        stop.OutsideSelectedTile = false;
+        continue;
+      }
+
+      stop.OutsideSelectedTile = true;
+    }
+
+    // Remove GTFS stops outside the tile
+    stops.RemoveAll(x => x.OutsideSelectedTile && x.StopType == StopType.Gtfs);
+
+    tile.Stops = stops;
+    tile.Stops.ForEach(x => x.Tile = null);
+    List<Stop> result = _mapper.Map<List<Stop>>(tile.Stops);
+    return Ok(result);
+  }
+
+  /// <summary>
+  /// Assign a user to all not exported connections in the tile.
+  /// </summary>
+  /// <param name="id">Tile id</param>
+  /// <param name="updateTileInput">New user id</param>
+  [HttpPut("{id}")]
+  [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+  public async Task<ActionResult<string>> UpdateUsers(Guid id, [FromBody] UpdateTileInput updateTileInput)
+  {
+    if (updateTileInput.EditorId == null)
+    {
+      throw new BadHttpRequestException(_localizer["EditorId cannot be null"]);
+    }
+
+    List<DbConnection> connections = (await _dbContext.Connections
+        .Where(c => c.GtfsStop.TileId == id)
+        .ToListAsync())
+      .OnlyActive()
+      .Where(c => c.UserId != updateTileInput.EditorId)
       .ToList();
 
-      return uncommitedTiles;
+    connections.ForEach(x => x.UserId = (Guid) updateTileInput.EditorId);
+
+    await _dbContext.SaveChangesAsync();
+
+    return Ok(_localizer["User has been added to the tile"]);
+  }
+
+  [HttpGet("{tileId}")]
+  [Authorize(Roles =
+    UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+  public async Task<ActionResult<bool>> ContainsChanges(Guid tileId)
+  {
+    DbTile tile = await GetTileAsync(tileId);
+
+    Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+    return _osmUpdater.ContainsChanges(tile, osm);
+  }
+
+  [HttpPut("{id}")]
+  [Authorize(Roles =
+    UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
+  public async Task<ActionResult<Report>> UpdateStops(Guid id)
+  {
+    if (!await _tileExportValidator.ValidateDelayAsync(id))
+    {
+      throw new BadHttpRequestException(_localizer["Delay required"]);
     }
+
+    DbTile tile = await GetTileAsync(id);
+
+    Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
+
+    TileImportReport tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
+
+    return Ok(new Report {Value = tileReport.ToString()});
+  }
+
+  private async Task<DbTile> GetTileAsync(Guid tileId)
+  {
+    DbTile currentTile = await _dbContext.Tiles
+      .Include(tile => tile.Stops)
+      .SingleOrDefaultAsync(x => x.Id == tileId);
+
+    if (currentTile == null)
+    {
+      throw new BadHttpRequestException(_localizer["Given tile does not exist"]);
+    }
+
+    return currentTile;
+  }
+
+  private static Dictionary<Guid, List<ConnectionQuery>> GetTilesWithAddedConnections(
+    List<ConnectionQuery> connections) =>
+    connections
+      .GroupBy(c => new {c.GtfsStopId, c.OsmStopId})
+      .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
+      .Where(c => c?.OperationType == ConnectionOperationType.Added)
+      .GroupBy(c => c.TileId)
+      .ToDictionary(c => c.Key, c => c.ToList());
+
+  private static Dictionary<Guid, Guid> GetActiveTiles(
+    List<ConnectionQuery> connections) =>
+    connections
+      .GroupBy(c => new {c.GtfsStopId, c.OsmStopId})
+      .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
+      .Where(c => c?.OperationType == ConnectionOperationType.Added && !c.Exported)
+      .GroupBy(c => c.TileId)
+      .ToDictionary(c => c.Key, c => c.First().UserId);
+
+  private static Dictionary<Guid, List<ConnectionQuery>> GetTilesWithActiveConnections(
+    Dictionary<Guid, List<ConnectionQuery>> addedConnections) =>
+    addedConnections
+      .Where(x => x.Value.Any(c => !c.Exported))
+      .ToDictionary(
+        x => x.Key,
+        x => x.Value.Where(y => !y.Exported).ToList());
+
+  private async Task<IReadOnlyCollection<UncommittedTile>> GetUncommittedTilesAsync()
+  {
+    List<ConnectionQuery> connections =
+      await _dbContext.GetAllConnectionsWithUserName();
+
+    Dictionary<Guid, List<ConnectionQuery>> addedConnections =
+      GetTilesWithAddedConnections(connections);
+
+    Dictionary<Guid, List<ConnectionQuery>> activeConnections = GetTilesWithActiveConnections(addedConnections);
+
+    List<UncommittedTileQuery> activeTiles = await _dbContext.GetUncommittedTilesQuery(activeConnections);
+
+    List<UncommittedTile> uncommittedTiles =
+      activeTiles.Join(addedConnections, t => t.Id, g => g.Key, (t, g) =>
+          new UncommittedTile
+          {
+            Id = t.Id,
+            X = t.X,
+            Y = t.Y,
+            MinLat = t.MinLat,
+            MinLon = t.MinLon,
+            MaxLat = t.MaxLat,
+            MaxLon = t.MaxLon,
+            AssignedUserName = g.Value.FirstOrDefault()?.UserName,
+            GtfsStopsCount = t.GtfsStopsCount,
+            UnconnectedGtfsStopsCount = t.GtfsStopsCount - g.Value.Count
+          })
+        .ToList();
+
+    return uncommittedTiles;
   }
 }

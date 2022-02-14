@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using OsmIntegrator.Database.DataInitialization;
 using Xunit;
 
 namespace OsmIntegrator.Tests.Tests.Stops
@@ -25,7 +26,7 @@ namespace OsmIntegrator.Tests.Tests.Stops
     public StopTest(ApiWebApplicationFactory fixture)
       : base(fixture)
     {
-      List<DbStop> gtfsStops = _dataInitializer.GetGtfsStopsList($"Data/{nameof(StopTest)}/GtfsStops.txt").ToList();
+      List<DbStop> gtfsStops = DataInitializer.GetGtfsStopsList($"Data/{nameof(StopTest)}/GtfsStops.txt").ToList();
       List<DbStop> osmStops = _dataInitializer.GetOsmStopsList($"Data/{nameof(StopTest)}/OsmStops.xml").ToList();
 
       using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
