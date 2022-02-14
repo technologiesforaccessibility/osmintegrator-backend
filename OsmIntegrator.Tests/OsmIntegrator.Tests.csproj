@@ -36,7 +36,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Tests\Tile\ContainsChanges" />
-  </ItemGroup>
 </Project>
