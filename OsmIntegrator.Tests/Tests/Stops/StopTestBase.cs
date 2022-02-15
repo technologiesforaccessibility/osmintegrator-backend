@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using OsmIntegrator.ApiModels.Stops;
 using OsmIntegrator.Tests.Fixtures;
 
+namespace OsmIntegrator.Tests.Tests.Stops;
+
 public class StopsTestBase : IntegrationTest
 {
   public StopsTestBase(ApiWebApplicationFactory factory) : base(factory)

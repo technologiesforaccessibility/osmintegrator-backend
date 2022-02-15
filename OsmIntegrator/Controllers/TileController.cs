@@ -260,7 +260,8 @@ public class TileController : ControllerBase
     List<ConnectionQuery> connections) =>
     connections
       .GroupBy(c => new {c.GtfsStopId, c.OsmStopId})
-      .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
+      .Select(cg => cg.OrderByDescending(
+        c => c.CreatedAt).FirstOrDefault())
       .Where(c => c?.OperationType == ConnectionOperationType.Added)
       .GroupBy(c => c.TileId)
       .ToDictionary(c => c.Key, c => c.ToList());

@@ -1,12 +1,9 @@
-
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.ApiModels.Reports;
-using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
@@ -39,13 +36,11 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      TurnOffDbTracking();
-
-      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
-      Assert.Equal(2, _dbContext.ChangeReports.Count());
+      Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =
-        _dbContext.ChangeReports.Where(x => x.TileId == tile.Id).ToList();
+        _dbContext.ChangeReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
       TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
       TileImportReport expectedReportTile =
@@ -53,8 +48,6 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
-
-      TurnOnDbTracking();
     }
 
     [Fact]
@@ -62,7 +55,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       await Put_Tile_UpdateStops(tile.Id.ToString());
 
       _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsNew_Modify.xml";
@@ -75,13 +68,11 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      TurnOffDbTracking();
-
-      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
-      Assert.Equal(2, _dbContext.ChangeReports.Count());
+      Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =
-        _dbContext.ChangeReports.Where(x => x.TileId == tile.Id).ToList();
+        _dbContext.ChangeReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
       TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
       TileImportReport expectedReportTile =
@@ -89,8 +80,6 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Empty(Compare<TileImportReport>(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
-
-      TurnOnDbTracking();
     }
   }
 }

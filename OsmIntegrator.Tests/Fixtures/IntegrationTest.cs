@@ -64,18 +64,6 @@ namespace OsmIntegrator.Tests.Fixtures
 
     #region DB Initialization
 
-    protected void TurnOffDbTracking()
-    {
-      _dbContext.ChangeTracker.QueryTrackingBehavior =
-        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
-    }
-
-    protected void TurnOnDbTracking()
-    {
-      _dbContext.ChangeTracker.QueryTrackingBehavior =
-        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.TrackAll;
-    }
-
     protected void InitializeDb(string testName)
     {
       List<DbStop> gtfsStops = null;

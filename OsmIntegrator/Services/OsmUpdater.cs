@@ -180,7 +180,6 @@ namespace OsmIntegrator.Services
           {
             if(deletionReverted)
             {
-              ReportStop reportStop = 
               _reportsFactory.CreateStop(
                 report, node, existingStop, ChangeAction.Modified, deletionReverted);
             }

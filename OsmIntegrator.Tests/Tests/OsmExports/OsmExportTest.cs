@@ -53,9 +53,10 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
       OsmChange actualFile = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
       OsmChangeOutput actualChanges = await Get_OsmExport_GetChanges(tile.Id.ToString());  
 
-      OsmChange expectedChanges = SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
+      OsmChange expectedChanges = 
+        SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
 
-      List<Difference> differences = Compare<OsmChange>(expectedChanges, actualFile);
+      List<Difference> differences = Compare(expectedChanges, actualFile);
       Assert.Empty(differences);
       Assert.Equal(expectedComment, actualChanges.Tags["comment"]);
     }

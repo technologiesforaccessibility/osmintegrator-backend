@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.ApiModels.Reports;
-using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
@@ -26,28 +25,28 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
       Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
       string actualTxtReport = report.Value;
 
       string expectedTxtReport =
         File.ReadAllText($"{TestDataFolder}{nameof(AddStopTest)}/Report.txt");
-
-      TurnOffDbTracking();
-
-      DbStop actualStop1 = _dbContext.Stops.First(x => x.StopId == OSM_STOP_ID_3);
+      
+      Assert.Equal(expectedTxtReport, actualTxtReport);
+      
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
       Assert.Equal("1584594015", actualStop1.StopId.ToString());
       Assert.Equal("Brynów Dworska", actualStop1.Name);
       Assert.Equal(5, actualStop1.Tags.Count);
 
       TileImportReport actualReportTile =
-        _dbContext.ChangeReports.FirstOrDefault(x => x.TileId == tile.Id).TileReport;
+        _dbContext.ChangeReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
 
       TileImportReport expectedReportTile =
         SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(AddStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<TileImportReport>(
+      Assert.Empty(Compare(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
   }
