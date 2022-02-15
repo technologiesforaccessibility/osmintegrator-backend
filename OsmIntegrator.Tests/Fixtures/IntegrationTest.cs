@@ -64,25 +64,13 @@ namespace OsmIntegrator.Tests.Fixtures
 
     #region DB Initialization
 
-    protected void TurnOffDbTracking()
-    {
-      _dbContext.ChangeTracker.QueryTrackingBehavior =
-        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.NoTracking;
-    }
-
-    protected void TurnOnDbTracking()
-    {
-      _dbContext.ChangeTracker.QueryTrackingBehavior =
-        Microsoft.EntityFrameworkCore.QueryTrackingBehavior.TrackAll;
-    }
-
     protected void InitializeDb(string testName)
     {
       List<DbStop> gtfsStops = null;
       string gtfsStopsPath = $"{TestDataFolder}{testName}/GtfsStopsInit.txt";
       if (File.Exists(gtfsStopsPath))
       {
-        gtfsStops = _dataInitializer.GetGtfsStopsList(gtfsStopsPath);
+        gtfsStops = DataInitializer.GetGtfsStopsList(gtfsStopsPath);
       }
 
       List<DbStop> osmStops = null;
@@ -232,8 +220,7 @@ namespace OsmIntegrator.Tests.Fixtures
       ignoredFields ??= new List<string>();
       ignoredFields.ForEach(x => comparer.IgnoreMember(x));
 
-      IEnumerable<Difference> differences;
-      comparer.Compare(expected, actual, out differences);
+      comparer.Compare(expected, actual, out IEnumerable<Difference> differences);
       return differences.ToList();
     }
 

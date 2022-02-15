@@ -1,4 +1,4 @@
-[TILE] X: 2264, Y: 
+[TILE] X: 2264, Y: 1385
 
 [STOP-Added] Brynów Dworska, Id: 1584594015, Osm, Ver: 5
     [FIELD-Added] bus: yes

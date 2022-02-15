@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using System;
@@ -66,6 +67,7 @@ namespace OsmIntegrator.Database
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       _ = optionsBuilder.UseNpgsql(_configuration["DBConnectionString"]);
+      // optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information).EnableSensitiveDataLogging();
     }
   }
 }

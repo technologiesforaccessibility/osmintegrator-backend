@@ -133,6 +133,10 @@
         <value>Nie możesz edytować tego kafelka</value>
         <comment/>
     </data>
+    <data name="OSM stop is outside of the margin" xml:space="preserve">
+        <value>Przystanek OSM jest leży poza marginesem</value>
+        <comment/>
+    </data>
     <data name="Invalid tile" xml:space="preserve">
         <value>Błędny kafelek</value>
         <comment/>
@@ -143,6 +147,9 @@
     </data>
     <data name="User has been added to the tile" xml:space="preserve">
         <value>Użytkownik został przypisany do kafelka</value>
+    </data>
+    <data name="EditorId cannot be null" xml:space="preserve">
+        <value>EditorId nie może mieć wartości null</value>
     </data>
     <data name="Unable to assign. User already assigned to this tile" xml:space="preserve">
         <value>Nie można przypisać. Użytkownik jest już przypisany do tego kafelka</value>

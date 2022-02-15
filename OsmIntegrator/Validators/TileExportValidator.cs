@@ -39,8 +39,7 @@ namespace OsmIntegrator.Validators
 
       byte minExportDelayMins = byte.Parse(_configuration["OsmExportMinDelayMins"]);
       DateTime exportUnlocksAt = lastExportDate?.AddMinutes(minExportDelayMins) ?? DateTime.MinValue;
-      DateTime exportUnlocksAtUtc = DateTime.SpecifyKind(exportUnlocksAt, DateTimeKind.Utc);
-      var minExportDelayExceeded = exportUnlocksAtUtc < DateTime.UtcNow;
+      var minExportDelayExceeded = exportUnlocksAt.ToUniversalTime() < DateTime.Now.ToUniversalTime();
 
       return minExportDelayExceeded;
     }

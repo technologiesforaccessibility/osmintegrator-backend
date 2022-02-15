@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OsmIntegrator.ApiModels.Tiles
 {
-  public class UncommitedTile
+  public class UncommittedTile
   {
     [Required]
     public Guid Id { get; set; }
@@ -22,6 +22,6 @@ namespace OsmIntegrator.ApiModels.Tiles
     [Required]
     public int GtfsStopsCount { get; set; }
     public string AssignedUserName { get; set; }
-    public int UnconnectedGtfsStops { get; set; }
+    public int UnconnectedGtfsStopsCount { get; set; }
   }
 }

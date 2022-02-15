@@ -21,6 +21,8 @@ using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
 using OsmIntegrator.ApiModels.OsmExport;
 using System.Collections.Generic;
+using System.Linq;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Controllers
 {
@@ -86,11 +88,18 @@ namespace OsmIntegrator.Controllers
       }
 
       DbTile tile = await _dbContext.Tiles
-        .Include(x => x.Stops)
-        .ThenInclude(x => x.OsmConnections)
+        .Include(x => x.Stops.Where(s => s.StopType == StopType.Gtfs))
+        .ThenInclude(x => x.GtfsConnections)
+        .ThenInclude(x => x.OsmStop)
         .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      var comment = _osmExporter.GetComment(tile.X, tile.Y, byte.Parse(_configuration["ZoomLevel"], NumberFormatInfo.InvariantInfo));
+      if(tile == null)
+        throw new BadHttpRequestException(_localizer["Selected tile doesn't exist"]);
+      
+      string comment = 
+        _osmExporter.GetComment(tile.X, tile.Y, 
+          byte.Parse(_configuration["ZoomLevel"],
+            NumberFormatInfo.InvariantInfo));
 
       OsmChangeOutput output = new()
       {
@@ -141,7 +150,7 @@ namespace OsmIntegrator.Controllers
       await _dbContext.ExportReports.AddAsync(new DbTileExportReport
       {
         TileId = tileId,
-        CreatedAt = DateTime.UtcNow,
+        CreatedAt = DateTime.Now.ToUniversalTime(),
         UserId = user.Id,
         TileReport = new(),
         ChangesetId = exportResult.ChangesetId.Value
