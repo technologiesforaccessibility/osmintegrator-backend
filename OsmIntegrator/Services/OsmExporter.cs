@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Services
@@ -28,12 +29,12 @@ namespace OsmIntegrator.Services
     public async Task<IReadOnlyCollection<DbConnection>> GetUnexportedOsmConnectionsAsync(Guid tileId)
     {
       DbTile tile = await _dbContext.Tiles
-              .Include(x => x.Stops)
-              .ThenInclude(x => x.OsmConnections)
-              .Include(t => t.ExportReports)
-              .FirstOrDefaultAsync(x => x.Id == tileId);
+        .Include(x => x.Stops.Where(s => s.StopType == StopType.Gtfs))
+        .ThenInclude(x => x.GtfsConnections)
+        .ThenInclude(x => x.OsmStop)
+        .FirstOrDefaultAsync(x => x.Id == tileId);
 
-      return tile.GetUnexportedOsmConnections();
+      return tile.GetUnexportedGtfsConnections();
     }
 
     public OsmChange GetOsmChange(IReadOnlyCollection<DbConnection> connections, uint? changesetId = null)

@@ -21,7 +21,7 @@ public static class DbContextExtensions
         OsmStopId = c.OsmStopId,
         CreatedAt = c.CreatedAt,
         OperationType = c.OperationType,
-        TileId = c.OsmStop.TileId,
+        TileId = c.GtfsStop.TileId,
         UserName = c.User.UserName,
         UserId = c.UserId,
         Exported = c.Exported
@@ -47,12 +47,12 @@ public static class DbContextExtensions
       .ToListAsync();
 
   public static async Task<List<Tile>> GetCurrentUserTiles(this ApplicationDbContext dbContext,
-    HashSet<Guid> inactiveTiles) =>
+    HashSet<Guid> unavailableTiles) =>
     await dbContext.Tiles
       .AsNoTracking()
       .Include(x => x.Stops)
       .Where(t => t.Stops.Any(x => x.StopType == StopType.Gtfs))
-      .Where(t => !inactiveTiles.Contains(t.Id))
+      .Where(t => !unavailableTiles.Contains(t.Id))
       .Select(t => new Tile
       {
         Id = t.Id,
