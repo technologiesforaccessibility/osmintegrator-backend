@@ -9,6 +9,7 @@ using System.Xml.Serialization;
 using System.Text;
 using OsmIntegrator.Database;
 using OsmIntegrator.Interfaces;
+using OsmIntegrator;
 
 public class Overpass : IOverpass
 {

@@ -39,7 +39,7 @@ namespace OsmIntegrator.Services
 
     public OsmChange GetOsmChange(IReadOnlyCollection<DbConnection> connections, uint? changesetId = null)
     {
-      OsmChange root = new OsmChange()
+      OsmChange root = new()
       {
         Generator = "osm integrator v0.1",
         Version = "0.6",
@@ -51,11 +51,32 @@ namespace OsmIntegrator.Services
 
       foreach (DbConnection connection in connections)
       {
+        if(!ContainsChanges(connection.OsmStop, connection.GtfsStop)) continue;
+
         root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop, changesetId));
-      };
+      }
 
       return root;
     }
+
+    public async Task<bool> ContainsSameActiveConnections(Guid tileId)
+    {
+      IReadOnlyCollection<DbConnection> connections = await GetUnexportedOsmConnectionsAsync(tileId);
+      return connections.Any(connection => !ContainsChanges(connection.OsmStop, connection.GtfsStop));
+    }
+
+    public bool ContainsChanges(DbStop osmStop, DbStop gtfsStop)
+    {
+      Database.Models.JsonFields.Tag refTag = osmStop.GetTag(Constants.REF);
+      if (refTag == null || !int.TryParse(refTag.Value, out int value) || value != gtfsStop.StopId) return true;
+
+      Database.Models.JsonFields.Tag localRefTag = osmStop.GetTag(Constants.LOCAL_REF);
+      if (localRefTag == null || localRefTag.Value != gtfsStop.Number) return true;
+      
+      Database.Models.JsonFields.Tag nameTag = osmStop.GetTag(Constants.NAME);
+      return nameTag == null || nameTag.Value != gtfsStop.Name;
+    }
+    
     private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint? changesetId = null)
     {
       Node node = new()

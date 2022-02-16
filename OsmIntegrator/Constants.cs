@@ -1,3 +1,5 @@
+namespace OsmIntegrator;
+
 public class Constants
 {
   // Osm tags
