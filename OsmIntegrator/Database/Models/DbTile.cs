@@ -157,7 +157,6 @@ namespace OsmIntegrator.Database.Models
       .Where(s => s.StopType == StopType.Gtfs)
       .SelectMany(s => s.GtfsConnections)
       .OnlyActive()
-      .Where(c => !c.Exported)
       .ToList();
 
     public ApplicationUser AssignedUser => Stops

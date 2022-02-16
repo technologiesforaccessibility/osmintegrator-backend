@@ -16,17 +16,20 @@ namespace OsmIntegrator.Validators
     private readonly ApplicationDbContext _dbContext;
     private readonly IOverpass _overpass;
     private readonly IOsmUpdater _osmUpdater;
+    private readonly IOsmExporter _osmExporter;
 
     public TileExportValidator(
       IConfiguration configuration,
       ApplicationDbContext dbContext,
       IOverpass overpass,
-      IOsmUpdater osmUpdater)
+      IOsmUpdater osmUpdater,
+      IOsmExporter osmExporter)
     {
       _configuration = configuration;
       _dbContext = dbContext;
       _overpass = overpass;
       _osmUpdater = osmUpdater;
+      _osmExporter = osmExporter;
     }
 
     public async Task<bool> ValidateDelayAsync(Guid tileId)
@@ -46,14 +49,17 @@ namespace OsmIntegrator.Validators
 
     public async Task<bool> ValidateVersionAsync(Guid tileId)
     {
-      var tile = await _dbContext.Tiles
+      DbTile tile = await _dbContext.Tiles
         .AsNoTracking()
         .Include(tile => tile.Stops)
         .FirstOrDefaultAsync(x => x.Id == tileId);
 
       Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
 
-      return !_osmUpdater.ContainsChanges(tile, osm);
+      bool updatedValidated = !_osmUpdater.ContainsChanges(tile, osm);
+      bool sameConnectionsValidated = !await _osmExporter.ContainsSameActiveConnections(tileId);
+
+      return updatedValidated && sameConnectionsValidated;
     }
   }
 }

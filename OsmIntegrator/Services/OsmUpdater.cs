@@ -82,7 +82,7 @@ namespace OsmIntegrator.Services
 
     public async Task<TileImportReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
-      using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
+      await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
       {
         TileImportReport report = ProcessTile(tile, dbContext, osmRoot);

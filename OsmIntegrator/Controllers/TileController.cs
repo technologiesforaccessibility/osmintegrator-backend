@@ -46,6 +46,7 @@ public class TileController : ControllerBase
   private readonly IOverpass _overpass;
   private readonly IOsmUpdater _osmUpdater;
   private readonly ITileExportValidator _tileExportValidator;
+  private readonly IOsmExporter _osmExporter;
 
   public TileController(
     ILogger<TileController> logger,
@@ -55,7 +56,8 @@ public class TileController : ControllerBase
     IStringLocalizer<TileController> localizer,
     IOsmUpdater refresherHelper,
     IOverpass overpass,
-    ITileExportValidator tileExportValidator)
+    ITileExportValidator tileExportValidator,
+    IOsmExporter osmExporter)
   {
     _logger = logger;
     _dbContext = dbContext;
@@ -65,6 +67,7 @@ public class TileController : ControllerBase
     _osmUpdater = refresherHelper;
     _overpass = overpass;
     _tileExportValidator = tileExportValidator;
+    _osmExporter = osmExporter;
   }
 
   [HttpGet]
@@ -216,11 +219,7 @@ public class TileController : ControllerBase
     UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
   public async Task<ActionResult<bool>> ContainsChanges(Guid tileId)
   {
-    DbTile tile = await GetTileAsync(tileId);
-
-    Osm osm = await _overpass.GetArea(tile.MinLat, tile.MinLon, tile.MaxLat, tile.MaxLon);
-
-    return _osmUpdater.ContainsChanges(tile, osm);
+    return !await _tileExportValidator.ValidateVersionAsync(tileId);
   }
 
   [HttpPut("{id}")]
@@ -239,7 +238,21 @@ public class TileController : ControllerBase
 
     TileImportReport tileReport = await _osmUpdater.Update(tile, _dbContext, osm);
 
+    await UpdatedExportedConnections(id);
+
     return Ok(new Report {Value = tileReport.ToString()});
+  }
+
+  private async Task UpdatedExportedConnections(Guid id)
+  {
+    IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(id);
+    foreach (DbConnection connection in connections)
+    {
+      if (!_osmExporter.ContainsChanges(connection.OsmStop, connection.GtfsStop))
+        connection.Exported = true;
+    }
+
+    await _dbContext.SaveChangesAsync();
   }
 
   private async Task<DbTile> GetTileAsync(Guid tileId)
