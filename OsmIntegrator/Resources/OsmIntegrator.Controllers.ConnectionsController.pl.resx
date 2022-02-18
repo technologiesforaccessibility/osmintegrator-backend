@@ -157,6 +157,14 @@
     <value>Połączenie już usunięto</value>
     <comment/>
   </data>
+  <data name="OSM stop is outside of the margin" xml:space="preserve">
+        <value>Przystanek OSM jest leży poza marginesem</value>
+    <comment/>
+    </data>
+  <data name="Another user has just started editing this tile" xml:space="preserve">
+        <value>Inny użytkownik właśnie rozpoczął pracę nad tym kafelkiem</value>
+    <comment/>
+    </data>
   <data name="Connection successfully added" xml:space="preserve">
     <value>Połączenie utworzone</value>
     <comment/>
