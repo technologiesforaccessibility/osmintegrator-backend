@@ -86,7 +86,7 @@ namespace OsmIntegrator.Services
       try
       {
         TileImportReport report = ProcessTile(tile, dbContext, osmRoot);
-
+        await dbContext.SaveChangesAsync();
         RemoveConnections(dbContext);
 
         if (report.Stops.Count > 0)
@@ -119,7 +119,7 @@ namespace OsmIntegrator.Services
         try
         {
           tiles.ForEach(x => reports.Add(ProcessTile(x, dbContext, osmRoot)));
-
+          await dbContext.SaveChangesAsync();
           RemoveConnections(dbContext);
 
           reports.ForEach(x =>
