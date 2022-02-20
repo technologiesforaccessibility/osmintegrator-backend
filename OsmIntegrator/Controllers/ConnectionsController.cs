@@ -18,6 +18,7 @@ using OsmIntegrator.Validators;
 using OsmIntegrator.Enums;
 using Microsoft.Extensions.Localization;
 using OsmIntegrator.ApiModels.Connections;
+using OsmIntegrator.Database.Models.Enums;
 
 namespace OsmIntegrator.Controllers;
 
@@ -121,7 +122,11 @@ public class ConnectionsController : ControllerBase
       throw new BadHttpRequestException(_localizer["GTFS stop needs to be placed inside the tile"]);
     }
 
-    DbTile tile = gtfsStop.Tile;
+    DbTile tile = await _dbContext.Tiles
+      .Include(x => x.Stops.Where(s => s.StopType == StopType.Gtfs))
+      .ThenInclude(x => x.GtfsConnections)
+      .FirstAsync(x => x.Id == gtfsStop.TileId);
+    
     if (osmStop.Lon <= tile.OverlapMinLon ||
         osmStop.Lon > tile.OverlapMaxLon ||
         osmStop.Lat <= tile.OverlapMinLat ||
@@ -134,7 +139,7 @@ public class ConnectionsController : ControllerBase
 
     if (!gtfsStop.Tile.IsAccessibleBy(currentUser.Id))
     {
-      throw new BadHttpRequestException(_localizer["You are unable to edit this tile"]);
+      throw new BadHttpRequestException(_localizer["Another user has just started editing this tile"]);
     }
 
     DbConnection newConnection = new()

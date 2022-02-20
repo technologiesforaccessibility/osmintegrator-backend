@@ -86,7 +86,6 @@ public class EmailHelper : IEmailHelper
 
   private MimeEntity BuildConfirmRegistrationMessageBody(string userEmailAddress, string username)
   {
-    string slackInvitation = _externalServicesConfiguration.SlackInvitationUrl;
     string slackDownload = _externalServicesConfiguration.SlackDownloadUrl;
     string userManualLink = _externalServicesConfiguration.UserManualUrl;
     string facebookGroupLink = _externalServicesConfiguration.FacebookGroupUrl;
@@ -96,7 +95,7 @@ public class EmailHelper : IEmailHelper
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["You have successfully created an account on"]} www.osmintegrator.pl. 
 {_localizer["Next steps:"]}
-{_localizer["Join our community on Slack. Click on this link to create new account:"]} {slackInvitation}
+{_localizer["Join our community on Slack. Write email on kontakt@rozwiazaniadlaniewidomych.org and we'll send you an invitation."]}
 {_localizer["Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:"]} {slackDownload}
 {_localizer["Read user manual available at this link:"]} {userManualLink}
 {_localizer["Join our Facebook group:"]} {facebookGroupLink}
@@ -109,7 +108,7 @@ rozwiazaniadlaniewidomych.org
 <p>{_localizer["You have successfully created an account on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>.</p><br/>
 <p>{_localizer["Next steps:"]}</p>
 <ul>
-  <li>{_localizer["Join our community on Slack. Click on this link to create new account:"]} <a href=""{slackInvitation}"">LINK</a></li>
+  <li>{_localizer["Join our community on Slack. Write email on kontakt@rozwiazaniadlaniewidomych.org and we'll send you an invitation."]}</li>
   <li>{_localizer["Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:"]} <a href=""{slackDownload}"">LINK</a></li>
   <li>{_localizer["Read user manual available at this link:"]} <a href=""{userManualLink}"">LINK</a></li>
   <li>{_localizer["Join our Facebook group:"]} <a href=""{facebookGroupLink}"">LINK</a></li>

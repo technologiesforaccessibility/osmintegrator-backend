@@ -145,8 +145,8 @@
         <value>Następne kroki:</value>
         <comment/>
     </data>
-    <data name="Join our community on Slack. Click on this link to create new account:" xml:space="preserve">
-        <value>Dołącz do naszej społeczności na komunikatorze Slack. Kliknij w link po prawej, aby utworzyć konto:</value>
+    <data name="Join our community on Slack. Write email on kontakt@rozwiazaniadlaniewidomych.org and we'll send you an invitation." xml:space="preserve">
+        <value>Dołącz do naszej społeczności na komunikatorze Slack. Wyślij wiadomość z prośbą o dołączenie na adres kontakt@rozwiazaniadlaniewidomych.org, a my wyślemy Ci zaproszenie.</value>
         <comment/>
     </data>
     <data name="Download Slack application and write welcome message at #general channel. We'll show you how to use the system. Link to download:" xml:space="preserve">
