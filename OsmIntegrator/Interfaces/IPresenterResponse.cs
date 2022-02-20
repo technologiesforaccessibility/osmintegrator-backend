@@ -1,8 +1,8 @@
 namespace OsmIntegrator.Interfaces {
     public interface IPresentResponse<TResult> 
     {
-        public TResult Content { get;}
+        TResult Content { get;}
 
-        public void Present(AUseCaseResponse result);        
+        void Present(AUseCaseResponse result);        
     }
 }

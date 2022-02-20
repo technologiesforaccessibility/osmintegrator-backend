@@ -1,0 +1,9 @@
+[TILE] X: 2264, Y: 1385
+
+[STOP-Added] Brynów Dworska, Id: 1584594015, Osm, Ver: 5
+    [FIELD-Added] bus: yes
+    [FIELD-Added] highway: bus_stop
+    [FIELD-Added] name: Brynów Dworska
+    [FIELD-Added] network: Zarząd Transportu Metropolitalnego
+    [FIELD-Added] public_transport: stop_position
+

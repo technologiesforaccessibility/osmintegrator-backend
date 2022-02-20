@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1f606d99-3cdb-43c0-9b47-752a496c6d8d",
+		"_postman_id": "ac4e2b83-48dd-4a4f-a5a0-55ea6ec0bd4b",
 		"name": "OsmIntegrator",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -187,7 +187,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"Email\": \"supervisor1@abcd.pl\",\r\n    \"Password\": \"supervisor1#12345678\"\r\n}"
+							"raw": "{\r\n    \"Email\": \"supervisor2@abcd.pl\",\r\n    \"Password\": \"supervisor2#12345678\"\r\n}"
 						},
 						"url": {
 							"raw": "{{host}}/api/Account/Login",
@@ -788,6 +788,118 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/Update",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"Update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ChangePosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"stopId\": \"3288811c-f134-4527-896d-6075e55a6893\",\n    \"lat\": 50.100107,\n    \"lon\": 19.016823\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/Stop/ChangePosition",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ChangePosition"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPosition",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/Stop/ResetPosition/3288811c-f134-4527-896d-6075e55a6893",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Stop",
+								"ResetPosition",
+								"3288811c-f134-4527-896d-6075e55a6893"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -804,7 +916,7 @@
 									"var data = pm.response.json();",
 									"pm.environment.set(\"firstTileId\", data[0].id);",
 									"",
-									"var result = data.filter( element => element.x === 2264 && element.y === 1384);",
+									"var result = data.filter(element => element.x === 2264 && element.y === 1384);",
 									"pm.environment.set(\"tile_2264_1384\", result[0].id);"
 								],
 								"type": "text/javascript"
@@ -844,7 +956,7 @@
 					"response": []
 				},
 				{
-					"name": "GetAllTiles",
+					"name": "GetUncommittedTiles",
 					"event": [
 						{
 							"listen": "test",
@@ -879,14 +991,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetAllTiles",
+							"raw": "{{host}}/api/Tile/GetUncommittedTiles",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"GetAllTiles"
+								"GetUncommittedTiles"
 							]
 						}
 					},
@@ -913,7 +1025,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/071d1170-5805-42cf-81b6-f67fde07fb1e",
+							"raw": "{{host}}/api/Tile/GetStops/01bcbe50-ee42-4f88-abeb-6ec060b27b6a",
 							"host": [
 								"{{host}}"
 							],
@@ -921,7 +1033,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"071d1170-5805-42cf-81b6-f67fde07fb1e"
+								"01bcbe50-ee42-4f88-abeb-6ec060b27b6a"
 							]
 						}
 					},
@@ -956,120 +1068,6 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"{{firstTileId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "GetUsers",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tile",
-								"GetUsers",
-								"{{firstTileId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "GetUsers FirstTile",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Tile/GetUsers/{{firstTileId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tile",
-								"GetUsers",
-								"{{firstTileId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "UpdateUser",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"id\": \"58fb0db2-0d67-4aa4-af63-9e7111d0b346\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Tile/UpdateUser/{{firstTileId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tile",
-								"UpdateUser",
 								"{{firstTileId}}"
 							]
 						}
@@ -1121,7 +1119,7 @@
 					"response": []
 				},
 				{
-					"name": "Approve FirstTile",
+					"name": "UpdateStopsOnTile",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1141,14 +1139,14 @@
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/Approve/{{firstTileId}}",
+							"raw": "{{host}}/api/Tile/UpdateStops/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"Approve",
+								"UpdateStops",
 								"{{firstTileId}}"
 							]
 						}
@@ -1156,7 +1154,7 @@
 					"response": []
 				},
 				{
-					"name": "Approve 2264x1384",
+					"name": "ContainsChanges",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -1173,61 +1171,17 @@
 								}
 							]
 						},
-						"method": "PUT",
+						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/Approve/{{tile_2264_1384}}",
+							"raw": "{{host}}/api/Tile/ContainsChanges/{{firstTileId}}",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Tile",
-								"Approve",
-								"{{tile_2264_1384}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RemoveUser",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Tile/RemoveUser/{{firstTileId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Tile",
-								"RemoveUser",
+								"ContainsChanges",
 								"{{firstTileId}}"
 							]
 						}
@@ -1514,76 +1468,6 @@
 					"response": []
 				},
 				{
-					"name": "Approve",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Connections/Approve/e044ac55-294a-47a5-98de-971696146968",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Connections",
-								"Approve",
-								"e044ac55-294a-47a5-98de-971696146968"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Unapprove",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Connections/Unapprove/e044ac55-294a-47a5-98de-971696146968",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Connections",
-								"Unapprove",
-								"e044ac55-294a-47a5-98de-971696146968"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Get",
 					"request": {
 						"auth": {
@@ -1604,14 +1488,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Connections/e044ac55-294a-47a5-98de-971696146968",
+							"raw": "{{host}}/api/Connections/13fdb85d-6039-4171-af62-cbdf0abb2b9a",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								"e044ac55-294a-47a5-98de-971696146968"
+								"13fdb85d-6039-4171-af62-cbdf0abb2b9a"
 							]
 						}
 					},
@@ -1678,7 +1562,7 @@
 								}
 							]
 						},
-						"method": "DELETE",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -1690,14 +1574,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/api/Connections/",
+							"raw": "{{host}}/api/Connections/Remove",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								""
+								"Remove"
 							]
 						}
 					},
@@ -1745,274 +1629,6 @@
 								"api",
 								"OsmChangeFile",
 								"GetChangeFile"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Notes",
-			"item": [
-				{
-					"name": "Get",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var data = pm.response.json();",
-									"var result = data.filter( element => element.status. === 0);",
-									"",
-									"pm.environment.set(\"connection\", result[0].id);"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Notes/{{tile_2264_1384}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes",
-								"{{tile_2264_1384}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Kolejny test\",\n    \"tileId\": \"{{tile_2264_1384}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Notes",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "    {\n        \"id\": \"{{connection}}\",\n        \"lat\": 50.28933925329178,\n        \"lon\": 18.984375,\n        \"text\": \"Test 4\"\n    }",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Notes",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Approve",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Notes/Approve/{{connection}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes",
-								"Approve",
-								"{{connection}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Reject",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Notes/Reject/{{connection}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes",
-								"Reject",
-								"{{connection}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{{{token}}}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"lat\": 50.28933925329178,\n    \"lon\": 18.984375,\n    \"text\": \"Test 2\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Notes/{{connection}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Notes",
-								"{{connection}}"
 							]
 						}
 					},
@@ -2217,54 +1833,6 @@
 						}
 					},
 					"response": []
-				},
-				{
-					"name": "RejectConversation",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/api/Conversation/Reject/{{conversationId}}",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Conversation",
-								"Reject",
-								"{{conversationId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RejectConversationWithText",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"text\": \"New message\",\r\n    \"conversationId\": \"{{conversationId}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{host}}/api/Conversation/Reject",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"api",
-								"Conversation",
-								"Reject"
-							]
-						}
-					},
-					"response": []
 				}
 			],
 			"description": "Endpoints to handle reports",
@@ -2278,6 +1846,90 @@
 					}
 				]
 			}
+		},
+		{
+			"name": "OsmExport",
+			"item": [
+				{
+					"name": "GetChangeFile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/api/OsmExport/GetChangeFile/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"GetChangeFile",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Export",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"Email\": \"supervisor1@abcd.pl\",\n    \"Password\": \"12345678\",\n    \"Comment\": \"Comment test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}/api/OsmExport/Export/080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"OsmExport",
+								"Export",
+								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Swagger",

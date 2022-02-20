@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
-using Microsoft.AspNetCore.Identity;
 using System;
 
 namespace OsmIntegrator.Database
@@ -20,53 +20,40 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTile> Tiles { get; set; }
 
-    public DbSet<DbConnections> Connections { get; set; }
-
-    public DbSet<DbNote> Notes { get; set; }
+    public DbSet<DbConnection> Connections { get; set; }
 
     public DbSet<DbConversation> Conversations { get; set; }
 
     public DbSet<DbMessage> Messages { get; set; }
 
-    public DbSet<DbTileUser> TileUsers { get; set; }
+    public DbSet<DbTileImportReport> ChangeReports { get; set; }
+
+    public DbSet<DbTileExportReport> ExportReports { get; set; }
 
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasKey(t => new { t.Id });
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasOne(c => c.OsmStop)
           .WithMany(o => o.OsmConnections)
           .HasForeignKey(c => c.OsmStopId)
           .OnDelete(DeleteBehavior.NoAction);
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .HasOne(c => c.GtfsStop)
           .WithMany(o => o.GtfsConnections)
           .HasForeignKey(c => c.GtfsStopId)
           .OnDelete(DeleteBehavior.NoAction);
 
-      modelBuilder.Entity<DbConnections>()
+      modelBuilder.Entity<DbConnection>()
           .Property(x => x.CreatedAt)
           .HasColumnType("timestamp without time zone")
           .HasDefaultValueSql("NOW()")
           .ValueGeneratedOnAdd();
-
-      modelBuilder.Entity<DbTile>()
-          .HasOne(t => t.EditorApproved)
-          .WithMany();
-
-      modelBuilder.Entity<DbTile>()
-          .HasOne(t => t.SupervisorApproved)
-          .WithMany();
-
-      modelBuilder.Entity<DbTile>()
-          .HasMany(t => t.Users)
-          .WithMany(u => u.Tiles)
-          .UsingEntity(j => j.ToTable("ApplicationUserDbTile"));
 
       base.OnModelCreating(modelBuilder);
     }
@@ -79,11 +66,8 @@ namespace OsmIntegrator.Database
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-      _ = optionsBuilder.UseNpgsql(GetConnectionString());
-    }
-    public string GetConnectionString()
-    {
-      return _configuration["DBConnectionString"].ToString();
+      _ = optionsBuilder.UseNpgsql(_configuration["DBConnectionString"]);
+      // optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information).EnableSensitiveDataLogging();
     }
   }
 }

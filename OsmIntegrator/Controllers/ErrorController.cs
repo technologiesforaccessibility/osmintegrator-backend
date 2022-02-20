@@ -26,7 +26,7 @@ namespace OsmIntegrator.Controllers
         public IActionResult ErrorLocalDevelopment(
             [FromServices] IWebHostEnvironment webHostEnvironment)
         {
-            if (webHostEnvironment.EnvironmentName != "Development")
+            if (webHostEnvironment.EnvironmentName != "Development" && webHostEnvironment.EnvironmentName != "Test")
             {
                 throw new InvalidOperationException(
                     "This shouldn't be invoked in non-development environments.");

@@ -1,0 +1,65 @@
+{
+  "Stops": [
+      {
+          "Action": 1,
+          "Changeset": "82493028",
+          "DatabaseStopId": "7db01dcf-a629-4930-8ac5-474ed2fdca54",
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "Brynów Orkana n/ż",
+                  "Name": "name",
+                  "PreviousValue": "Brynów Orkana"
+              },
+              {
+                  "Action": 0,
+                  "ActualValue": "12345",
+                  "Name": "ref",
+                  "PreviousValue": null
+              },
+              {
+                  "Action": 0,
+                  "ActualValue": "2t",
+                  "Name": "local_ref",
+                  "PreviousValue": null
+              }
+          ],
+          "Name": "Brynów Orkana n/ż",
+          "PreviousChangeset": "82493028",
+          "PreviousName": "Brynów Orkana",
+          "PreviousVersion": 4,
+          "StopId": "1831944331",
+          "StopType": 0,
+          "Version": 5
+      },
+      {
+          "Action": 1,
+          "Changeset": "82493028",
+          "DatabaseStopId": "21ba8218-30d0-47d8-89c4-6620b59707fd",
+          "Fields": [
+              {
+                  "Action": 0,
+                  "ActualValue": "stop_position",
+                  "Name": "very_public_transport",
+                  "PreviousValue": null
+              },
+              {
+                  "Action": 2,
+                  "ActualValue": null,
+                  "Name": "public_transport",
+                  "PreviousValue": null
+              }
+          ],
+          "Name": "Brynów Orkana",
+          "PreviousChangeset": "82493028",
+          "PreviousName": null,
+          "PreviousVersion": 3,
+          "StopId": "1905039171",
+          "StopType": 0,
+          "Version": 4
+      }
+  ],
+  "TileId": "f5a5a96b-8d92-4c3a-9425-4dc4dfcdf7d7",
+  "TileX": 2264,
+  "TileY": 1385
+}

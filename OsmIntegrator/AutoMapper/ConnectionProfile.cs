@@ -1,5 +1,5 @@
 using AutoMapper;
-using OsmIntegrator.ApiModels;
+using OsmIntegrator.ApiModels.Connections;
 using OsmIntegrator.Database.Models;
 
 namespace OsmIntegrator.AutoMapper
@@ -9,8 +9,7 @@ namespace OsmIntegrator.AutoMapper
     public ConnectionProfile()
     {
       AllowNullCollections = true;
-      CreateMap<DbConnections, Connection>()
-        .ForMember(x => x.Approved, o => o.MapFrom(x => x.ApprovedById != null))
+      CreateMap<DbConnection, Connection>()
         .ReverseMap();
     }
   }

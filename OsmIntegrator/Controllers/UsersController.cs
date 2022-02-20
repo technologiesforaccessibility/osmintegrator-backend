@@ -50,9 +50,9 @@ namespace OsmIntegrator.Controllers
             _localizer = localizer;
         }
 
-        [HttpGet]
+        [HttpGet()]
         [Authorize(Roles = UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-        public async Task<ActionResult<List<User>>> Get()
+        public async Task<ActionResult<List<User>>> Get(string role = null)
         {
             var users = await _userManager.Users
                 .Select(u => new { User = u, Roles = new List<string>() })

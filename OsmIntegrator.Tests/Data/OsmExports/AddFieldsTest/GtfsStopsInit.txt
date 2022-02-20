@@ -1,0 +1,2 @@
+stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,stop_url,location_type
+159077,2,Brynów Orkana Updated,,50.231477,18.988495,/rozklady/przystanek/159077/,0
