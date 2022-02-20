@@ -1,12 +1,9 @@
-
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OsmIntegrator.ApiModels.Reports;
-using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
@@ -33,9 +30,17 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       string actualTxtReport = report.Value;
       string expectedTxtReport =
         File.ReadAllText($"{TestDataFolder}{nameof(RemoveStopTest)}/Report.txt");
+      Assert.Equal(expectedTxtReport, actualTxtReport);
 
       DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
       Assert.True(actualStop1.IsDeleted);
+
+      List<DbConnection> deletedConnections = _dbContext.Connections
+        .Include(x => x.OsmStop)
+        .Where(x => x.OsmStop.IsDeleted)
+        .ToList();
+      
+      Assert.Empty(deletedConnections);
 
       TileImportReport actualReportTile =
         _dbContext.ChangeReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
@@ -43,7 +48,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       TileImportReport expectedReportTile =
         SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<TileImportReport>(
+      Assert.Empty(Compare(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
 
