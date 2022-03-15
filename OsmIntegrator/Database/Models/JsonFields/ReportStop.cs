@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
+using Microsoft.Extensions.Localization;
+using OsmIntegrator.Controllers;
 
 namespace OsmIntegrator.Database.Models.JsonFields
 {
@@ -21,18 +22,30 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public ChangeAction Action { get; set; }
     public bool Reverted { get; set; }
 
-    public override string ToString()
+    private string GetResultText(IStringLocalizer<TileController> localizer = null)
     {
       StringBuilder sb = new StringBuilder();
       string previousName = !string.IsNullOrEmpty(PreviousName) ? $" ({PreviousName})" : "";
       string previousVersion = PreviousVersion is not null ? $" ({PreviousVersion.ToString()})" : "";
       string reverted = Reverted ? ", Reverted" : "";
 
-      sb.AppendLine($"[STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}{reverted}");
+      if (localizer != null)
+      {
+        sb.AppendLine($"[{localizer["STOP"]}-{localizer[Action.ToString()]}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, {localizer["Ver"]}: {Version}{previousVersion}{localizer[reverted]}");
+      }
+      else
+      {
+        sb.AppendLine($"[STOP-{Action.ToString()}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, Ver: {Version}{previousVersion}{reverted}");
+      }
 
-      Fields?.ForEach(x => sb.AppendLine(x.ToString()));
+
+      Fields?.ForEach(x => sb.AppendLine(x.GetTranslatedResultText(localizer)));
 
       return sb.ToString();
     }
+
+    public string GetTranslatedResultText(IStringLocalizer<TileController> localizer = null) => GetResultText(localizer);
+
+    public override string ToString() => GetResultText();
   }
 }

@@ -166,4 +166,31 @@
     <data name="Delay required" xml:space="preserve">
         <value>Musisz odczekać 5 min od ostatniego eksportu</value>
     </data>
+    <data name="TILE" xml:space="preserve">
+        <value>KAFELEK</value>
+    </data>
+    <data name="No changes" xml:space="preserve">
+        <value>Brak zmian</value>
+    </data>
+    <data name="STOP" xml:space="preserve">
+        <value>PRZYSTANEK</value>
+    </data>
+    <data name="Reverted" xml:space="preserve">
+        <value>Przywrócony</value>
+    </data>
+    <data name="Ver" xml:space="preserve">
+        <value>Wer</value>
+    </data>
+    <data name="FIELD" xml:space="preserve">
+        <value>POLE</value>
+    </data>
+    <data name="Added" xml:space="preserve">
+        <value>Dodano</value>
+    </data>
+    <data name="Modified" xml:space="preserve">
+        <value>Zmodyfikowano</value>
+    </data>
+    <data name="Removed" xml:space="preserve">
+        <value>Usunięto</value>
+    </data>
 </root>
