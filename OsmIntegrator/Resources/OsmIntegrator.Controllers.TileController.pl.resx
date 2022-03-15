@@ -175,8 +175,8 @@
     <data name="STOP" xml:space="preserve">
         <value>PRZYSTANEK</value>
     </data>
-    <data name="Reverted" xml:space="preserve">
-        <value>Przywrócony</value>
+    <data name=", Reverted" xml:space="preserve">
+        <value>, Przywrócony</value>
     </data>
     <data name="Ver" xml:space="preserve">
         <value>Wer</value>
