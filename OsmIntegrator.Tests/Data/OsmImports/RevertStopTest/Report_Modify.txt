@@ -1,6 +1,6 @@
 [KAFELEK] X: 2264, Y: 1385
 
 [PRZYSTANEK-Zmodyfikowano] Brynów Dworska, Id: 1584594015, Osm, Wer: 6 (5), Przywrócony
-    [POLE-Zmodyfikowano] Lat: 50,2326752 (50,2326753)
-    [POLE-Zmodyfikowano] bus: no (yes)
+    [TAG-Zmodyfikowano] Lat: 50,2326752 (50,2326753)
+    [TAG-Zmodyfikowano] bus: no (yes)
 

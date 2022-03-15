@@ -1,11 +1,11 @@
 [KAFELEK] X: 2264, Y: 1385
 
 [PRZYSTANEK-Zmodyfikowano] Brynów Orkana n/ż (Brynów Orkana), Id: 1831944331, Osm, Wer: 5 (4)
-    [POLE-Zmodyfikowano] name: Brynów Orkana n/ż (Brynów Orkana)
-    [POLE-Dodano] ref: 12345
-    [POLE-Dodano] local_ref: 2t
+    [TAG-Zmodyfikowano] name: Brynów Orkana n/ż (Brynów Orkana)
+    [TAG-Dodano] ref: 12345
+    [TAG-Dodano] local_ref: 2t
 
 [PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 1905039171, Osm, Wer: 4 (3)
-    [POLE-Dodano] very_public_transport: stop_position
-    [POLE-Usunięto] public_transport: 
+    [TAG-Dodano] very_public_transport: stop_position
+    [TAG-Usunięto] public_transport: 
 
