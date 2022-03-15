@@ -1,6 +1,6 @@
-[TILE] X: 2264, Y: 1385
+[KAFELEK] X: 2264, Y: 1385
 
-[STOP-Modified] Brynów Dworska, Id: 1584594015, Osm, Ver: 6 (5), Reverted
-    [FIELD-Modified] Lat: 50,2326752 (50,2326753)
-    [FIELD-Modified] bus: no (yes)
+[PRZYSTANEK-Zmodyfikowano] Brynów Dworska, Id: 1584594015, Osm, Wer: 6 (5), Przywrócony
+    [POLE-Zmodyfikowano] Lat: 50,2326752 (50,2326753)
+    [POLE-Zmodyfikowano] bus: no (yes)
 
