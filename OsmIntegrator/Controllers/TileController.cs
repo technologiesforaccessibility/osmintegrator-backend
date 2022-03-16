@@ -240,7 +240,7 @@ public class TileController : ControllerBase
 
     await UpdatedExportedConnections(id);
 
-    return Ok(new Report { Value = tileReport.ToString() });
+    return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
   [HttpPut()]

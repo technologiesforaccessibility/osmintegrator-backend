@@ -39,7 +39,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
         .Include(x => x.OsmStop)
         .Where(x => x.OsmStop.IsDeleted)
         .ToList();
-      
+
       Assert.Empty(deletedConnections);
 
       TileImportReport actualReportTile =
@@ -61,7 +61,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
       report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
-      Assert.Contains("No changes", report.Value);
+      Assert.Contains("Brak zmian", report.Value);
     }
   }
 }

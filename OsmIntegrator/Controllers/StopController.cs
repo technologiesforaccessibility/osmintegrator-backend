@@ -111,12 +111,12 @@ namespace OsmIntegrator.Controllers
         throw new BadHttpRequestException(_localizer["Stop cannot be find"]);
       }
 
-      if(dbStop.StopType != StopType.Gtfs)
+      if (dbStop.StopType != StopType.Gtfs)
       {
         throw new BadHttpRequestException(_localizer["Cannot move stop of type different than the GTFS"]);
       }
 
-      if(dbStop.InitLat == null || dbStop.InitLon == null)
+      if (dbStop.InitLat == null || dbStop.InitLon == null)
       {
         throw new BadHttpRequestException(_localizer["The stop already located on initial position"]);
       }
@@ -126,7 +126,7 @@ namespace OsmIntegrator.Controllers
       dbStop.InitLat = null;
       dbStop.InitLon = null;
       Stop result = _mapper.Map<Stop>(dbStop);
-      
+
       await _dbContext.SaveChangesAsync();
       return Ok(result);
     }
