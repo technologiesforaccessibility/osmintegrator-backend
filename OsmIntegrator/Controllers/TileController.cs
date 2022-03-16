@@ -31,6 +31,7 @@ using CsvHelper;
 using System.IO;
 using System.Globalization;
 using OsmIntegrator.Database.Models.CsvObjects;
+using System.Threading;
 
 namespace OsmIntegrator.Controllers;
 
@@ -51,6 +52,7 @@ public class TileController : ControllerBase
   private readonly IOsmUpdater _osmUpdater;
   private readonly ITileExportValidator _tileExportValidator;
   private readonly IOsmExporter _osmExporter;
+  private readonly IGtfsUpdater _gtfsUpdater;
 
   public TileController(
     ILogger<TileController> logger,
@@ -61,7 +63,9 @@ public class TileController : ControllerBase
     IOsmUpdater refresherHelper,
     IOverpass overpass,
     ITileExportValidator tileExportValidator,
-    IOsmExporter osmExporter)
+    IOsmExporter osmExporter,
+    IGtfsUpdater gtfsUpdater
+    )
   {
     _logger = logger;
     _dbContext = dbContext;
@@ -72,6 +76,7 @@ public class TileController : ControllerBase
     _overpass = overpass;
     _tileExportValidator = tileExportValidator;
     _osmExporter = osmExporter;
+    _gtfsUpdater = gtfsUpdater;
   }
 
   [HttpGet]
@@ -268,6 +273,11 @@ public class TileController : ControllerBase
           {
             throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
           }
+
+          CancellationToken cancellationToken = new CancellationToken();
+          Osm osm = await _overpass.GetFullArea(_dbContext, cancellationToken);
+          var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext, osm);
+          return Ok(new Report { Value = report.GetResultText(_localizer) });
         }
       }
       catch (CsvHelper.CsvHelperException)
@@ -275,8 +285,6 @@ public class TileController : ControllerBase
         throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
       }
     }
-
-    return Ok();
   }
 
   private async Task UpdatedExportedConnections(Guid id)

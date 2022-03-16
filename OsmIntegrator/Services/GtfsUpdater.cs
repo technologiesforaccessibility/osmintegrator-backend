@@ -43,7 +43,8 @@ namespace OsmIntegrator.Services
     {
       if (stop.stop_lat != node.Lat ||
           stop.stop_lon != node.Lon ||
-          node.Tag.Find(tag => tag.K == "name").V != stop.stop_name)
+          stop.stop_name != dbStop.Name ||
+          stop.stop_code != dbStop.Number)
       {
         return true;
       }
@@ -96,14 +97,19 @@ namespace OsmIntegrator.Services
       await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
       {
-        GtfsImportReport report = ProcessStops(stops, tiles, dbContext, osmRoot);
+        GtfsImportReport report = await ProcessStops(stops, tiles, dbContext, osmRoot);
         await dbContext.SaveChangesAsync();
         RemoveConnections(dbContext);
 
-        if (report.Stops.Count > 0)
-        {
-          // add gtfs db reports here
-        }
+        // if (report.Stops.Count > 0)
+        // {
+        //       dbContext.ChangeReports.Add(new DbTileImportReport
+        //       {
+        //         CreatedAt = DateTime.Now.ToUniversalTime(),
+        //         TileId = x.TileId, // Tile id was saved during the report creation
+        //         TileReport = x
+        //       });
+        // }
 
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
@@ -117,14 +123,16 @@ namespace OsmIntegrator.Services
       }
     }
 
-    private GtfsImportReport ProcessStops(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext, Osm osmRoot)
+    private async Task<GtfsImportReport> ProcessStops(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext, Osm osmRoot)
     {
       GtfsImportReport report = _reportsFactory.Create();
 
       foreach (Node node in osmRoot.Node)
       {
+        if (node == null) continue;
         GtfsStop gtfsStop = stops.FirstOrDefault(stop => stop.stop_id == long.Parse(node.Id));
         DbTile stopTile = tiles.FirstOrDefault(tile => tile.Stops.Any(stop => stop.StopId == long.Parse(node.Id)));
+        if (stopTile == null) continue;
         DbStop existingStop = stopTile.Stops.FirstOrDefault(stop => stop.StopId == long.Parse(node.Id));
 
         if (gtfsStop != null && existingStop != null)
@@ -150,7 +158,7 @@ namespace OsmIntegrator.Services
         }
         else if (gtfsStop != null && existingStop == null)
         {
-          // AddStop(node, tile, report);
+          AddStop(node, stopTile, report, gtfsStop);
         }
       }
 
@@ -158,7 +166,7 @@ namespace OsmIntegrator.Services
       {
         if (!osmRoot.Node.Exists(x => long.Parse(x.Id) == stop.stop_id))
         {
-          // RemoveStop(stop, dbContext, report);
+          await RemoveStop(stop, dbContext, report);
         }
       }
 
@@ -194,5 +202,33 @@ namespace OsmIntegrator.Services
       dbContext.Stops.Update(dbStop);
     }
 
+    private void AddStop(Node node, DbTile tile, GtfsImportReport report, GtfsStop gtfsStop)
+    {
+      DbStop stop = new DbStop
+      {
+        StopId = long.Parse(node.Id),
+        Lat = double.Parse(node.Lat, CultureInfo.InvariantCulture),
+        Lon = double.Parse(node.Lon, CultureInfo.InvariantCulture),
+        StopType = StopType.Gtfs,
+        ProviderType = ProviderType.Ztm,
+        Version = node.Version,
+        Changeset = node.Changeset,
+        TileId = tile.Id,
+        Tile = tile,
+        Tags = new List<Tag>()
+      };
+
+      ReportStop reportStop = _reportsFactory.CreateStop(report, node, gtfsStop, ChangeAction.Added);
+      tile.Stops.Add(stop);
+    }
+
+    private async Task RemoveStop(GtfsStop stop, ApplicationDbContext dbContext, GtfsImportReport report)
+    {
+      DbStop dbStop = await dbContext.Stops.FirstOrDefaultAsync(x => x.StopId == stop.stop_id);
+      if (dbStop == null || dbStop.IsDeleted) return;
+      _reportsFactory.CreateStop(report, null, stop, ChangeAction.Removed);
+      dbStop.IsDeleted = true;
+      dbContext.Stops.Update(dbStop);
+    }
   }
 }

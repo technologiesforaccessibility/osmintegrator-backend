@@ -64,8 +64,10 @@ namespace osmintegrator
             {
               services.AddHttpClient();
               services.AddSingleton<IReportsFactory, ReportsFactory>();
+              services.AddSingleton<IGtfsReportsFactory, GtfsReportsFactory>();
               services.AddSingleton<IOverpass, Overpass>();
               services.AddSingleton<IOsmUpdater, OsmUpdater>();
+              services.AddSingleton<IGtfsUpdater, GtfsUpdater>();
               services.AddHostedService<OsmScheduler>();
             })
             .ConfigureLogging(logging =>

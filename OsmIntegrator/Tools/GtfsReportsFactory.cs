@@ -67,8 +67,6 @@ namespace OsmIntegrator.Tools
         reportStop = new()
         {
           Name = stop.stop_name,
-          Version = node.Version,
-          Changeset = node.Changeset,
           StopId = stop.stop_id.ToString(),
           StopType = StopType.Gtfs,
           Action = action,
