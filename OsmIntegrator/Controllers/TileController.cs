@@ -263,8 +263,8 @@ public class TileController : ControllerBase
       {
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
-          var records = csv.GetRecords<GtfsStop>();
-          if (records.ToArray().Length == 0)
+          var recordsArray = csv.GetRecords<GtfsStop>().ToArray();
+          if (recordsArray.Length == 0)
           {
             throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
           }
@@ -303,6 +303,13 @@ public class TileController : ControllerBase
     }
 
     return currentTile;
+  }
+  private async Task<DbTile[]> GetAllTilesAsync()
+  {
+    var tiles = await _dbContext.Tiles
+      .Include(tile => tile.Stops).ToArrayAsync();
+
+    return tiles;
   }
 
   private static Dictionary<Guid, List<ConnectionQuery>> GetTilesWithAddedConnections(
