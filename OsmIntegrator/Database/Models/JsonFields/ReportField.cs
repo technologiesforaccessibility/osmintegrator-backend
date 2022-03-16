@@ -12,14 +12,10 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public string PreviousValue { get; set; }
     public ChangeAction Action { get; set; }
 
-    private string GetResultText(IStringLocalizer<TileController> localizer = null)
+    public string GetResultText(IStringLocalizer<TileController> localizer)
     {
       string previousValue = !string.IsNullOrEmpty(PreviousValue) ? $" ({PreviousValue})" : "";
-      return $"    [{(localizer != null ? localizer["FIELD"] : "FIELD")}-{(localizer != null ? localizer[Action.ToString()] : Action.ToString())}] {Name}: {ActualValue}{previousValue}";
+      return $"    [{localizer["FIELD"]}-{localizer[Action.ToString()]}] {Name}: {ActualValue}{previousValue}";
     }
-
-    public string GetTranslatedResultText(IStringLocalizer<TileController> localizer) => GetResultText(localizer);
-
-    public override string ToString() => GetResultText();
   }
 }

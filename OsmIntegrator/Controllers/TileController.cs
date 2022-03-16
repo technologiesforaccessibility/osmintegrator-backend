@@ -240,7 +240,7 @@ public class TileController : ControllerBase
 
     await UpdatedExportedConnections(id);
 
-    return Ok(new Report { Value = tileReport.GetTranslatedResultText(_localizer) });
+    return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
   private async Task UpdatedExportedConnections(Guid id)

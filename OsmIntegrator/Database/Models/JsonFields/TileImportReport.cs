@@ -13,22 +13,18 @@ namespace OsmIntegrator.Database.Models.JsonFields
     public long TileX { get; set; }
     public long TileY { get; set; }
 
-    private string GetResultText(IStringLocalizer<TileController> localizer = null)
+    public string GetResultText(IStringLocalizer<TileController> localizer = null)
     {
       StringBuilder sb = new StringBuilder();
-      sb.AppendLine($"[{(localizer != null ? localizer["TILE"] : "TILE")}] X: {TileX}, Y: {TileY}");
+      sb.AppendLine($"[{localizer["TILE"]}] X: {TileX}, Y: {TileY}");
       sb.AppendLine("");
       if (Stops.Count == 0)
       {
-        sb.Append(localizer != null ? localizer["No changes"] : "No changes");
+        sb.Append(localizer["No changes"]);
         return sb.ToString();
       }
-      Stops.ForEach(x => sb.AppendLine(x.GetTranslatedResultText(localizer)));
+      Stops.ForEach(x => sb.AppendLine(x.GetResultText(localizer)));
       return sb.ToString();
     }
-
-    public string GetTranslatedResultText(IStringLocalizer<TileController> localizer) => GetResultText(localizer);
-
-    public override string ToString() => GetResultText();
   }
 }
