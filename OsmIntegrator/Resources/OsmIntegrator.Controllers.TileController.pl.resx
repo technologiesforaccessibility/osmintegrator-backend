@@ -193,4 +193,7 @@
     <data name="Removed" xml:space="preserve">
         <value>Usunięto</value>
     </data>
+    <data name="Uploaded file is not a csv or could not be parsed" xml:space="preserve">
+        <value>Przesłany plik nie jest plikiem csv lub jest w złym formacie</value>
+    </data>
 </root>

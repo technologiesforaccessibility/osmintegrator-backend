@@ -27,6 +27,10 @@ using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Database.QueryObjects;
+using CsvHelper;
+using System.IO;
+using System.Globalization;
+using OsmIntegrator.Database.Models.CsvObjects;
 
 namespace OsmIntegrator.Controllers;
 
@@ -246,9 +250,33 @@ public class TileController : ControllerBase
   [HttpPut()]
   [Authorize(Roles =
     UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-  public async Task UpdateGtfsStops(IFormFile file)
+  public async Task<IActionResult> UpdateGtfsStops([FromForm] IFormFile file)
   {
+    if (file == null || (file.ContentType != "text/plain" && file.ContentType != "text/csv"))
+    {
+      throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+    }
 
+    using (var reader = new StreamReader(file.OpenReadStream()))
+    {
+      try
+      {
+        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        {
+          var records = csv.GetRecords<GtfsStop>();
+          if (records.ToArray().Length == 0)
+          {
+            throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+          }
+        }
+      }
+      catch (CsvHelper.CsvHelperException)
+      {
+        throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+      }
+    }
+
+    return Ok();
   }
 
   private async Task UpdatedExportedConnections(Guid id)
