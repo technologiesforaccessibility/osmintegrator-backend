@@ -142,20 +142,23 @@ namespace OsmIntegrator.Services
 
       dbStop.Version = 0;
 
-      if (double.Parse(existingStop.stop_lat, CultureInfo.InvariantCulture) != dbStop.Lat)
+      double stopLat = double.Parse(existingStop.stop_lat, CultureInfo.InvariantCulture);
+      double stopLon = double.Parse(existingStop.stop_lon, CultureInfo.InvariantCulture);
+
+      if (stopLat != dbStop.Lat)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Lat), existingStop.stop_lat, dbStop.Lat.ToString(), ChangeAction.Modified);
+          nameof(dbStop.Lat), stopLat.ToString(), dbStop.Lat.ToString(), ChangeAction.Modified);
 
-        dbStop.Lat = double.Parse(existingStop.stop_lat, CultureInfo.InvariantCulture);
+        dbStop.Lat = stopLat;
       }
 
-      if (double.Parse(existingStop.stop_lon, CultureInfo.InvariantCulture) != dbStop.Lon)
+      if (stopLon != dbStop.Lon)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Lon), existingStop.stop_lon, dbStop.Lon.ToString(), ChangeAction.Modified);
+          nameof(dbStop.Lon), stopLon.ToString(), dbStop.Lon.ToString(), ChangeAction.Modified);
 
-        dbStop.Lon = double.Parse(existingStop.stop_lon, CultureInfo.InvariantCulture);
+        dbStop.Lon = stopLon;
       }
 
       if (existingStop.stop_name != dbStop.Name)
