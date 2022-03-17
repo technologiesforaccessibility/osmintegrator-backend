@@ -124,8 +124,8 @@ namespace OsmIntegrator.Services
       {
         foreach (DbStop dbStop in tile.Stops)
         {
-          GtfsStop stopFromFile = stops.FirstOrDefault(s => s.stop_id == dbStop.StopId && dbStop.StopType == StopType.Gtfs);
-          if (stopFromFile == null)
+          GtfsStop stopFromFile = stops.FirstOrDefault(s => s.stop_id == dbStop.StopId);
+          if (stopFromFile == null && dbStop.StopType == StopType.Gtfs)
           {
             await RemoveStop(dbStop, dbContext, report);
           }
@@ -181,6 +181,8 @@ namespace OsmIntegrator.Services
     {
       DbStop stop = new DbStop
       {
+        Name = gtfsStop.stop_name,
+        Number = gtfsStop.stop_code,
         StopId = gtfsStop.stop_id,
         Lat = double.Parse(gtfsStop.stop_lat, CultureInfo.InvariantCulture),
         Lon = double.Parse(gtfsStop.stop_lon, CultureInfo.InvariantCulture),

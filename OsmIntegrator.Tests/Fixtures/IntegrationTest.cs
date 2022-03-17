@@ -149,7 +149,7 @@ namespace OsmIntegrator.Tests.Fixtures
     {
       HttpResponseMessage response = await _client.GetAsync($"/api/tiles/{tileId}/export/osc");
       string jsonResponse = await response.Content.ReadAsStringAsync();
-      return  SerializationHelper.XmlDeserialize<OsmChange>(jsonResponse);
+      return SerializationHelper.XmlDeserialize<OsmChange>(jsonResponse);
     }
 
     public async Task<OsmChangeOutput> Get_OsmExport_GetChanges(string tileId)
@@ -192,6 +192,13 @@ namespace OsmIntegrator.Tests.Fixtures
     public async Task<Report> Put_Tile_UpdateStops(string tileId)
     {
       HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateStops/{tileId}", null);
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Report>(jsonResponse);
+    }
+
+    public async Task<Report> Put_UpdateGtfsStops(MultipartFormDataContent dataContent)
+    {
+      HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateGtfsStops", dataContent);
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<Report>(jsonResponse);
     }
