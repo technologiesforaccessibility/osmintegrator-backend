@@ -10,7 +10,7 @@ namespace OsmIntegrator.Interfaces
   {
     void UpdateName(ReportStop reportStop, string name);
     GtfsImportReport Create();
-    ReportStop CreateStop(GtfsImportReport report, GtfsStop stop, ChangeAction action, bool reverted = false);
+    ReportStop CreateStop(GtfsImportReport report, DbStop stop, ChangeAction action, bool reverted = false);
     void AddField(ReportStop reportStop, string name, string actualValue, string previousValue, ChangeAction action);
   }
 }

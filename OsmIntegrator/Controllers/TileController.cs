@@ -31,7 +31,6 @@ using CsvHelper;
 using System.IO;
 using System.Globalization;
 using OsmIntegrator.Database.Models.CsvObjects;
-using System.Threading;
 
 namespace OsmIntegrator.Controllers;
 
@@ -274,9 +273,7 @@ public class TileController : ControllerBase
             throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
           }
 
-          CancellationToken cancellationToken = new CancellationToken();
-          Osm osm = await _overpass.GetFullArea(_dbContext, cancellationToken);
-          var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext, osm);
+          var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext);
           return Ok(new Report { Value = report.GetResultText(_localizer) });
         }
       }

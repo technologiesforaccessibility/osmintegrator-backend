@@ -10,7 +10,6 @@ namespace OsmIntegrator.Interfaces
 {
   public interface IGtfsUpdater
   {
-    Task<GtfsImportReport> Update(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext, Osm osmRoot);
-    bool ContainsChanges(GtfsStop[] stops, DbTile[] tiles, Osm osmRoot);
+    Task<GtfsImportReport> Update(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext);
   }
 }

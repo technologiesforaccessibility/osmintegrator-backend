@@ -33,16 +33,16 @@ namespace OsmIntegrator.Tools
       return new();
     }
 
-    public ReportStop CreateStop(GtfsImportReport report, GtfsStop stop, ChangeAction action, bool reverted = false)
+    public ReportStop CreateStop(GtfsImportReport report, DbStop stop, ChangeAction action, bool reverted = false)
     {
       ReportStop reportStop;
       if (action == ChangeAction.Modified)
       {
         reportStop = new()
         {
-          Name = stop.stop_name,
+          Name = stop.Name,
           Version = 0,
-          StopId = stop.stop_id.ToString(),
+          StopId = stop.StopId.ToString(),
           StopType = StopType.Gtfs,
           Action = action,
           Reverted = reverted
@@ -52,9 +52,9 @@ namespace OsmIntegrator.Tools
       {
         reportStop = new()
         {
-          Name = stop.stop_name,
+          Name = stop.Name,
           Version = 0,
-          StopId = stop.stop_id.ToString(),
+          StopId = stop.StopId.ToString(),
           StopType = StopType.Gtfs,
           Action = action,
           Reverted = reverted
@@ -64,8 +64,8 @@ namespace OsmIntegrator.Tools
       {
         reportStop = new()
         {
-          Name = stop.stop_name,
-          StopId = stop.stop_id.ToString(),
+          Name = stop.Name,
+          StopId = stop.StopId.ToString(),
           StopType = StopType.Gtfs,
           Action = action,
           Reverted = reverted
