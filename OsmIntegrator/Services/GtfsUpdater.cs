@@ -92,21 +92,21 @@ namespace OsmIntegrator.Services
         {
           DbTile tile = tiles.FirstOrDefault(tile => tile.Stops.Any(s => s.StopId == stop.stop_id));
           if (tile == null) continue;
-          DbStop existingStop = tile.Stops.FirstOrDefault(s => s.StopId == stop.stop_id);
+          DbStop dbStop = tile.Stops.FirstOrDefault(s => s.StopId == stop.stop_id);
 
-          if (stop != null && existingStop != null)
+          if (stop != null && dbStop != null)
           {
 
             bool deletionReverted = false;
-            if (existingStop.IsDeleted)
+            if (dbStop.IsDeleted)
             {
               deletionReverted = true;
-              existingStop.IsDeleted = false;
+              dbStop.IsDeleted = false;
             }
 
-            if (isChanged(stop, existingStop) || deletionReverted)
+            if (isChanged(stop, dbStop) || deletionReverted)
             {
-              ModifyStop(stop, existingStop, dbContext, report, deletionReverted);
+              ModifyStop(stop, dbStop, dbContext, report, deletionReverted);
             }
           }
         }
@@ -143,7 +143,7 @@ namespace OsmIntegrator.Services
 
       return report;
     }
-    private void ModifyStop(GtfsStop existingStop, DbStop dbStop, ApplicationDbContext dbContext, GtfsImportReport report, bool deletionReverted)
+    private void ModifyStop(GtfsStop stop, DbStop dbStop, ApplicationDbContext dbContext, GtfsImportReport report, bool deletionReverted)
     {
       // Report - new stop
       ReportStop reportStop =
@@ -151,8 +151,8 @@ namespace OsmIntegrator.Services
 
       dbStop.Version = 0;
 
-      double stopLat = double.Parse(existingStop.stop_lat, CultureInfo.InvariantCulture);
-      double stopLon = double.Parse(existingStop.stop_lon, CultureInfo.InvariantCulture);
+      double stopLat = double.Parse(stop.stop_lat, CultureInfo.InvariantCulture);
+      double stopLon = double.Parse(stop.stop_lon, CultureInfo.InvariantCulture);
 
       if (stopLat != dbStop.Lat && stopLon != dbStop.Lon)
       {
@@ -181,34 +181,34 @@ namespace OsmIntegrator.Services
         dbStop.Lon = stopLon;
       }
 
-      if (existingStop.stop_name != dbStop.Name)
+      if (stop.stop_name != dbStop.Name)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Name), existingStop.stop_name, dbStop.Name, ChangeAction.Modified);
+          nameof(dbStop.Name), stop.stop_name, dbStop.Name, ChangeAction.Modified);
 
-        dbStop.Name = existingStop.stop_name;
+        dbStop.Name = stop.stop_name;
       }
 
-      if (existingStop.stop_code != dbStop.Number)
+      if (stop.stop_code != dbStop.Number)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Number), existingStop.stop_code, dbStop.Number, ChangeAction.Modified);
+          nameof(dbStop.Number), stop.stop_code, dbStop.Number, ChangeAction.Modified);
 
-        dbStop.Number = existingStop.stop_code;
+        dbStop.Number = stop.stop_code;
       }
 
       dbContext.Stops.Update(dbStop);
     }
 
-    private void AddStop(DbTile tile, GtfsImportReport report, GtfsStop gtfsStop)
+    private void AddStop(DbTile tile, GtfsImportReport report, GtfsStop stop)
     {
-      DbStop stop = new DbStop
+      DbStop dbStop = new DbStop
       {
-        Name = gtfsStop.stop_name,
-        Number = gtfsStop.stop_code,
-        StopId = gtfsStop.stop_id,
-        Lat = double.Parse(gtfsStop.stop_lat, CultureInfo.InvariantCulture),
-        Lon = double.Parse(gtfsStop.stop_lon, CultureInfo.InvariantCulture),
+        Name = stop.stop_name,
+        Number = stop.stop_code,
+        StopId = stop.stop_id,
+        Lat = double.Parse(stop.stop_lat, CultureInfo.InvariantCulture),
+        Lon = double.Parse(stop.stop_lon, CultureInfo.InvariantCulture),
         StopType = StopType.Gtfs,
         ProviderType = ProviderType.Ztm,
         Version = 0,
@@ -216,16 +216,13 @@ namespace OsmIntegrator.Services
         Tile = tile,
       };
 
-      ReportStop reportStop = _reportsFactory.CreateStop(report, stop, ChangeAction.Added);
-      tile.Stops.Add(stop);
+      ReportStop reportStop = _reportsFactory.CreateStop(report, dbStop, ChangeAction.Added);
+      tile.Stops.Add(dbStop);
     }
 
     private async Task RemoveStop(DbStop stop, ApplicationDbContext dbContext, GtfsImportReport report)
     {
-      DbStop dbStop = await dbContext.Stops
-        .Include(s => s.OsmConnections)
-        .Include(s => s.GtfsConnections)
-        .FirstOrDefaultAsync(x => x.StopId == stop.StopId);
+      DbStop dbStop = await dbContext.Stops.FirstOrDefaultAsync(x => x.StopId == stop.StopId);
 
       if (dbStop == null || dbStop.IsDeleted) return;
       _reportsFactory.CreateStop(report, stop, ChangeAction.Removed);
