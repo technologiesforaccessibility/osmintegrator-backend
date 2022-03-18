@@ -23,6 +23,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using System.Net;
 
 namespace OsmIntegrator.Tests.Fixtures
 {
@@ -199,6 +200,15 @@ namespace OsmIntegrator.Tests.Fixtures
     public async Task<Report> Put_UpdateGtfsStops(MultipartFormDataContent dataContent)
     {
       HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateGtfsStops", dataContent);
+
+      if (response.StatusCode == HttpStatusCode.BadRequest)
+      {
+        return new()
+        {
+          Value = "400"
+        };
+      }
+
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<Report>(jsonResponse);
     }
