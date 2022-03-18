@@ -1,0 +1,25 @@
+{
+  "Stops": [
+    {
+      "Name": "Brynów Orkana",
+      "Action": 1,
+      "Fields": [
+        {
+          "Name": "Lat",
+          "Action": 1,
+          "ActualValue": "50,2326752",
+          "PreviousValue": "50,231477"
+        }
+      ],
+      "StopId": "159077",
+      "Version": 0,
+      "Reverted": true,
+      "StopType": 1,
+      "Changeset": null,
+      "PreviousName": null,
+      "DatabaseStopId": null,
+      "PreviousVersion": null,
+      "PreviousChangeset": null
+    }
+  ]
+}

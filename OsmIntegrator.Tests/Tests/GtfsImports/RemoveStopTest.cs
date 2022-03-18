@@ -46,6 +46,16 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
         .ToList();
 
       Assert.Empty(deletedConnections);
+
+      GtfsImportReport actualReport =
+        _dbContext.GtfsImportReports.AsNoTracking()
+        .OrderBy(x => x.CreatedAt)
+        .Last()?.GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(RemoveStopTest)}/Report.json");
+
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }
 
     [Fact]

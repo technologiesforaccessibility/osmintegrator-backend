@@ -44,6 +44,16 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
       Assert.Equal("1584594015", actualStop1.StopId.ToString());
       Assert.Equal("Brynów Dworska", actualStop1.Name);
       Assert.Equal("1", actualStop1.Number);
+
+      GtfsImportReport actualReport =
+        _dbContext.GtfsImportReports.AsNoTracking()
+        .OrderBy(x => x.CreatedAt)
+        .Last()?.GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(AddStopTest)}/Report.json");
+
+      Assert.Empty(Compare(expectedReport, actualReport));
     }
   }
 }

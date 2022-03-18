@@ -49,6 +49,16 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
+      Assert.Equal(2, _dbContext.GtfsImportReports.AsNoTracking().Count());
+
+      List<DbGtfsImportReport> actualChangeReports =
+        _dbContext.GtfsImportReports.AsNoTracking().ToList();
+      GtfsImportReport actualReport = actualChangeReports.Last().GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(RevertStopTest)}/Report.json");
+
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }
 
     [Fact]
@@ -79,6 +89,16 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
+      Assert.Equal(2, _dbContext.GtfsImportReports.AsNoTracking().Count());
+
+      List<DbGtfsImportReport> actualChangeReports =
+        _dbContext.GtfsImportReports.AsNoTracking().ToList();
+      GtfsImportReport actualReport = actualChangeReports.Last().GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(RevertStopTest)}/Report_Modify.json");
+
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }
   }
 }

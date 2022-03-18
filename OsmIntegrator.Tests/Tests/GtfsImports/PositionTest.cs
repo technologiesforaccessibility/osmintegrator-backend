@@ -55,6 +55,16 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
       Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
       Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
       Assert.Equal(expectedStop3.Version, actualStop3.Version);
+
+      GtfsImportReport actualReport =
+        _dbContext.GtfsImportReports.AsNoTracking()
+        .OrderBy(x => x.CreatedAt)
+        .Last()?.GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(PositionTest)}/Report.json");
+
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }
   }
 }
