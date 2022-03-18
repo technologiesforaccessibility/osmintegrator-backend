@@ -1,0 +1,10 @@
+[PRZYSTANEK-Zmodyfikowano] Stara Ligota Rolna, Id: 159541, Gtfs, Wer: 0
+    [TAG-Zmodyfikowano] Name: Stara Ligota Rolna1 (Stara Ligota Rolna)
+
+[PRZYSTANEK-Zmodyfikowano] Stara Ligota Rolna, Id: 159542, Gtfs, Wer: 0
+    [TAG-Zmodyfikowano] Number: 3 (2)
+
+[PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 159077, Gtfs, Wer: 0
+    [TAG-Zmodyfikowano] Name: Brynów Orkana1 (Brynów Orkana)
+    [TAG-Zmodyfikowano] Number: 3 (2)
+

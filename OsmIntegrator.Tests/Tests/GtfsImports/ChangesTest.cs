@@ -1,8 +1,15 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using OsmIntegrator.ApiModels.Reports;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
+using OsmIntegrator.Tools;
 using Xunit;
+using System.Net.Http;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -14,54 +21,47 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     }
 
     [Fact]
-    public async Task ChangesWhileAddingStopTest()
+    public async Task ChangeNameAndNumberTest()
     {
-      await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
+      await InitTest(nameof(ChangesTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
+      DbStop expectedStop1 = GetExpectedStop(GTFS_STOP_ID_1, null, null, "Stara Ligota Rolna1");
+      DbStop expectedStop2 = GetExpectedStop(GTFS_STOP_ID_2, null, null, null, "3");
+      DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, null, null, "Brynów Orkana1", "3");
 
-      Assert.True(actual);
+      var content = new MultipartFormDataContent();
+      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(ChangesTest)}/Data.txt"));
+      fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
-      await Put_Tile_UpdateStops(tile.Id.ToString());
+      content.Add(fileStreamContent, "file", "Data.txt");
 
-      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
+      Report report = await Put_UpdateGtfsStops(content);
 
-      Assert.False(actual);
-    }
+      string actualTxtReport = report.Value;
+      string expectedTxtReport =
+        File.ReadAllText($"{TestDataFolder}{nameof(ChangesTest)}/Report.txt");
 
-    [Fact]
-    public async Task ChangesWhileRemoveingStopTest()
-    {
-      await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
+      Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_1);
+      Assert.Equal(expectedStop1.Name, actualStop1.Name);
 
-      Assert.True(actual);
+      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_2);
+      Assert.Equal(expectedStop2.Number, actualStop2.Number);
 
-      await Put_Tile_UpdateStops(tile.Id.ToString());
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      Assert.Equal(expectedStop3.Name, actualStop3.Name);
+      Assert.Equal(expectedStop3.Number, actualStop3.Number);
 
-      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
+      GtfsImportReport actualReport =
+        _dbContext.GtfsImportReports.AsNoTracking()
+        .OrderBy(x => x.CreatedAt)
+        .Last()?.GtfsReport;
 
-      Assert.False(actual);
-    }
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(ChangesTest)}/Report.json");
 
-    [Fact]
-    public async Task ChangesWhileModifyingStopTest()
-    {
-      await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
-
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
-      bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
-
-      Assert.True(actual);
-
-      await Put_Tile_UpdateStops(tile.Id.ToString());
-
-      actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
-
-      Assert.False(actual);
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }
   }
 }
