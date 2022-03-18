@@ -10,6 +10,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     protected const double EXPECTED_LON_2 = 18.9893557;
     protected const double EXPECTED_LAT_3 = 50.2326754;
     protected const double EXPECTED_LON_3 = 18.9956495;
+    protected const double EXPECTED_LAT_OTHER_TILE = 50.2326754;
+    protected const double EXPECTED_LON_OTHER_TILE = 18.9956495;
 
     public ImportTestBase(ApiWebApplicationFactory factory) : base(factory)
     {

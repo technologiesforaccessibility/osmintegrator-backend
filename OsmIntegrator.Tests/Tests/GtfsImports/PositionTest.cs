@@ -21,7 +21,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     }
 
     [Fact]
-    public async Task Test()
+    public async Task TestPositionChange()
     {
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
@@ -63,6 +63,44 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       GtfsImportReport expectedReport =
         SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(PositionTest)}/Report.json");
+
+      Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
+    }
+
+    [Fact]
+    public async Task TestTileChange()
+    {
+      await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
+
+      DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, 50.231587, 18.983345);
+
+      var content = new MultipartFormDataContent();
+      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(PositionTest)}/Data_TileChange.txt"));
+      fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+
+      content.Add(fileStreamContent, "file", "Data.txt");
+
+      Report report = await Put_UpdateGtfsStops(content);
+
+      string actualTxtReport = report.Value;
+      string expectedTxtReport =
+        File.ReadAllText($"{TestDataFolder}{nameof(PositionTest)}/Report_TileChange.txt");
+
+      Assert.Equal(expectedTxtReport, actualTxtReport);
+
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
+      Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
+      Assert.Equal(expectedStop3.Version, actualStop3.Version);
+      Assert.NotEqual(expectedStop3.TileId, actualStop3.TileId);
+
+      GtfsImportReport actualReport =
+        _dbContext.GtfsImportReports.AsNoTracking()
+        .OrderBy(x => x.CreatedAt)
+        .Last()?.GtfsReport;
+
+      GtfsImportReport expectedReport =
+        SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(PositionTest)}/Report_TileChange.json");
 
       Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
     }

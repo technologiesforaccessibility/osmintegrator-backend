@@ -154,6 +154,17 @@ namespace OsmIntegrator.Services
       double stopLat = double.Parse(existingStop.stop_lat, CultureInfo.InvariantCulture);
       double stopLon = double.Parse(existingStop.stop_lon, CultureInfo.InvariantCulture);
 
+      if (stopLat != dbStop.Lat && stopLon != dbStop.Lon)
+      {
+        dbStop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
+            stopLat >= tile.MinLat &&
+            stopLat <= tile.MaxLat &&
+            stopLon >= tile.MinLon &&
+            stopLon <= tile.MaxLon
+          );
+        dbStop.TileId = dbStop.Tile.Id;
+      }
+
       if (stopLat != dbStop.Lat)
       {
         _reportsFactory.AddField(reportStop,
