@@ -30,6 +30,8 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbTileExportReport> ExportReports { get; set; }
 
+    public DbSet<DbGtfsImportReport> GtfsImportReports { get; set; }
+
     private DataInitializer _dataInitializer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

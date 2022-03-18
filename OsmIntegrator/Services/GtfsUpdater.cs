@@ -61,6 +61,15 @@ namespace OsmIntegrator.Services
         await dbContext.SaveChangesAsync();
         RemoveConnections(dbContext);
 
+        if (report.Stops.Count > 0)
+        {
+          dbContext.GtfsImportReports.Add(new DbGtfsImportReport
+          {
+            CreatedAt = DateTime.Now.ToUniversalTime(),
+            GtfsReport = report
+          });
+        }
+
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
         return report;
@@ -210,9 +219,6 @@ namespace OsmIntegrator.Services
       if (dbStop == null || dbStop.IsDeleted) return;
       _reportsFactory.CreateStop(report, stop, ChangeAction.Removed);
       dbStop.IsDeleted = true;
-
-      dbContext.Connections.RemoveRange(dbStop.OsmConnections);
-      dbContext.Connections.RemoveRange(dbStop.GtfsConnections);
       dbContext.Stops.Update(dbStop);
     }
   }
