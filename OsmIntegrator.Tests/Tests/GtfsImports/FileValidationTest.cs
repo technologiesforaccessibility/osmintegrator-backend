@@ -26,8 +26,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidContentType.js"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidContentType.js"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/javascript");
 
       content.Add(fileStreamContent, "file", "Data_InvalidContentType.js");
@@ -44,8 +44,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidHeader.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidHeader.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data_InvalidHeader.txt");
@@ -62,8 +62,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidNoRecords.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_InvalidNoRecords.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data_InvalidNoRecords.txt");
@@ -80,8 +80,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_Valid.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(FileValidationTest)}/Data_Valid.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data_Valid.txt");

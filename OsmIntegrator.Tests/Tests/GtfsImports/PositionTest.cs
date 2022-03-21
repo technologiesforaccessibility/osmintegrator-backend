@@ -29,8 +29,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
       DbStop expectedStop2 = GetExpectedStop(GTFS_STOP_ID_2, null, EXPECTED_LON_2);
       DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, EXPECTED_LAT_3, EXPECTED_LON_3);
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(PositionTest)}/Data.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(PositionTest)}/Data.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data.txt");

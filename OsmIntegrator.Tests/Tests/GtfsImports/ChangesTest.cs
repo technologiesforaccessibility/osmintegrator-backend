@@ -29,8 +29,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
       DbStop expectedStop2 = GetExpectedStop(GTFS_STOP_ID_2, null, null, null, "3");
       DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, null, null, "Brynów Orkana1", "3");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(ChangesTest)}/Data.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(ChangesTest)}/Data.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data.txt");

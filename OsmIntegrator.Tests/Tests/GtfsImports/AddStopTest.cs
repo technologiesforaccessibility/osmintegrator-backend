@@ -26,8 +26,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(AddStopTest)}/Data.txt"));
+      MultipartFormDataContent content = new MultipartFormDataContent();
+      StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(AddStopTest)}/Data.txt"));
       fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
 
       content.Add(fileStreamContent, "file", "Data.txt");
