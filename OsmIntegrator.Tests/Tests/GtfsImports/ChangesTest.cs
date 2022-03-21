@@ -10,6 +10,7 @@ using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
 using System.Net.Http;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -25,9 +26,9 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(ChangesTest), "supervisor2", "supervisor1");
 
-      DbStop expectedStop1 = GetExpectedStop(GTFS_STOP_ID_1, null, null, "Stara Ligota Rolna1");
-      DbStop expectedStop2 = GetExpectedStop(GTFS_STOP_ID_2, null, null, null, "3");
-      DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, null, null, "Brynów Orkana1", "3");
+      DbStop expectedStop1 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_1, null, null, "Stara Ligota Rolna1");
+      DbStop expectedStop2 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_2, null, null, null, "3");
+      DbStop expectedStop3 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_3, null, null, "Brynów Orkana1", "3");
 
       MultipartFormDataContent content = new MultipartFormDataContent();
       StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(ChangesTest)}/Data.txt"));
@@ -43,13 +44,13 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_1);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
       Assert.Equal(expectedStop1.Name, actualStop1.Name);
 
-      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_2);
+      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_2);
       Assert.Equal(expectedStop2.Number, actualStop2.Number);
 
-      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.Equal(expectedStop3.Name, actualStop3.Name);
       Assert.Equal(expectedStop3.Number, actualStop3.Number);
 

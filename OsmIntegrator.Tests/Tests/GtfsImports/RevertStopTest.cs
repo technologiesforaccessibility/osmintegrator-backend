@@ -10,6 +10,7 @@ using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
 using System.Net.Http;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -47,7 +48,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.GtfsImportReports.AsNoTracking().Count());
 
@@ -87,7 +88,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.GtfsImportReports.AsNoTracking().Count());
 

@@ -10,6 +10,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.OsmImports
 {
@@ -25,7 +26,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(TagsTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
       string actualTxtReport = report.Value;
@@ -34,8 +35,8 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
         File.ReadAllText($"{TestDataFolder}{nameof(TagsTest)}/Report.txt");
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
-      
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_1);
+
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_1);
       Assert.Equal("Brynów Orkana n/ż", actualStop1.Name);
       Assert.Equal("12345", actualStop1.Ref);
       Assert.Equal("2t", actualStop1.Number);
@@ -45,7 +46,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Assert.Contains(actualStop1.Tags, x => x.Key == "local_ref" && x.Value == "2t");
       Assert.Contains(actualStop1.Tags, x => x.Key == "name" && x.Value == "Brynów Orkana n/ż");
 
-      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_2);
+      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_2);
       Assert.Equal(5, actualStop2.Tags.Count);
       Assert.Contains(actualStop2.Tags, x => x.Key == "very_public_transport" && x.Value == "stop_position");
 

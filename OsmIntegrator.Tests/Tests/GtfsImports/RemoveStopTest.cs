@@ -10,6 +10,7 @@ using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
 using System.Net.Http;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -37,7 +38,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
         File.ReadAllText($"{TestDataFolder}{nameof(RemoveStopTest)}/Report.txt");
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.True(actualStop1.IsDeleted);
 
       List<DbConnection> deletedConnections = _dbContext.Connections

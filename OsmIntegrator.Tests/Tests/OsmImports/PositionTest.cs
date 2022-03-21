@@ -9,6 +9,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.OsmImports
 {
@@ -24,11 +25,11 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
-      DbStop expectedStop1 = GetExpectedStop(OSM_STOP_ID_1, EXPECTED_LAT_1);
-      DbStop expectedStop2 = GetExpectedStop(OSM_STOP_ID_2, null, EXPECTED_LON_2);
-      DbStop expectedStop3 = GetExpectedStop(OSM_STOP_ID_3, EXPECTED_LAT_3, EXPECTED_LON_3);
+      DbStop expectedStop1 = GetExpectedStop(ExpectedValues.OSM_STOP_ID_1, EXPECTED_LAT_1);
+      DbStop expectedStop2 = GetExpectedStop(ExpectedValues.OSM_STOP_ID_2, null, EXPECTED_LON_2);
+      DbStop expectedStop3 = GetExpectedStop(ExpectedValues.OSM_STOP_ID_3, EXPECTED_LAT_3, EXPECTED_LON_3);
 
-      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       Report report = await Put_Tile_UpdateStops(tile.Id.ToString());
 
       string actualTxtReport = report.Value;
@@ -37,15 +38,15 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_1);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_1);
       Assert.Equal(expectedStop1.Lat, actualStop1.Lat);
       Assert.Equal(expectedStop1.Version, actualStop1.Version);
 
-      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_2);
+      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_2);
       Assert.Equal(expectedStop2.Lon, actualStop2.Lon);
       Assert.Equal(expectedStop2.Version, actualStop2.Version);
 
-      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_3);
       Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
       Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
       Assert.Equal(expectedStop3.Version, actualStop3.Version);

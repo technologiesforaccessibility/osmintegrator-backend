@@ -9,6 +9,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.OsmImports
 {
@@ -24,7 +25,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       await Put_Tile_UpdateStops(tile.Id.ToString());
 
       _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsInit.xml";
@@ -36,7 +37,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =
@@ -55,7 +56,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(RevertStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.AsNoTracking().First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       await Put_Tile_UpdateStops(tile.Id.ToString());
 
       _overpassMock.OsmFileName = $"{TestDataFolder}{nameof(RevertStopTest)}/OsmStopsNew_Modify.xml";
@@ -68,7 +69,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
       Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =

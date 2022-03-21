@@ -29,16 +29,6 @@ namespace OsmIntegrator.Tests.Fixtures
 {
   public abstract class IntegrationTest : IClassFixture<ApiWebApplicationFactory>
   {
-    protected const int RIGHT_TILE_X = 2264;
-    protected const int RIGHT_TILE_Y = 1385;
-
-    protected const long OSM_STOP_ID_1 = 1831944331; // Brynów Orkana (2)
-    protected const long OSM_STOP_ID_2 = 1905039171; // Brynów Orkana (1)
-    protected const long OSM_STOP_ID_3 = 1584594015; // Brynów Dworska
-    protected const long GTFS_STOP_ID_1 = 159541; // Stara Ligota Rolna 1
-    protected const long GTFS_STOP_ID_2 = 159542; // Stara Ligota Rolna 2
-    protected const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana 2
-
     protected string TestDataFolder { get; set; }
     protected readonly IOverpass _overpass;
     protected readonly OverpassMock _overpassMock;

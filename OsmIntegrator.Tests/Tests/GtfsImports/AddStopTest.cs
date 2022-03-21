@@ -11,6 +11,7 @@ using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
 using System.Net.Http;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -40,7 +41,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == 111111);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_MOCK_ID);
       Assert.Equal("111111", actualStop1.StopId.ToString());
       Assert.Equal("Brynów Dworska", actualStop1.Name);
       Assert.Equal("1", actualStop1.Number);

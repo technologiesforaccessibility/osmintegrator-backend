@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.OsmImports
 {
@@ -18,7 +19,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(AddStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
@@ -35,7 +36,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
@@ -52,7 +53,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);
@@ -69,7 +70,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
     {
       await InitTest(nameof(TagsTest), "supervisor2", "supervisor1");
 
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
       bool actual = await Get_Tile_ContainsChanges(tile.Id.ToString());
 
       Assert.True(actual);

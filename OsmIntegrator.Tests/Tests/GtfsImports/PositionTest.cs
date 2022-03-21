@@ -10,6 +10,7 @@ using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
 using System.Net.Http;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.GtfsImports
 {
@@ -25,9 +26,9 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
-      DbStop expectedStop1 = GetExpectedStop(GTFS_STOP_ID_1, EXPECTED_LAT_1);
-      DbStop expectedStop2 = GetExpectedStop(GTFS_STOP_ID_2, null, EXPECTED_LON_2);
-      DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, EXPECTED_LAT_3, EXPECTED_LON_3);
+      DbStop expectedStop1 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_1, ExpectedValues.EXPECTED_LAT_1);
+      DbStop expectedStop2 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_2, null, ExpectedValues.EXPECTED_LON_2);
+      DbStop expectedStop3 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_3, ExpectedValues.EXPECTED_LAT_3, ExpectedValues.EXPECTED_LON_3);
 
       MultipartFormDataContent content = new MultipartFormDataContent();
       StreamContent fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(PositionTest)}/Data.txt"));
@@ -43,15 +44,15 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_1);
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
       Assert.Equal(expectedStop1.Lat, actualStop1.Lat);
       Assert.Equal(expectedStop1.Version, actualStop1.Version);
 
-      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_2);
+      DbStop actualStop2 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_2);
       Assert.Equal(expectedStop2.Lon, actualStop2.Lon);
       Assert.Equal(expectedStop2.Version, actualStop2.Version);
 
-      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
       Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
       Assert.Equal(expectedStop3.Version, actualStop3.Version);
@@ -72,7 +73,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
     {
       await InitTest(nameof(PositionTest), "supervisor2", "supervisor1");
 
-      DbStop expectedStop3 = GetExpectedStop(GTFS_STOP_ID_3, 50.231587, 18.983345);
+      DbStop expectedStop3 = GetExpectedStop(ExpectedValues.GTFS_STOP_ID_3, ExpectedValues.EXPECTED_LAT_OTHER_TILE, ExpectedValues.EXPECTED_LON_OTHER_TILE);
 
       var content = new MultipartFormDataContent();
       var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(PositionTest)}/Data_TileChange.txt"));
@@ -88,7 +89,7 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == GTFS_STOP_ID_3);
+      DbStop actualStop3 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
       Assert.Equal(expectedStop3.Lat, actualStop3.Lat);
       Assert.Equal(expectedStop3.Lon, actualStop3.Lon);
       Assert.Equal(expectedStop3.Version, actualStop3.Version);
