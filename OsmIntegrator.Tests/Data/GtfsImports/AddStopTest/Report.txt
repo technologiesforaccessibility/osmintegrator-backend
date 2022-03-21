@@ -1,2 +1,2 @@
-[PRZYSTANEK-Dodano] Brynów Dworska, Id: 1584594015, Gtfs, Wer: 0
+[PRZYSTANEK-Dodano] Brynów Dworska, Id: 111111, Gtfs
 

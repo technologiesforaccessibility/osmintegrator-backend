@@ -1,5 +1,5 @@
 stop_id,stop_code,stop_name,stop_desc,stop_lat,stop_lon,stop_url,location_type
-1584594015,1,Brynów Dworska,,50.231381,18.982615,/rozklady/przystanek/1584594015/,0
+111111,1,Brynów Dworska,,50.231381,18.982615,/rozklady/przystanek/1584594015/,0
 159541,1,Stara Ligota Rolna,,50.231381,18.982615,/rozklady/przystanek/159541/,0
 159542,2,Stara Ligota Rolna,,50.231587,18.983345,/rozklady/przystanek/159542/,0
 159077,2,Brynów Orkana,,50.231477,18.988495,/rozklady/przystanek/159077/,0

@@ -40,8 +40,8 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
 
       Assert.Equal(expectedTxtReport, actualTxtReport);
 
-      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == OSM_STOP_ID_3);
-      Assert.Equal("1584594015", actualStop1.StopId.ToString());
+      DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == 111111);
+      Assert.Equal("111111", actualStop1.StopId.ToString());
       Assert.Equal("Brynów Dworska", actualStop1.Name);
       Assert.Equal("1", actualStop1.Number);
 

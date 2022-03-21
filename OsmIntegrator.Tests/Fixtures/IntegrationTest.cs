@@ -199,7 +199,7 @@ namespace OsmIntegrator.Tests.Fixtures
 
     public async Task<Report> Put_UpdateGtfsStops(MultipartFormDataContent dataContent)
     {
-      HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateGtfsStops", dataContent);
+      HttpResponseMessage response = await _client.PutAsync($"/api/Gtfs/UpdateStops", dataContent);
 
       if (response.StatusCode == HttpStatusCode.BadRequest)
       {

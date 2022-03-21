@@ -1,4 +1,4 @@
-[PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 159077, Gtfs, Wer: 0
+[PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 159077, Gtfs
     [TAG-Zmodyfikowano] Lat: 50,231587 (50,231477)
     [TAG-Zmodyfikowano] Lon: 18,983345 (18,988495)
 

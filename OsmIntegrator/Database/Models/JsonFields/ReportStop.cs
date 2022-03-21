@@ -29,7 +29,14 @@ namespace OsmIntegrator.Database.Models.JsonFields
       string previousVersion = PreviousVersion is not null ? $" ({PreviousVersion.ToString()})" : "";
       string reverted = Reverted ? ", Reverted" : "";
 
-      sb.AppendLine($"[{localizer["STOP"]}-{localizer[Action.ToString()]}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, {localizer["Ver"]}: {Version}{previousVersion}{localizer[reverted]}");
+      if (this.StopType == StopType.Osm)
+      {
+        sb.AppendLine($"[{localizer["STOP"]}-{localizer[Action.ToString()]}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}, {localizer["Ver"]}: {Version}{previousVersion}{localizer[reverted]}");
+      }
+      else
+      {
+        sb.AppendLine($"[{localizer["STOP"]}-{localizer[Action.ToString()]}] {Name}{previousName}, Id: {StopId}, {StopType.ToString()}{localizer[reverted]}");
+      }
 
       Fields?.ForEach(x => sb.AppendLine(x.GetResultText(localizer)));
 
