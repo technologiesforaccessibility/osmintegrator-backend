@@ -41,10 +41,10 @@ namespace OsmIntegrator.Services
 
     private bool isChanged(GtfsStop stop, DbStop dbStop)
     {
-      if (double.Parse(stop.stop_lat, CultureInfo.InvariantCulture) != dbStop.Lat ||
-          double.Parse(stop.stop_lon, CultureInfo.InvariantCulture) != dbStop.Lon ||
-          stop.stop_name != dbStop.Name ||
-          stop.stop_code != dbStop.Number)
+      if (double.Parse(stop.StopLat, CultureInfo.InvariantCulture) != dbStop.Lat ||
+          double.Parse(stop.StopLon, CultureInfo.InvariantCulture) != dbStop.Lon ||
+          stop.StopName != dbStop.Name ||
+          stop.StopCode != dbStop.Number)
       {
         return true;
       }
@@ -88,11 +88,11 @@ namespace OsmIntegrator.Services
 
       foreach (GtfsStop stop in stops)
       {
-        if (tiles.Any(tile => tile.Stops.Any(s => s.StopId == stop.stop_id)))
+        if (tiles.Any(tile => tile.Stops.Any(s => s.StopId == stop.StopId)))
         {
-          DbTile tile = tiles.FirstOrDefault(tile => tile.Stops.Any(s => s.StopId == stop.stop_id));
+          DbTile tile = tiles.FirstOrDefault(tile => tile.Stops.Any(s => s.StopId == stop.StopId));
           if (tile == null) continue;
-          DbStop dbStop = tile.Stops.FirstOrDefault(s => s.StopId == stop.stop_id);
+          DbStop dbStop = tile.Stops.FirstOrDefault(s => s.StopId == stop.StopId);
 
           if (stop != null && dbStop != null)
           {
@@ -113,8 +113,8 @@ namespace OsmIntegrator.Services
         else
         {
 
-          double stopLat = double.Parse(stop.stop_lat, CultureInfo.InvariantCulture);
-          double stopLon = double.Parse(stop.stop_lon, CultureInfo.InvariantCulture);
+          double stopLat = double.Parse(stop.StopLat, CultureInfo.InvariantCulture);
+          double stopLon = double.Parse(stop.StopLon, CultureInfo.InvariantCulture);
 
           DbTile stopTile = tiles.FirstOrDefault(tile =>
             stopLat >= tile.MinLat &&
@@ -133,7 +133,7 @@ namespace OsmIntegrator.Services
       {
         foreach (DbStop dbStop in tile.Stops)
         {
-          GtfsStop stopFromFile = stops.FirstOrDefault(s => s.stop_id == dbStop.StopId);
+          GtfsStop stopFromFile = stops.FirstOrDefault(s => s.StopId == dbStop.StopId);
           if (stopFromFile == null && dbStop.StopType == StopType.Gtfs)
           {
             await RemoveStop(dbStop, dbContext, report);
@@ -151,8 +151,8 @@ namespace OsmIntegrator.Services
 
       dbStop.Version = 0;
 
-      double stopLat = double.Parse(stop.stop_lat, CultureInfo.InvariantCulture);
-      double stopLon = double.Parse(stop.stop_lon, CultureInfo.InvariantCulture);
+      double stopLat = double.Parse(stop.StopLat, CultureInfo.InvariantCulture);
+      double stopLon = double.Parse(stop.StopLon, CultureInfo.InvariantCulture);
 
       if (stopLat != dbStop.Lat && stopLon != dbStop.Lon)
       {
@@ -181,20 +181,20 @@ namespace OsmIntegrator.Services
         dbStop.Lon = stopLon;
       }
 
-      if (stop.stop_name != dbStop.Name)
+      if (stop.StopName != dbStop.Name)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Name), stop.stop_name, dbStop.Name, ChangeAction.Modified);
+          nameof(dbStop.Name), stop.StopName, dbStop.Name, ChangeAction.Modified);
 
-        dbStop.Name = stop.stop_name;
+        dbStop.Name = stop.StopName;
       }
 
-      if (stop.stop_code != dbStop.Number)
+      if (stop.StopCode != dbStop.Number)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Number), stop.stop_code, dbStop.Number, ChangeAction.Modified);
+          nameof(dbStop.Number), stop.StopCode, dbStop.Number, ChangeAction.Modified);
 
-        dbStop.Number = stop.stop_code;
+        dbStop.Number = stop.StopCode;
       }
 
       dbContext.Stops.Update(dbStop);
@@ -204,11 +204,11 @@ namespace OsmIntegrator.Services
     {
       DbStop dbStop = new DbStop
       {
-        Name = stop.stop_name,
-        Number = stop.stop_code,
-        StopId = stop.stop_id,
-        Lat = double.Parse(stop.stop_lat, CultureInfo.InvariantCulture),
-        Lon = double.Parse(stop.stop_lon, CultureInfo.InvariantCulture),
+        Name = stop.StopName,
+        Number = stop.StopCode,
+        StopId = stop.StopId,
+        Lat = double.Parse(stop.StopLat, CultureInfo.InvariantCulture),
+        Lon = double.Parse(stop.StopLon, CultureInfo.InvariantCulture),
         StopType = StopType.Gtfs,
         ProviderType = ProviderType.Ztm,
         Version = 0,
