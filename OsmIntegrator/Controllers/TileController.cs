@@ -251,39 +251,6 @@ public class TileController : ControllerBase
     return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
-  [HttpPut()]
-  [Authorize(Roles =
-    UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-  public async Task<IActionResult> UpdateGtfsStops([FromForm] IFormFile file)
-  {
-    if (file == null || (file.ContentType != "text/plain" && file.ContentType != "text/csv"))
-    {
-      throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
-    }
-
-    using (var reader = new StreamReader(file.OpenReadStream()))
-    {
-      try
-      {
-        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-        {
-          var recordsArray = csv.GetRecords<GtfsStop>().ToArray();
-          if (recordsArray.Length == 0)
-          {
-            throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
-          }
-
-          var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext);
-          return Ok(new Report { Value = report.GetResultText(_localizer) });
-        }
-      }
-      catch (CsvHelper.CsvHelperException)
-      {
-        throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
-      }
-    }
-  }
-
   private async Task UpdatedExportedConnections(Guid id)
   {
     IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(id);
@@ -308,13 +275,6 @@ public class TileController : ControllerBase
     }
 
     return currentTile;
-  }
-  private async Task<DbTile[]> GetAllTilesAsync()
-  {
-    var tiles = await _dbContext.Tiles
-      .Include(tile => tile.Stops).ToArrayAsync();
-
-    return tiles;
   }
 
   private static Dictionary<Guid, List<ConnectionQuery>> GetTilesWithAddedConnections(
