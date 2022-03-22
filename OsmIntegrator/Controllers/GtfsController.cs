@@ -81,7 +81,7 @@ public class GtfsController : ControllerBase
   [HttpPut()]
   [Authorize(Roles =
     UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
-  public async Task<IActionResult> UpdateStops([FromForm] IFormFile file)
+  public async Task<ActionResult<Report>> UpdateStops(IFormFile file)
   {
     if (file == null || (file.ContentType != "text/plain" && file.ContentType != "text/csv"))
     {
