@@ -164,7 +164,7 @@ namespace OsmIntegrator.Services
       {
         if (!IsNodeOnTile(tile, node)) continue;
 
-        DbStop existingStop = tile.Stops.FirstOrDefault(
+        DbStop existingStop = tile.Stops?.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
 
         if (existingStop != null)
@@ -178,7 +178,7 @@ namespace OsmIntegrator.Services
 
           if (existingStop.Changeset == node.Changeset && existingStop.Version == node.Version)
           {
-            if(deletionReverted)
+            if (deletionReverted)
             {
               _reportsFactory.CreateStop(
                 report, node, existingStop, ChangeAction.Modified, deletionReverted);
@@ -208,7 +208,7 @@ namespace OsmIntegrator.Services
     private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, TileImportReport report, bool deletionReverted)
     {
       // Report - new stop
-      ReportStop reportStop = 
+      ReportStop reportStop =
         _reportsFactory.CreateStop(report, node, existingStop, ChangeAction.Modified, deletionReverted);
 
       existingStop.Version = node.Version;
@@ -258,6 +258,7 @@ namespace OsmIntegrator.Services
       List<Tag> newTags = PopulateTags(stop, node, reportStop);
       UpdateStopProperties(stop, newTags, reportStop);
       stop.Tags = newTags;
+      tile.Stops ??= new List<DbStop>();
       tile.Stops.Add(stop);
     }
 
