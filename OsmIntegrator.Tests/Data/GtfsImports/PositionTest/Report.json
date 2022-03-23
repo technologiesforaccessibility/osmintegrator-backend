@@ -1,0 +1,70 @@
+{
+  "Stops": [
+      {
+          "Action": 1,
+          "Changeset": null,
+          "DatabaseStopId": null,
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "50,2313803",
+                  "Name": "Lat",
+                  "PreviousValue": "50,231381"
+              }
+          ],
+          "Name": "Stara Ligota Rolna",
+          "PreviousChangeset": null,
+          "PreviousName": null,
+          "PreviousVersion": null,
+          "StopId": "159541",
+          "StopType": 1,
+          "Version": 0
+      },
+      {
+          "Action": 1,
+          "Changeset": null,
+          "DatabaseStopId": null,
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "18,9893557",
+                  "Name": "Lon",
+                  "PreviousValue": "18,983345"
+              }
+          ],
+          "Name": "Stara Ligota Rolna",
+          "PreviousChangeset": null,
+          "PreviousName": null,
+          "PreviousVersion": null,
+          "StopId": "159542",
+          "StopType": 1,
+          "Version": 0
+      },
+      {
+          "Action": 1,
+          "Changeset": null,
+          "DatabaseStopId": null,
+          "Fields": [
+              {
+                  "Action": 1,
+                  "ActualValue": "50,2326754",
+                  "Name": "Lat",
+                  "PreviousValue": "50,231477"
+              },
+              {
+                  "Action": 1,
+                  "ActualValue": "18,9956495",
+                  "Name": "Lon",
+                  "PreviousValue": "18,988495"
+              }
+          ],
+          "Name": "Brynów Orkana",
+          "PreviousChangeset": null,
+          "PreviousName": null,
+          "PreviousVersion": null,
+          "StopId": "159077",
+          "StopType": 1,
+          "Version": 0
+      }
+  ]
+}

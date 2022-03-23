@@ -27,6 +27,10 @@ using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Database.QueryObjects;
+using CsvHelper;
+using System.IO;
+using System.Globalization;
+using OsmIntegrator.Database.Models.CsvObjects;
 
 namespace OsmIntegrator.Controllers;
 
@@ -47,6 +51,7 @@ public class TileController : ControllerBase
   private readonly IOsmUpdater _osmUpdater;
   private readonly ITileExportValidator _tileExportValidator;
   private readonly IOsmExporter _osmExporter;
+  private readonly IGtfsUpdater _gtfsUpdater;
 
   public TileController(
     ILogger<TileController> logger,
@@ -57,7 +62,9 @@ public class TileController : ControllerBase
     IOsmUpdater refresherHelper,
     IOverpass overpass,
     ITileExportValidator tileExportValidator,
-    IOsmExporter osmExporter)
+    IOsmExporter osmExporter,
+    IGtfsUpdater gtfsUpdater
+    )
   {
     _logger = logger;
     _dbContext = dbContext;
@@ -68,6 +75,7 @@ public class TileController : ControllerBase
     _overpass = overpass;
     _tileExportValidator = tileExportValidator;
     _osmExporter = osmExporter;
+    _gtfsUpdater = gtfsUpdater;
   }
 
   [HttpGet]

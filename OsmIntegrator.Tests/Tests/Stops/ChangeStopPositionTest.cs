@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.Stops;
 
@@ -26,7 +27,7 @@ public class ChangeStopPositionTest : StopsTestBase
   {
     await InitTest(nameof(ChangeStopPositionTest), "editor1", "supervisor1");
 
-    DbStop stop = _dbContext.Stops.First(x => x.StopId == GTFS_STOP_ID_1);
+    DbStop stop = _dbContext.Stops.First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
 
     StopPositionData data = new() { StopId = stop.Id, Lat = EXPECTED_LAT, Lon = EXPECTED_LON };
 
@@ -43,7 +44,7 @@ public class ChangeStopPositionTest : StopsTestBase
   {
     await InitTest(nameof(ChangeStopPositionTest), "supervisor2", "supervisor1");
 
-    DbStop stop = _dbContext.Stops.First(x => x.StopId == GTFS_STOP_ID_1);
+    DbStop stop = _dbContext.Stops.First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
 
     StopPositionData data = new() { StopId = stop.Id, Lat = EXPECTED_LAT, Lon = EXPECTED_LON };
 
@@ -63,7 +64,7 @@ public class ChangeStopPositionTest : StopsTestBase
   {
     await InitTest(nameof(ChangeStopPositionTest), "supervisor2", "supervisor1");
 
-    DbStop stop = _dbContext.Stops.First(x => x.StopId == GTFS_STOP_ID_1);
+    DbStop stop = _dbContext.Stops.First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
 
     StopPositionData data = new() { StopId = stop.Id, Lat = EXPECTED_LAT, Lon = EXPECTED_LON };
 
@@ -84,7 +85,7 @@ public class ChangeStopPositionTest : StopsTestBase
   {
     await InitTest(nameof(ChangeStopPositionTest), "editor1", "supervisor1");
 
-    DbStop stop = _dbContext.Stops.First(x => x.StopId == GTFS_STOP_ID_1);
+    DbStop stop = _dbContext.Stops.First(x => x.StopId == ExpectedValues.GTFS_STOP_ID_1);
 
     StopPositionData data = new() { StopId = stop.Id, Lat = EXPECTED_LAT, Lon = EXPECTED_LON };
 
