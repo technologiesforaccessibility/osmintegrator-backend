@@ -154,7 +154,7 @@ namespace OsmIntegrator.Services
       double stopLat = double.Parse(stop.StopLat, CultureInfo.InvariantCulture);
       double stopLon = double.Parse(stop.StopLon, CultureInfo.InvariantCulture);
 
-      if (stopLat != dbStop.Lat && stopLon != dbStop.Lon)
+      if (stopLat != dbStop.Lat || stopLon != dbStop.Lon)
       {
         dbStop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
             stopLat >= tile.MinLat &&

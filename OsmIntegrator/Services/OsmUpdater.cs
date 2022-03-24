@@ -215,6 +215,19 @@ namespace OsmIntegrator.Services
       existingStop.Changeset = node.Changeset;
 
       double nodeLat = double.Parse(node.Lat, CultureInfo.InvariantCulture);
+      double nodeLon = double.Parse(node.Lon, CultureInfo.InvariantCulture);
+
+      if (existingStop.Lat != nodeLat || existingStop.Lon != nodeLon)
+      {
+        existingStop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
+            nodeLat >= tile.MinLat &&
+            nodeLat <= tile.MaxLat &&
+            nodeLon >= tile.MinLon &&
+            nodeLon <= tile.MaxLon
+          );
+        existingStop.TileId = existingStop.Tile.Id;
+      }
+
       if (existingStop.Lat != nodeLat)
       {
         _reportsFactory.AddField(reportStop,
@@ -223,13 +236,12 @@ namespace OsmIntegrator.Services
         existingStop.Lat = nodeLat;
       }
 
-      double nodeLong = double.Parse(node.Lon, CultureInfo.InvariantCulture);
-      if (existingStop.Lon != nodeLong)
+      if (existingStop.Lon != nodeLon)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(existingStop.Lon), nodeLong.ToString(), existingStop.Lon.ToString(), ChangeAction.Modified);
+          nameof(existingStop.Lon), nodeLon.ToString(), existingStop.Lon.ToString(), ChangeAction.Modified);
 
-        existingStop.Lon = nodeLong;
+        existingStop.Lon = nodeLon;
       }
 
       List<Tag> newTags = PopulateTags(existingStop, node, reportStop);
