@@ -162,10 +162,20 @@ namespace OsmIntegrator.Services
 
       foreach (Node node in osmRoot.Node)
       {
-        if (!IsNodeOnTile(tile, node)) continue;
+        bool isOnTile = IsNodeOnTile(tile, node);
+
+        if (!isOnTile) continue;
 
         DbStop existingStop = tile.Stops?.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
+
+        if (existingStop == null && isOnTile)
+        {
+          DbTile otherTile = dbContext.Tiles
+            .Include(t => t.Stops)
+            .FirstOrDefault(t => t.Stops != null && t.Stops.Count() > 0 && t.Stops.Any(s => s.StopId == long.Parse(node.Id)));
+          existingStop = otherTile?.Stops?.FirstOrDefault(s => s.StopId == long.Parse(node.Id));
+        }
 
         if (existingStop != null)
         {
