@@ -366,5 +366,43 @@ namespace OsmIntegrator.Services
         stop.Number = localRefTag.Value;
       }
     }
+
+    public async Task UpdateTileReferences(List<DbTile> tiles, ApplicationDbContext dbContext)
+    {
+      using (IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync())
+      {
+
+        try
+        {
+          foreach (DbTile tile in tiles)
+          {
+            foreach (DbStop stop in tile.Stops)
+            {
+              double stopLat = stop.Lat;
+              double stopLon = stop.Lon;
+
+              if (!(stopLat >= tile.MinLat && stopLat <= tile.MaxLat && stopLon >= tile.MinLon && stopLon <= tile.MaxLon))
+              {
+                stop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
+                  stopLat >= tile.MinLat &&
+                  stopLat <= tile.MaxLat &&
+                  stopLon >= tile.MinLon &&
+                  stopLon <= tile.MaxLon
+                );
+                stop.TileId = stop.Tile.Id;
+              }
+            }
+          }
+
+          await dbContext.SaveChangesAsync();
+          await transaction.CommitAsync();
+        }
+        catch (System.Exception)
+        {
+          await transaction.RollbackAsync();
+          throw;
+        }
+      }
+    }
   }
 }

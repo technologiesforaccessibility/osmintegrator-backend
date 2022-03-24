@@ -1,6 +1,4 @@
-using System.Threading;
 using System.Threading.Tasks;
-using System.Net.Http;
 using System.Collections.Generic;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
@@ -14,6 +12,8 @@ namespace OsmIntegrator.Interfaces
     Task<TileImportReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot);
 
     Task<List<TileImportReport>> Update(List<DbTile> tiles, ApplicationDbContext dbContext, Osm osmRoot);
+
+    Task UpdateTileReferences(List<DbTile> tiles, ApplicationDbContext dbContext);
 
     bool ContainsChanges(DbTile tile, Osm osmRoot);
   }
