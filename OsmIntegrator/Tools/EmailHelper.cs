@@ -84,6 +84,14 @@ public class EmailHelper : IEmailHelper
     await _emailService.SendEmailAsync(user.Email, subject, messageBody);
   }
 
+  public async Task SendTileOccupiedMessageAsync(ApplicationUser user)
+  {
+    string subject = GetSubject(_localizer["Information for new users"]);
+    MimeEntity messageBody = BuildSendTileOccupiedMessageBody(user.UserName);
+
+    await _emailService.SendEmailAsync(user.Email, subject, messageBody);
+  }
+
   private MimeEntity BuildConfirmRegistrationMessageBody(string userEmailAddress, string username)
   {
     string slackDownload = _externalServicesConfiguration.SlackDownloadUrl;
@@ -188,6 +196,15 @@ rozwiazaniadlaniewidomych.org
 <p>{_localizer["OsmIntegrator Team"]},</p>
 <a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
       ";
+
+    return builder.ToMessageBody();
+  }
+
+  private MimeEntity BuildSendTileOccupiedMessageBody(string username)
+  {
+    BodyBuilder builder = new BodyBuilder();
+
+    builder.TextBody = $@"{_localizer["Hello"]} {username}";
 
     return builder.ToMessageBody();
   }
