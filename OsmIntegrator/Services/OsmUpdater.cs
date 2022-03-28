@@ -13,6 +13,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Database.Models.Enums;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace OsmIntegrator.Services
 {
@@ -20,11 +21,13 @@ namespace OsmIntegrator.Services
   {
     private readonly IReportsFactory _reportsFactory;
     private readonly ILogger<IOsmUpdater> _logger;
+    private readonly int _zoomLevel;
 
-    public OsmUpdater(IReportsFactory reportsFactory, ILogger<IOsmUpdater> logger)
+    public OsmUpdater(IReportsFactory reportsFactory, ILogger<IOsmUpdater> logger, IConfiguration configuration)
     {
       _reportsFactory = reportsFactory;
       _logger = logger;
+      _zoomLevel = int.Parse(configuration["ZoomLevel"]);
     }
 
     private void RemoveConnections(ApplicationDbContext dbContext)
@@ -381,14 +384,11 @@ namespace OsmIntegrator.Services
               double stopLat = stop.Lat;
               double stopLon = stop.Lon;
 
-              if (!(stopLat >= tile.MinLat && stopLat <= tile.MaxLat && stopLon >= tile.MinLon && stopLon <= tile.MaxLon))
+              Point<long> tileCoordinates = TilesHelper.WorldToTilePos(stopLon, stopLat, _zoomLevel);
+
+              if (tile.X != tileCoordinates.X && tile.Y != tileCoordinates.Y)
               {
-                stop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
-                  stopLat >= tile.MinLat &&
-                  stopLat <= tile.MaxLat &&
-                  stopLon >= tile.MinLon &&
-                  stopLon <= tile.MaxLon
-                );
+                stop.Tile = dbContext.Tiles.FirstOrDefault(t => t.X == tileCoordinates.X && t.Y == tileCoordinates.Y);
                 stop.TileId = stop.Tile.Id;
               }
             }
