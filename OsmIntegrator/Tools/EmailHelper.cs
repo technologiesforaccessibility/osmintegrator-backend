@@ -206,7 +206,7 @@ rozwiazaniadlaniewidomych.org
 
     builder.TextBody = $@"{_localizer["Hello"]} {username},
 {_localizer["The tile you have been working on has not yet been sent to"]} https://www.openstreetmap.org.
-{_localizer["Please export your connections to allow other users to work in this area."]}
+{_localizer["Please export your connections to OSM to allow other users to work in this area."]}
 {_localizer["Read more about data synchronization in https://www.osmintegrator.eu in the manual at this link"]} {manualLink}.
 {_localizer["Tile coordinates"]} X: {tileX}, Y: {tileY}
 {GetServerName(false)}
@@ -217,7 +217,7 @@ rozwiazaniadlaniewidomych.org
 
     builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {username},</h3>
 <p>{_localizer["The tile you have been working on has not yet been sent to"]} <a href=""https://www.openstreetmap.org"">OpenStreetMap</a>.</p><br/>
-<p>{_localizer["Please export your connections to allow other users to work in this area."]}</p></br>
+<p>{_localizer["Please export your connections to OSM to allow other users to work in this area."]}</p></br>
 <p>{_localizer["Read more about data synchronization in"]} <a href=""https://www.osmintegrator.eu"">www.osmintegrator.eu</a> {_localizer["in the manual at"]} <a href=""{manualLink}"">{_localizer["this"]}</a> {_localizer["link"]}.</p></br>
 <p>{_localizer["Tile coordinates"]} X: {tileX}, Y: {tileY}</p></br>
 {GetServerName(true)}

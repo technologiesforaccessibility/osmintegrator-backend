@@ -224,4 +224,28 @@
     <data name="Ok" xml:space="preserve">
         <value>Ok</value>
     </data>
+    <data name="The tile you have been working on has not yet been sent to" xml:space="preserve">
+        <value>Kafelek, nad którym pracujesz nie został wysłany do systemu</value>
+    </data>
+    <data name="Please export your connections to OSM to allow other users to work in this area." xml:space="preserve">
+        <value>Wyślij połączenia do systemu OSM, aby umożliwić pracę na tym obszarze innym użytkownikom.</value>
+    </data>
+    <data name="Read more about data synchronization in https://www.osmintegrator.eu in the manual at this link" xml:space="preserve">
+        <value>Przeczytaj więcej o synchronizacji danych w systemie https://www.osmintegrator.eu w instrukcji obsługi pod tym linkiem</value>
+    </data>
+    <data name="Tile coordinates" xml:space="preserve">
+        <value>Współrzędne kafelka</value>
+    </data>
+    <data name="Read more about data synchronization in" xml:space="preserve">
+        <value>Przeczytaj więcej o synchronizacji danych w systemie</value>
+    </data>
+    <data name="in the manual at" xml:space="preserve">
+        <value>w instrukcji obsługi pod</value>
+    </data>
+    <data name="this" xml:space="preserve">
+        <value>tym</value>
+    </data>
+    <data name="link" xml:space="preserve">
+        <value>linkiem</value>
+    </data>
 </root>
