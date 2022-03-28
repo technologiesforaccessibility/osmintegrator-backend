@@ -21,18 +21,18 @@ namespace OsmIntegrator.Services
 
     public async Task SendEmailAsync(string to, string subject, MimeEntity body)
     {
-        if (to.ToString().Contains("abcd.pl"))
-        {
-          _logger.LogDebug($"Omitting test email [sync] to '{to}' with subject '{subject}'" + Environment.NewLine + body);
-          return;
-        }
+      if (to.ToString().Contains("abcd.pl"))
+      {
+        _logger.LogDebug($"Omitting test email [sync] to '{to}' with subject '{subject}'" + Environment.NewLine + body);
+        return;
+      }
 
-        _logger.LogDebug($"Sending email [sync] to '{to}' with subject '{subject}'" + Environment.NewLine + body);
-        if (!bool.Parse(_configuration["SendEmails"]))
-        {
-          _logger.LogInformation($"Sending emails [sync] turned off. The email with subject '{subject}' will not be sent.");
-          return;
-        }
+      _logger.LogDebug($"Sending email [sync] to '{to}' with subject '{subject}'" + Environment.NewLine + body);
+      if (!bool.Parse(_configuration["SendEmails"]))
+      {
+        _logger.LogInformation($"Sending emails [sync] turned off. The email with subject '{subject}' will not be sent.");
+        return;
+      }
 
       try
       {

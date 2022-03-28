@@ -53,7 +53,7 @@ namespace OsmIntegrator.Services
         while (!_cancellationToken.IsCancellationRequested)
         {
           await Task.Delay(UntilNextExecution(), _cancellationToken);
-          await SendEmail();
+          SendEmail();
 
           _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
         }
@@ -70,7 +70,7 @@ namespace OsmIntegrator.Services
     private int UntilNextExecution() =>
       Math.Max(0, (int)_nextRun.Subtract(DateTime.Now).TotalMilliseconds);
 
-    public async Task SendEmail()
+    public void SendEmail()
     {
       try
       {
@@ -88,9 +88,11 @@ namespace OsmIntegrator.Services
 
           if (tiles == null || tiles.Count() == 0) return;
 
+          IEmailHelper emailHelper = scope.ServiceProvider.GetRequiredService<IEmailHelper>();
+
           users.ForEach(user =>
           {
-            tiles.ForEach(tile =>
+            tiles.ForEach(async tile =>
             {
               if (tile.Stops != null && tile.IsAccessibleBy(user.Id))
               {
@@ -109,7 +111,7 @@ namespace OsmIntegrator.Services
 
                   if (timeSinceCreation >= maxOccupationPeriod)
                   {
-                    // send email here
+                    await emailHelper.SendTileOccupiedMessageAsync(user, _configuration["OsmIntegratorManualUrl"], tile.X, tile.Y);
                   }
                 }
               }
