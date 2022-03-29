@@ -26,6 +26,8 @@ using Xunit;
 using System.Net;
 using OsmIntegrator.ApiModels.Stops;
 using FluentAssertions;
+using OsmIntegrator.ApiModels.Conversation;
+
 
 namespace OsmIntegrator.Tests.Fixtures
 {
@@ -74,10 +76,18 @@ namespace OsmIntegrator.Tests.Fixtures
           _dataInitializer.GetOsmStopsList(osmStopPath).ToList();
       }
 
+      List<DbConversation> conversations = null;
+      string conversationsPath = $"{TestDataFolder}{testName}/ConversationsInit.txt";
+      if (File.Exists(conversationsPath))
+      {
+        conversations = _dataInitializer.GetConversationsList(conversationsPath);
+      }
+
       using IDbContextTransaction transaction = _dbContext.Database.BeginTransaction();
       _dataInitializer.ClearDatabase(_dbContext);
       _dataInitializer.InitializeUsers(_dbContext);
       _dataInitializer.InitializeStopsAndTiles(_dbContext, gtfsStops, osmStops);
+      _dataInitializer.InitializeConversations(_dbContext, conversations);
       transaction.Commit();
     }
 
@@ -198,6 +208,17 @@ namespace OsmIntegrator.Tests.Fixtures
       response.StatusCode.Should().Be(HttpStatusCode.OK);
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<Stop>(jsonResponse);
+    }
+
+    protected async Task<Conversation> ChangeConversationPosition(ConversationPositionData conversationPositionData)
+    {
+      var json = JsonConvert.SerializeObject(conversationPositionData);
+      var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+      var response = await _client.PutAsync($"/api/Conversation/ChangePosition", content);
+      response.StatusCode.Should().Be(HttpStatusCode.OK);
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Conversation>(jsonResponse);
     }
 
     public async Task<Report> Put_UpdateGtfsStops(MultipartFormDataContent dataContent)

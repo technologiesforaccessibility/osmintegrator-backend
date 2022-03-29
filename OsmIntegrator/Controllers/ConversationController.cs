@@ -16,7 +16,6 @@ using System.Net.Mime;
 using Microsoft.AspNetCore.Cors;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.ApiModels.Conversation;
 
@@ -164,6 +163,38 @@ namespace OsmIntegrator.Controllers
 
 
       return Ok(response);
+    }
+
+    [HttpPut("ChangePosition")]
+    [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.COORDINATOR)]
+    public async Task<ActionResult<Conversation>> ChangePosition(ConversationPositionData conversation)
+    {
+      DbConversation dbConversation = await _dbContext.Conversations
+      .Include(x => x.Tile)
+      .FirstOrDefaultAsync(x => x.Id == conversation.ConversationId);
+
+      if (dbConversation == null)
+      {
+        throw new BadHttpRequestException(_localizer["Conversation cannot be found"]);
+      }
+
+      DbTile tile = dbConversation.Tile;
+
+      if (conversation.Lat < tile.OverlapMinLat ||
+        conversation.Lat > tile.OverlapMaxLat ||
+        conversation.Lon < tile.OverlapMinLon ||
+        conversation.Lon > tile.OverlapMaxLon)
+      {
+        throw new BadHttpRequestException(_localizer["Conversation is outside tile margin border"]);
+      }
+
+      dbConversation.Lat = conversation.Lat;
+      dbConversation.Lon = conversation.Lon;
+
+      Conversation result = _mapper.Map<Conversation>(dbConversation);
+
+      await _dbContext.SaveChangesAsync();
+      return Ok(result);
     }
 
     /// <summary>
