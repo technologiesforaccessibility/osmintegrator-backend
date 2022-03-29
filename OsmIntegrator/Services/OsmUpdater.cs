@@ -22,12 +22,14 @@ namespace OsmIntegrator.Services
     private readonly IReportsFactory _reportsFactory;
     private readonly ILogger<IOsmUpdater> _logger;
     private readonly int _zoomLevel;
+    private readonly double _overlapFactor;
 
     public OsmUpdater(IReportsFactory reportsFactory, ILogger<IOsmUpdater> logger, IConfiguration configuration)
     {
       _reportsFactory = reportsFactory;
       _logger = logger;
       _zoomLevel = int.Parse(configuration["ZoomLevel"]);
+      _overlapFactor = double.Parse(configuration["OverlapFactor"], NumberFormatInfo.InvariantInfo);
     }
 
     private void RemoveConnections(ApplicationDbContext dbContext)
@@ -388,8 +390,30 @@ namespace OsmIntegrator.Services
 
               if (tile.X != tileCoordinates.X && tile.Y != tileCoordinates.Y)
               {
-                stop.Tile = dbContext.Tiles.FirstOrDefault(t => t.X == tileCoordinates.X && t.Y == tileCoordinates.Y);
-                stop.TileId = stop.Tile.Id;
+                DbTile newTile = dbContext.Tiles.FirstOrDefault(t => t.X == tileCoordinates.X && t.Y == tileCoordinates.Y);
+
+                if (newTile != null)
+                {
+                  stop.Tile = newTile;
+                  stop.TileId = stop.Tile.Id;
+                }
+                else
+                {
+                  Point<double> leftUpperCorner = TilesHelper.TileToWorldPos(
+                    tileCoordinates.X, tileCoordinates.Y, _zoomLevel
+                  );
+                  Point<double> rightBottomCorner = TilesHelper.TileToWorldPos(
+                    tileCoordinates.X + 1, tileCoordinates.Y + 1, _zoomLevel
+                  );
+                  newTile = new(tileCoordinates.X, tileCoordinates.Y,
+                    leftUpperCorner.X, rightBottomCorner.X,
+                    rightBottomCorner.Y, leftUpperCorner.Y,
+                    _overlapFactor);
+
+                  dbContext.Tiles.Add(newTile);
+                  stop.Tile = newTile;
+                  stop.TileId = stop.Tile.Id;
+                }
               }
             }
           }
