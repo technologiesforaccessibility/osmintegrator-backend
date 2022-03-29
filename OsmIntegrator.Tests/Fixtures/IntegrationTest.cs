@@ -24,6 +24,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using System.Net;
+using OsmIntegrator.ApiModels.Stops;
+using FluentAssertions;
 
 namespace OsmIntegrator.Tests.Fixtures
 {
@@ -185,6 +187,17 @@ namespace OsmIntegrator.Tests.Fixtures
       HttpResponseMessage response = await _client.PutAsync($"/api/Tile/UpdateStops/{tileId}", null);
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return JsonConvert.DeserializeObject<Report>(jsonResponse);
+    }
+
+    protected async Task<Stop> ChangePosition(StopPositionData stopPositionData)
+    {
+      var json = JsonConvert.SerializeObject(stopPositionData);
+      var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+      var response = await _client.PutAsync($"/api/Stop/ChangePosition", content);
+      response.StatusCode.Should().Be(HttpStatusCode.OK);
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return JsonConvert.DeserializeObject<Stop>(jsonResponse);
     }
 
     public async Task<Report> Put_UpdateGtfsStops(MultipartFormDataContent dataContent)

@@ -56,7 +56,7 @@ public class ConnectionsController : ControllerBase
   /// <returns>Generic result or error.</returns>
   [HttpPut()]
   [Authorize(Roles = UserRoles.EDITOR + "," + UserRoles.SUPERVISOR + "," + UserRoles.ADMIN)]
-  public async Task<IActionResult> Add([FromBody] NewConnectionAction connectionAction)
+  public async Task<ActionResult<NewConnection>> Add([FromBody] NewConnectionAction connectionAction)
   {
     // Check if connection already exists
     DbConnection existingConnection = await _dbContext.Connections
@@ -126,7 +126,7 @@ public class ConnectionsController : ControllerBase
       .Include(x => x.Stops.Where(s => s.StopType == StopType.Gtfs))
       .ThenInclude(x => x.GtfsConnections)
       .FirstAsync(x => x.Id == gtfsStop.TileId);
-    
+
     if (osmStop.Lon <= tile.OverlapMinLon ||
         osmStop.Lon > tile.OverlapMaxLon ||
         osmStop.Lat <= tile.OverlapMinLat ||
@@ -155,7 +155,9 @@ public class ConnectionsController : ControllerBase
     await _dbContext.Connections.AddAsync(newConnection);
     await _dbContext.SaveChangesAsync();
 
-    return Ok(_localizer["Connection successfully added!"]);
+    DbConnection[] connections = await _dbContext.Connections.Where(c => c.GtfsStopId == gtfsStop.Id && c.OsmStopId == osmStop.Id).ToArrayAsync();
+
+    return Ok(new { Message = _localizer["Connection successfully added!"], ConnectionId = connections[connections.Length - 1].Id });
   }
 
   [HttpPost("Remove")]
@@ -190,8 +192,8 @@ public class ConnectionsController : ControllerBase
 
     DbConnection newConnection = new()
     {
-      OsmStopId = (Guid) connectionAction.OsmStopId,
-      GtfsStopId = (Guid) connectionAction.GtfsStopId,
+      OsmStopId = (Guid)connectionAction.OsmStopId,
+      GtfsStopId = (Guid)connectionAction.GtfsStopId,
       User = currentUser,
       OperationType = ConnectionOperationType.Removed
     };

@@ -5,8 +5,6 @@ using System.Linq;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database;
 using OsmIntegrator.Interfaces;
-using OsmIntegrator.Tools;
-using Tag = OsmIntegrator.Database.Models.JsonFields.Tag;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.Models.JsonFields;
@@ -154,7 +152,10 @@ namespace OsmIntegrator.Services
       double stopLat = double.Parse(stop.StopLat, CultureInfo.InvariantCulture);
       double stopLon = double.Parse(stop.StopLon, CultureInfo.InvariantCulture);
 
-      if (stopLat != dbStop.Lat || stopLon != dbStop.Lon)
+      bool isInitLatFilled = dbStop.InitLat != null;
+      bool isInitLonFilled = dbStop.InitLon != null;
+
+      if (stopLat != dbStop.Lat && stopLon != dbStop.Lon)
       {
         dbStop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
             stopLat >= tile.MinLat &&
@@ -168,17 +169,31 @@ namespace OsmIntegrator.Services
       if (stopLat != dbStop.Lat)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Lat), stopLat.ToString(), dbStop.Lat.ToString(), ChangeAction.Modified);
+          isInitLatFilled ? nameof(dbStop.InitLat) : nameof(dbStop.Lat), stopLat.ToString(), dbStop.Lat.ToString(), ChangeAction.Modified);
 
-        dbStop.Lat = stopLat;
+        if (isInitLatFilled)
+        {
+          dbStop.InitLat = stopLat;
+        }
+        else
+        {
+          dbStop.Lat = stopLat;
+        }
       }
 
       if (stopLon != dbStop.Lon)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(dbStop.Lon), stopLon.ToString(), dbStop.Lon.ToString(), ChangeAction.Modified);
+          isInitLatFilled ? nameof(dbStop.InitLon) : nameof(dbStop.Lon), stopLon.ToString(), dbStop.Lon.ToString(), ChangeAction.Modified);
 
-        dbStop.Lon = stopLon;
+        if (isInitLonFilled)
+        {
+          dbStop.InitLon = stopLon;
+        }
+        else
+        {
+          dbStop.Lon = stopLon;
+        }
       }
 
       if (stop.StopName != dbStop.Name)

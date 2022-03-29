@@ -18,17 +18,6 @@ public class StopsTestBase : IntegrationTest
     TestDataFolder = "Data/";
   }
 
-  protected async Task<Stop> ChangePosition(StopPositionData stopPositionData)
-  {
-    var json = JsonConvert.SerializeObject(stopPositionData);
-    var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-    var response = await _client.PutAsync($"/api/Stop/ChangePosition", content);
-    response.StatusCode.Should().Be(HttpStatusCode.OK);
-    string jsonResponse = await response.Content.ReadAsStringAsync();
-    return JsonConvert.DeserializeObject<Stop>(jsonResponse);
-  }
-
   protected async Task<Stop> ResetPosition(string stopId)
   {
     var response = await _client.PostAsync($"/api/Stop/ResetPosition/{stopId}", null);
