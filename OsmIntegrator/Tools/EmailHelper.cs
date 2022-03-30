@@ -84,6 +84,14 @@ public class EmailHelper : IEmailHelper
     await _emailService.SendEmailAsync(user.Email, subject, messageBody);
   }
 
+  public async Task SendTileOccupiedMessageAsync(ApplicationUser user, string manualLink, long tileX, long tileY)
+  {
+    string subject = GetSubject(_localizer["Tile occupied for too long"]);
+    MimeEntity messageBody = BuildSendTileOccupiedMessageBody(user.UserName, manualLink, tileX, tileY);
+
+    await _emailService.SendEmailAsync(user.Email, subject, messageBody);
+  }
+
   private MimeEntity BuildConfirmRegistrationMessageBody(string userEmailAddress, string username)
   {
     string slackDownload = _externalServicesConfiguration.SlackDownloadUrl;
@@ -183,6 +191,35 @@ rozwiazaniadlaniewidomych.org
     builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {username},</h3>
 <p>{_localizer["You have requested changing an email address on"]} <a href=""www.osmintegrator.pl"">www.osmintegrator.pl</a>. {_localizer["To do so, click on the link below."]}</p><br/>
 <a href=""{url}"">{url}</a>
+{GetServerName(true)}
+<p>{_localizer["Regards"]},</p>
+<p>{_localizer["OsmIntegrator Team"]},</p>
+<a href=""rozwiazaniadlaniewidomych.org"">rozwiazaniadlaniewidomych.org</a>
+      ";
+
+    return builder.ToMessageBody();
+  }
+
+  private MimeEntity BuildSendTileOccupiedMessageBody(string username, string manualLink, long tileX, long tileY)
+  {
+    BodyBuilder builder = new BodyBuilder();
+
+    builder.TextBody = $@"{_localizer["Hello"]} {username},
+{_localizer["The tile you have been working on has not yet been sent to"]} https://www.openstreetmap.org.
+{_localizer["Please export your connections to OSM to allow other users to work in this area."]}
+{_localizer["Read more about data synchronization in https://www.osmintegrator.eu in the manual at this link"]} {manualLink}.
+{_localizer["Tile coordinates"]} X: {tileX}, Y: {tileY}
+{GetServerName(false)}
+{_localizer["Regards"]},
+{_localizer["OsmIntegrator Team"]},
+rozwiazaniadlaniewidomych.org
+      ";
+
+    builder.HtmlBody = $@"<h3>{_localizer["Hello"]} {username},</h3>
+<p>{_localizer["The tile you have been working on has not yet been sent to"]} <a href=""https://www.openstreetmap.org"">OpenStreetMap</a>.</p><br/>
+<p>{_localizer["Please export your connections to OSM to allow other users to work in this area."]}</p></br>
+<p>{_localizer["Read more about data synchronization in"]} <a href=""https://www.osmintegrator.eu"">www.osmintegrator.eu</a> {_localizer["in the manual at"]} <a href=""{manualLink}"">{_localizer["this"]}</a> {_localizer["link"]}.</p></br>
+<p>{_localizer["Tile coordinates"]} X: {tileX}, Y: {tileY}</p></br>
 {GetServerName(true)}
 <p>{_localizer["Regards"]},</p>
 <p>{_localizer["OsmIntegrator Team"]},</p>

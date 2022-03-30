@@ -11,5 +11,6 @@ namespace OsmIntegrator.Interfaces
     Task SendConfirmRegistrationMessageAsync(ApplicationUser user);
     Task SendForgotPasswordMessageAsync(string userEmailAddress);
     Task SendRegisterMessageAsync(RegisterData model, ApplicationUser user);
+    Task SendTileOccupiedMessageAsync(ApplicationUser user, string manualLink, long tileX, long tileY);
   }
 }

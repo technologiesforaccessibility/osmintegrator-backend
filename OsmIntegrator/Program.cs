@@ -69,6 +69,7 @@ namespace osmintegrator
               services.AddSingleton<IOsmUpdater, OsmUpdater>();
               services.AddSingleton<IGtfsUpdater, GtfsUpdater>();
               services.AddHostedService<OsmScheduler>();
+              services.AddHostedService<EmailScheduler>();
             })
             .ConfigureLogging(logging =>
             {
