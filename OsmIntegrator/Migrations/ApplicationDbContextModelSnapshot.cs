@@ -286,6 +286,24 @@ namespace osmintegrator.Migrations
                     b.ToTable("Conversations");
                 });
 
+            modelBuilder.Entity("OsmIntegrator.Database.Models.DbGtfsImportReport", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<GtfsImportReport>("GtfsReport")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("GtfsImportReports");
+                });
+
             modelBuilder.Entity("OsmIntegrator.Database.Models.DbMessage", b =>
                 {
                     b.Property<Guid>("Id")

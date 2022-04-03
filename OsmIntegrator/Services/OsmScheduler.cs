@@ -31,16 +31,16 @@ namespace OsmIntegrator.Services
     private readonly IOverpass _overpass;
 
     public OsmScheduler(
-      ILogger<OsmScheduler> logger, 
-      IServiceScopeFactory serviceScopeFactory, 
-      HttpClient httpClient, 
-      IConfiguration configuration, 
+      ILogger<OsmScheduler> logger,
+      IServiceScopeFactory serviceScopeFactory,
+      HttpClient httpClient,
+      IConfiguration configuration,
       IOsmUpdater osmRefresherHelper,
       IOverpass overpass)
     {
       _logger = logger;
       _configuration = configuration;
-      _schedule = CrontabSchedule.Parse(_configuration["OsmCronInterval"], 
+      _schedule = CrontabSchedule.Parse(_configuration["OsmCronInterval"],
         new CrontabSchedule.ParseOptions() { IncludingSeconds = true });
       _nextRun = _schedule.GetNextOccurrence(DateTime.Now);
       _scopeFactory = serviceScopeFactory;
@@ -71,7 +71,7 @@ namespace OsmIntegrator.Services
       return Task.CompletedTask;
     }
 
-    private int UntilNextExecution() => 
+    private int UntilNextExecution() =>
       Math.Max(0, (int)_nextRun.Subtract(DateTime.Now).TotalMilliseconds);
 
     public async Task Refresh()
@@ -87,6 +87,7 @@ namespace OsmIntegrator.Services
           List<DbTile> tilesToRefresh = dbContext.Tiles.ToList();
 
           await _osmUpdater.Update(tilesToRefresh, dbContext, result);
+          await _osmUpdater.UpdateTileReferences(tilesToRefresh, dbContext);
         }
       }
       catch (Exception e)

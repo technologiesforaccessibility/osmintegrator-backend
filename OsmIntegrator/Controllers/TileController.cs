@@ -27,6 +27,10 @@ using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Database.QueryObjects;
+using CsvHelper;
+using System.IO;
+using System.Globalization;
+using OsmIntegrator.Database.Models.CsvObjects;
 
 namespace OsmIntegrator.Controllers;
 
@@ -47,6 +51,7 @@ public class TileController : ControllerBase
   private readonly IOsmUpdater _osmUpdater;
   private readonly ITileExportValidator _tileExportValidator;
   private readonly IOsmExporter _osmExporter;
+  private readonly IGtfsUpdater _gtfsUpdater;
 
   public TileController(
     ILogger<TileController> logger,
@@ -57,7 +62,9 @@ public class TileController : ControllerBase
     IOsmUpdater refresherHelper,
     IOverpass overpass,
     ITileExportValidator tileExportValidator,
-    IOsmExporter osmExporter)
+    IOsmExporter osmExporter,
+    IGtfsUpdater gtfsUpdater
+    )
   {
     _logger = logger;
     _dbContext = dbContext;
@@ -68,6 +75,7 @@ public class TileController : ControllerBase
     _overpass = overpass;
     _tileExportValidator = tileExportValidator;
     _osmExporter = osmExporter;
+    _gtfsUpdater = gtfsUpdater;
   }
 
   [HttpGet]
@@ -78,7 +86,7 @@ public class TileController : ControllerBase
     IList<string> roles = await _userManager.GetRolesAsync(user);
 
     List<Tile> tiles = new();
-    
+
     if (roles.Contains(UserRoles.EDITOR))
     {
       List<ConnectionQuery> connections =
@@ -97,7 +105,7 @@ public class TileController : ControllerBase
         .Where(x => x.Value == user.Id)
         .Select(x => x.Key)
         .ToHashSet();
-      
+
       tiles = await _dbContext.GetCurrentUserTiles(unavailableTiles);
 
       foreach (Tile tile in tiles)
@@ -207,7 +215,7 @@ public class TileController : ControllerBase
       .Where(c => c.UserId != updateTileInput.EditorId)
       .ToList();
 
-    connections.ForEach(x => x.UserId = (Guid) updateTileInput.EditorId);
+    connections.ForEach(x => x.UserId = (Guid)updateTileInput.EditorId);
 
     await _dbContext.SaveChangesAsync();
 
@@ -240,7 +248,7 @@ public class TileController : ControllerBase
 
     await UpdatedExportedConnections(id);
 
-    return Ok(new Report {Value = tileReport.ToString()});
+    return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
   private async Task UpdatedExportedConnections(Guid id)
@@ -272,7 +280,7 @@ public class TileController : ControllerBase
   private static Dictionary<Guid, List<ConnectionQuery>> GetTilesWithAddedConnections(
     List<ConnectionQuery> connections) =>
     connections
-      .GroupBy(c => new {c.GtfsStopId, c.OsmStopId})
+      .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
       .Select(cg => cg.OrderByDescending(
         c => c.CreatedAt).FirstOrDefault())
       .Where(c => c?.OperationType == ConnectionOperationType.Added)
@@ -282,7 +290,7 @@ public class TileController : ControllerBase
   private static Dictionary<Guid, Guid> GetActiveTiles(
     List<ConnectionQuery> connections) =>
     connections
-      .GroupBy(c => new {c.GtfsStopId, c.OsmStopId})
+      .GroupBy(c => new { c.GtfsStopId, c.OsmStopId })
       .Select(cg => cg.OrderByDescending(c => c.CreatedAt).FirstOrDefault())
       .Where(c => c?.OperationType == ConnectionOperationType.Added && !c.Exported)
       .GroupBy(c => c.TileId)

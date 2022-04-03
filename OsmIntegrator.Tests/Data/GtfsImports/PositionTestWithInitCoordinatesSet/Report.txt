@@ -1,0 +1,4 @@
+[PRZYSTANEK-Zmodyfikowano] Stara Ligota Rolna, Id: 159541, Gtfs
+    [TAG-Zmodyfikowano] InitLat: 50,231381 (50,231382)
+    [TAG-Zmodyfikowano] InitLon: 18,982615 (18,982616)
+

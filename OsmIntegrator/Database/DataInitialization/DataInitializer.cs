@@ -48,23 +48,23 @@ public class DataInitializer
     AddRole(db.Roles, uploaderRoleId, Roles.UserRoles.UPLOADER);
     AddRole(db.Roles, adminRoleId, Roles.UserRoles.ADMIN);
 
-    AddUser(db.Users, db.UserRoles, Guid.Parse("c514ae13-d80a-40b1-90d0-df88ccca73ec"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("c514ae13-d80a-40b1-90d0-df88ccca73ec"),
       "user1@abcd.pl", new List<Guid>() { editorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("9815ba57-e990-4f91-a8e9-17abe977d681"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("9815ba57-e990-4f91-a8e9-17abe977d681"),
       "editor1@abcd.pl", new List<Guid>() { editorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("2afa8c7d-3b29-4d33-b69c-afc71626b109"),
       "supervisor1@abcd.pl", new List<Guid>() { supervisorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("58fb0db2-0d67-4aa4-af63-9e7111d0b346"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("58fb0db2-0d67-4aa4-af63-9e7111d0b346"),
       "supervisor2@abcd.pl", new List<Guid>() { supervisorRoleId, editorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("cbfbbb17-eaed-46e8-b972-8c9fd0f8fa5b"),
       "coordinator1@abcd.pl", new List<Guid>() { coordinatorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c8"),
       "admin@abcd.pl", new List<Guid>() { adminRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("55529e52-ba92-4727-94bd-53bcc1be06c7"),
       "test@rozwiazaniadlaniewidomych.org", new List<Guid>() { editorRoleId, adminRoleId, supervisorRoleId });
-    AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"), 
+    AddUser(db.Users, db.UserRoles, Guid.Parse("a658f1c1-e91f-4bde-afb2-58c50b0d170a"),
       "editor2@abcd.pl", new List<Guid>() { editorRoleId });
-    
+
     db.SaveChanges();
   }
 
@@ -89,7 +89,7 @@ public class DataInitializer
 
   private void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
   {
-    if(gtfsStops == null || osmStops == null) return;
+    if (gtfsStops == null || osmStops == null) return;
 
     ApplicationUser supervisor = db.Users.First(x => x.UserName == "supervisor2");
 
@@ -301,6 +301,7 @@ public class DataInitializer
     db.UserRoles.RemoveRange(db.UserRoles);
 
     db.ChangeReports.RemoveRange(db.ChangeReports);
+    db.GtfsImportReports.RemoveRange(db.GtfsImportReports);
 
     db.SaveChanges();
   }

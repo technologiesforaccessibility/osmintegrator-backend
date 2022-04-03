@@ -1,0 +1,4 @@
+[KAFELEK] X: 2264, Y: 1385
+
+[PRZYSTANEK-Usunięto] Brynów Orkana, Id: 1831944331, Osm, Wer: 4
+

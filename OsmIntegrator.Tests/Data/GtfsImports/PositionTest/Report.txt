@@ -1,0 +1,10 @@
+[PRZYSTANEK-Zmodyfikowano] Stara Ligota Rolna, Id: 159541, Gtfs
+    [TAG-Zmodyfikowano] Lat: 50,2313803 (50,231381)
+
+[PRZYSTANEK-Zmodyfikowano] Stara Ligota Rolna, Id: 159542, Gtfs
+    [TAG-Zmodyfikowano] Lon: 18,9893557 (18,983345)
+
+[PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 159077, Gtfs
+    [TAG-Zmodyfikowano] Lat: 50,2326754 (50,231477)
+    [TAG-Zmodyfikowano] Lon: 18,9956495 (18,988495)
+

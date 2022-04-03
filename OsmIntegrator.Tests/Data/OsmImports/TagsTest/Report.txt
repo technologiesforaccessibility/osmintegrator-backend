@@ -1,11 +1,11 @@
-[TILE] X: 2264, Y: 1385
+[KAFELEK] X: 2264, Y: 1385
 
-[STOP-Modified] Brynów Orkana n/ż (Brynów Orkana), Id: 1831944331, Osm, Ver: 5 (4)
-    [FIELD-Modified] name: Brynów Orkana n/ż (Brynów Orkana)
-    [FIELD-Added] ref: 12345
-    [FIELD-Added] local_ref: 2t
+[PRZYSTANEK-Zmodyfikowano] Brynów Orkana n/ż (Brynów Orkana), Id: 1831944331, Osm, Wer: 5 (4)
+    [TAG-Zmodyfikowano] name: Brynów Orkana n/ż (Brynów Orkana)
+    [TAG-Dodano] ref: 12345
+    [TAG-Dodano] local_ref: 2t
 
-[STOP-Modified] Brynów Orkana, Id: 1905039171, Osm, Ver: 4 (3)
-    [FIELD-Added] very_public_transport: stop_position
-    [FIELD-Removed] public_transport: 
+[PRZYSTANEK-Zmodyfikowano] Brynów Orkana, Id: 1905039171, Osm, Wer: 4 (3)
+    [TAG-Dodano] very_public_transport: stop_position
+    [TAG-Usunięto] public_transport: 
 

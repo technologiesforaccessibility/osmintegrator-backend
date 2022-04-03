@@ -1,0 +1,17 @@
+{
+  "Stops": [
+    {
+      "Name": "Brynów Dworska",
+      "Action": 0,
+      "Fields": null,
+      "StopId": "111111",
+      "Version": 0,
+      "StopType": 1,
+      "Changeset": null,
+      "PreviousName": null,
+      "DatabaseStopId": null,
+      "PreviousVersion": null,
+      "PreviousChangeset": null
+    }
+  ]
+}

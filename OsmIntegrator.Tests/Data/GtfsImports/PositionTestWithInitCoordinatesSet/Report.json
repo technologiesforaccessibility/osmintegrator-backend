@@ -1,0 +1,30 @@
+{
+  "Stops": [
+    {
+      "Action": 1,
+      "Changeset": null,
+      "DatabaseStopId": null,
+      "Fields": [
+        {
+          "Action": 1,
+          "ActualValue": "50,231381",
+          "Name": "InitLat",
+          "PreviousValue": "50,231382"
+        },
+        {
+          "Action": 1,
+          "ActualValue": "18,982615",
+          "Name": "InitLon",
+          "PreviousValue": "18,982616"
+        }
+      ],
+      "Name": "Stara Ligota Rolna",
+      "PreviousChangeset": null,
+      "PreviousName": null,
+      "PreviousVersion": null,
+      "StopId": "159541",
+      "StopType": 1,
+      "Version": 0
+    }
+  ]
+}

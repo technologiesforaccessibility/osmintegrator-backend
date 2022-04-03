@@ -13,6 +13,7 @@ using OsmIntegrator.Database.Models;
 using OsmIntegrator.Tests.Fixtures;
 using OsmIntegrator.Tools;
 using Xunit;
+using OsmIntegrator.Tests.Data;
 
 namespace OsmIntegrator.Tests.Tests.OsmExports
 {
@@ -34,9 +35,9 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
     {
       await InitTest(testName, "supervisor2", "supervisor1");
 
-      DbStop gtfsStop = await _dbContext.Stops.FirstAsync(x => x.StopId == GTFS_STOP_ID_3);
-      DbStop osmStop = await _dbContext.Stops.FirstAsync(x => x.StopId == OSM_STOP_ID_1);
-      DbTile tile = _dbContext.Tiles.First(x => x.X == RIGHT_TILE_X && x.Y == RIGHT_TILE_Y);
+      DbStop gtfsStop = await _dbContext.Stops.FirstAsync(x => x.StopId == ExpectedValues.GTFS_STOP_ID_3);
+      DbStop osmStop = await _dbContext.Stops.FirstAsync(x => x.StopId == ExpectedValues.OSM_STOP_ID_1);
+      DbTile tile = _dbContext.Tiles.First(x => x.X == ExpectedValues.RIGHT_TILE_X && x.Y == ExpectedValues.RIGHT_TILE_Y);
 
       NewConnectionAction connectionAction = new()
       {
@@ -51,9 +52,9 @@ namespace OsmIntegrator.Tests.Tests.OsmExports
       await Put_Tile_UpdateStops(tile.Id.ToString());
 
       OsmChange actualFile = await Get_OsmExport_GetChangeFile(tile.Id.ToString());
-      OsmChangeOutput actualChanges = await Get_OsmExport_GetChanges(tile.Id.ToString());  
+      OsmChangeOutput actualChanges = await Get_OsmExport_GetChanges(tile.Id.ToString());
 
-      OsmChange expectedChanges = 
+      OsmChange expectedChanges =
         SerializationHelper.XmlDeserializeFile<OsmChange>($"{TestDataFolder}{testName}/osmchange.xml");
 
       List<Difference> differences = Compare(expectedChanges, actualFile);

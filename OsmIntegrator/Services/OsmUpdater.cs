@@ -13,6 +13,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Database.Models.Enums;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace OsmIntegrator.Services
 {
@@ -20,11 +21,15 @@ namespace OsmIntegrator.Services
   {
     private readonly IReportsFactory _reportsFactory;
     private readonly ILogger<IOsmUpdater> _logger;
+    private readonly int _zoomLevel;
+    private readonly double _overlapFactor;
 
-    public OsmUpdater(IReportsFactory reportsFactory, ILogger<IOsmUpdater> logger)
+    public OsmUpdater(IReportsFactory reportsFactory, ILogger<IOsmUpdater> logger, IConfiguration configuration)
     {
       _reportsFactory = reportsFactory;
       _logger = logger;
+      _zoomLevel = int.Parse(configuration["ZoomLevel"]);
+      _overlapFactor = double.Parse(configuration["OverlapFactor"], NumberFormatInfo.InvariantInfo);
     }
 
     private void RemoveConnections(ApplicationDbContext dbContext)
@@ -162,10 +167,20 @@ namespace OsmIntegrator.Services
 
       foreach (Node node in osmRoot.Node)
       {
-        if (!IsNodeOnTile(tile, node)) continue;
+        bool isOnTile = IsNodeOnTile(tile, node);
 
-        DbStop existingStop = tile.Stops.FirstOrDefault(
+        if (!isOnTile) continue;
+
+        DbStop existingStop = tile.Stops?.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
+
+        if (existingStop == null && isOnTile)
+        {
+          DbTile otherTile = dbContext.Tiles
+            .Include(t => t.Stops)
+            .FirstOrDefault(t => t.Stops != null && t.Stops.Count() > 0 && t.Stops.Any(s => s.StopId == long.Parse(node.Id)));
+          existingStop = otherTile?.Stops?.FirstOrDefault(s => s.StopId == long.Parse(node.Id));
+        }
 
         if (existingStop != null)
         {
@@ -178,7 +193,7 @@ namespace OsmIntegrator.Services
 
           if (existingStop.Changeset == node.Changeset && existingStop.Version == node.Version)
           {
-            if(deletionReverted)
+            if (deletionReverted)
             {
               _reportsFactory.CreateStop(
                 report, node, existingStop, ChangeAction.Modified, deletionReverted);
@@ -208,13 +223,26 @@ namespace OsmIntegrator.Services
     private void ModifyStop(DbStop existingStop, Node node, ApplicationDbContext dbContext, TileImportReport report, bool deletionReverted)
     {
       // Report - new stop
-      ReportStop reportStop = 
+      ReportStop reportStop =
         _reportsFactory.CreateStop(report, node, existingStop, ChangeAction.Modified, deletionReverted);
 
       existingStop.Version = node.Version;
       existingStop.Changeset = node.Changeset;
 
       double nodeLat = double.Parse(node.Lat, CultureInfo.InvariantCulture);
+      double nodeLon = double.Parse(node.Lon, CultureInfo.InvariantCulture);
+
+      if (existingStop.Lat != nodeLat || existingStop.Lon != nodeLon)
+      {
+        existingStop.Tile = dbContext.Tiles.FirstOrDefault(tile =>
+            nodeLat >= tile.MinLat &&
+            nodeLat <= tile.MaxLat &&
+            nodeLon >= tile.MinLon &&
+            nodeLon <= tile.MaxLon
+          );
+        existingStop.TileId = existingStop.Tile.Id;
+      }
+
       if (existingStop.Lat != nodeLat)
       {
         _reportsFactory.AddField(reportStop,
@@ -223,13 +251,12 @@ namespace OsmIntegrator.Services
         existingStop.Lat = nodeLat;
       }
 
-      double nodeLong = double.Parse(node.Lon, CultureInfo.InvariantCulture);
-      if (existingStop.Lon != nodeLong)
+      if (existingStop.Lon != nodeLon)
       {
         _reportsFactory.AddField(reportStop,
-          nameof(existingStop.Lon), nodeLong.ToString(), existingStop.Lon.ToString(), ChangeAction.Modified);
+          nameof(existingStop.Lon), nodeLon.ToString(), existingStop.Lon.ToString(), ChangeAction.Modified);
 
-        existingStop.Lon = nodeLong;
+        existingStop.Lon = nodeLon;
       }
 
       List<Tag> newTags = PopulateTags(existingStop, node, reportStop);
@@ -258,6 +285,7 @@ namespace OsmIntegrator.Services
       List<Tag> newTags = PopulateTags(stop, node, reportStop);
       UpdateStopProperties(stop, newTags, reportStop);
       stop.Tags = newTags;
+      tile.Stops ??= new List<DbStop>();
       tile.Stops.Add(stop);
     }
 
@@ -341,6 +369,63 @@ namespace OsmIntegrator.Services
       {
         // Update local ref
         stop.Number = localRefTag.Value;
+      }
+    }
+
+    public async Task UpdateTileReferences(List<DbTile> tiles, ApplicationDbContext dbContext)
+    {
+      using (IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync())
+      {
+
+        try
+        {
+          foreach (DbTile tile in tiles)
+          {
+            foreach (DbStop stop in tile.Stops)
+            {
+              double stopLat = stop.Lat;
+              double stopLon = stop.Lon;
+
+              Point<long> tileCoordinates = TilesHelper.WorldToTilePos(stopLon, stopLat, _zoomLevel);
+
+              if (tile.X != tileCoordinates.X && tile.Y != tileCoordinates.Y)
+              {
+                DbTile newTile = dbContext.Tiles.FirstOrDefault(t => t.X == tileCoordinates.X && t.Y == tileCoordinates.Y);
+
+                if (newTile != null)
+                {
+                  stop.Tile = newTile;
+                  stop.TileId = stop.Tile.Id;
+                }
+                else
+                {
+                  Point<double> leftUpperCorner = TilesHelper.TileToWorldPos(
+                    tileCoordinates.X, tileCoordinates.Y, _zoomLevel
+                  );
+                  Point<double> rightBottomCorner = TilesHelper.TileToWorldPos(
+                    tileCoordinates.X + 1, tileCoordinates.Y + 1, _zoomLevel
+                  );
+                  newTile = new(tileCoordinates.X, tileCoordinates.Y,
+                    leftUpperCorner.X, rightBottomCorner.X,
+                    rightBottomCorner.Y, leftUpperCorner.Y,
+                    _overlapFactor);
+
+                  dbContext.Tiles.Add(newTile);
+                  stop.Tile = newTile;
+                  stop.TileId = stop.Tile.Id;
+                }
+              }
+            }
+          }
+
+          await dbContext.SaveChangesAsync();
+          await transaction.CommitAsync();
+        }
+        catch (System.Exception)
+        {
+          await transaction.RollbackAsync();
+          throw;
+        }
       }
     }
   }
