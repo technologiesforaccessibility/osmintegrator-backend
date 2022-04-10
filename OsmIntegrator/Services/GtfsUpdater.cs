@@ -29,25 +29,19 @@ namespace OsmIntegrator.Services
     private void RemoveConnections(ApplicationDbContext dbContext)
     {
       List<DbConnection> connectionsToDelete = dbContext.Connections
-        .Include(x => x.OsmStop)
         .Include(x => x.GtfsStop)
-        .Where(x => x.OsmStop.IsDeleted == true)
+        .Where(x => x.GtfsStop.IsDeleted == true)
         .ToList();
 
       dbContext.Connections.RemoveRange(connectionsToDelete);
     }
 
-    private bool isChanged(GtfsStop stop, DbStop dbStop)
+    private bool IsChanged(GtfsStop stop, DbStop dbStop)
     {
-      if (double.Parse(stop.StopLat, CultureInfo.InvariantCulture) != dbStop.Lat ||
+      return double.Parse(stop.StopLat, CultureInfo.InvariantCulture) != dbStop.Lat ||
           double.Parse(stop.StopLon, CultureInfo.InvariantCulture) != dbStop.Lon ||
           stop.StopName != dbStop.Name ||
-          stop.StopCode != dbStop.Number)
-      {
-        return true;
-      }
-
-      return false;
+          stop.StopCode != dbStop.Number;
     }
 
     public async Task<GtfsImportReport> Update(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext)
@@ -102,7 +96,7 @@ namespace OsmIntegrator.Services
               dbStop.IsDeleted = false;
             }
 
-            if (isChanged(stop, dbStop) || deletionReverted)
+            if (IsChanged(stop, dbStop) || deletionReverted)
             {
               ModifyStop(stop, dbStop, dbContext, report, deletionReverted);
             }

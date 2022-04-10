@@ -42,10 +42,9 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
       Assert.True(actualStop1.IsDeleted);
 
       List<DbConnection> deletedConnections = _dbContext.Connections
-        .Include(x => x.OsmStop)
-        .Where(x => x.OsmStop.IsDeleted)
+        .Include(x => x.GtfsStop)
+        .Where(x => x.GtfsStop.IsDeleted).AsNoTracking()
         .ToList();
-
       Assert.Empty(deletedConnections);
 
       GtfsImportReport actualReport =
@@ -57,22 +56,6 @@ namespace OsmIntegrator.Tests.Tests.GtfsImports
         SerializationHelper.JsonDeserialize<GtfsImportReport>($"{TestDataFolder}{nameof(RemoveStopTest)}/Report.json");
 
       Assert.Empty(Compare<GtfsImportReport>(expectedReport, actualReport));
-    }
-
-    [Fact]
-    public async Task RemoveStopTwiceTest()
-    {
-      await InitTest(nameof(RemoveStopTest), "supervisor2", "supervisor1");
-
-      var content = new MultipartFormDataContent();
-      var fileStreamContent = new StreamContent(File.OpenRead($"{TestDataFolder}{nameof(RemoveStopTest)}/Data.txt"));
-      fileStreamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
-
-      content.Add(fileStreamContent, "file", "Data.txt");
-      Report report = await Put_UpdateGtfsStops(content);
-      report = await Put_UpdateGtfsStops(content);
-
-      Assert.Contains("Brak zmian", report.Value);
     }
   }
 }

@@ -34,7 +34,7 @@ namespace OsmIntegrator.Validators
 
     public async Task<bool> ValidateDelayAsync(Guid tileId)
     {
-      DateTime? lastExportDate = await _dbContext.ExportReports
+      DateTime? lastExportDate = await _dbContext.OsmExportReports
             .Where(r => r.TileId == tileId)
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => r.CreatedAt)

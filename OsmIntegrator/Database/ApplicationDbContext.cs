@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using OsmIntegrator.Database.DataInitialization;
 using OsmIntegrator.Database.Models;
 using System;
@@ -26,9 +25,9 @@ namespace OsmIntegrator.Database
 
     public DbSet<DbMessage> Messages { get; set; }
 
-    public DbSet<DbTileImportReport> ChangeReports { get; set; }
+    public DbSet<DbTileImportReport> OsmImportReports { get; set; }
 
-    public DbSet<DbTileExportReport> ExportReports { get; set; }
+    public DbSet<DbTileExportReport> OsmExportReports { get; set; }
 
     public DbSet<DbGtfsImportReport> GtfsImportReports { get; set; }
 
