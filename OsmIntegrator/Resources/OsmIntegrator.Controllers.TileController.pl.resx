@@ -193,7 +193,13 @@
     <data name="Removed" xml:space="preserve">
         <value>Usunięto</value>
     </data>
-    <data name="Uploaded file is not a csv or could not be parsed" xml:space="preserve">
-        <value>Przesłany plik nie jest plikiem csv lub jest w złym formacie</value>
+    <data name="Uploaded file is not in CSV format" xml:space="preserve">
+        <value>Przesłany plik nie jest plikiem CSV</value>
+    </data>
+    <data name="CSV file is empty" xml:space="preserve">
+        <value>Plik CSV jest pusty</value>
+    </data>
+    <data name="Problem with parsing CSV file" xml:space="preserve">
+        <value>Wystąpił problem z parsowaniem pliku CSV</value>
     </data>
 </root>

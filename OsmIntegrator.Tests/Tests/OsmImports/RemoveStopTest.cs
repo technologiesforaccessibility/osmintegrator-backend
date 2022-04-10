@@ -44,7 +44,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Assert.Empty(deletedConnections);
 
       TileImportReport actualReportTile =
-        _dbContext.ChangeReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
+        _dbContext.OsmImportReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
 
       TileImportReport expectedReportTile =
         SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RemoveStopTest)}/ReportTile.json");

@@ -188,7 +188,7 @@ public class DataInitializer
   public static List<DbStop> GetGtfsStopsList(string fileName)
   {
     List<string[]> csvStopList = CsvParser.Parse(fileName);
-    List<DbStop> ztmStopList = csvStopList.Select((x, _) => new DbStop()
+    List<DbStop> ztmStopList = csvStopList.Select(x => new DbStop()
     {
       Id = Guid.NewGuid(),
       StopId = long.Parse(x[0]),
@@ -300,7 +300,8 @@ public class DataInitializer
     db.Users.RemoveRange(db.Users);
     db.UserRoles.RemoveRange(db.UserRoles);
 
-    db.ChangeReports.RemoveRange(db.ChangeReports);
+    db.OsmImportReports.RemoveRange(db.OsmImportReports);
+    db.OsmExportReports.RemoveRange(db.OsmExportReports);
     db.GtfsImportReports.RemoveRange(db.GtfsImportReports);
 
     db.SaveChanges();

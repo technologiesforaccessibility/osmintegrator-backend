@@ -68,7 +68,10 @@ namespace osmintegrator
               services.AddSingleton<IOverpass, Overpass>();
               services.AddSingleton<IOsmUpdater, OsmUpdater>();
               services.AddSingleton<IGtfsUpdater, GtfsUpdater>();
-              services.AddHostedService<OsmScheduler>();
+              if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Test")
+              {
+                services.AddHostedService<OsmScheduler>();
+              }
             })
             .ConfigureLogging(logging =>
             {

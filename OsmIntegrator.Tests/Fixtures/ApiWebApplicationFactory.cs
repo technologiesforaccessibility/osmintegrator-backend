@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ namespace OsmIntegrator.Tests.Fixtures
       // Set ASPNETCORE to Test
       // Thanks to this program will read appsettings.Test.json config file
       builder.UseEnvironment("Test");
+      Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
       builder.ConfigureTestServices(services =>
       {

@@ -39,9 +39,9 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
-      Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
+      Assert.Equal(2, _dbContext.OsmImportReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =
-        _dbContext.ChangeReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
+        _dbContext.OsmImportReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
       TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
       TileImportReport expectedReportTile =
@@ -71,9 +71,9 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
 
       DbStop actualStop1 = _dbContext.Stops.AsNoTracking().First(x => x.StopId == ExpectedValues.OSM_STOP_ID_3);
       Assert.False(actualStop1.IsDeleted);
-      Assert.Equal(2, _dbContext.ChangeReports.AsNoTracking().Count());
+      Assert.Equal(2, _dbContext.OsmImportReports.AsNoTracking().Count());
       List<DbTileImportReport> actualChangeReports =
-        _dbContext.ChangeReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
+        _dbContext.OsmImportReports.AsNoTracking().Where(x => x.TileId == tile.Id).ToList();
       TileImportReport actualReportTile = actualChangeReports.Last().TileReport;
 
       TileImportReport expectedReportTile =

@@ -12,21 +12,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using OsmIntegrator.ApiModels;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Interfaces;
 using OsmIntegrator.Roles;
-using OsmIntegrator.Tools;
-using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.ApiModels.Reports;
-using OsmIntegrator.ApiModels.Stops;
-using OsmIntegrator.Extensions;
 using OsmIntegrator.Validators;
-using OsmIntegrator.ApiModels.Tiles;
-using OsmIntegrator.Database.Models.Enums;
-using OsmIntegrator.Enums;
-using OsmIntegrator.Database.QueryObjects;
 using CsvHelper;
 using System.IO;
 using System.Globalization;
@@ -85,7 +76,7 @@ public class GtfsController : ControllerBase
   {
     if (file == null || (file.ContentType != "text/plain" && file.ContentType != "text/csv"))
     {
-      throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+      throw new BadHttpRequestException(_localizer["Uploaded file is not in CSV format"]);
     }
 
     using (var reader = new StreamReader(file.OpenReadStream()))
@@ -97,7 +88,7 @@ public class GtfsController : ControllerBase
           var recordsArray = csv.GetRecords<GtfsStop>().ToArray();
           if (recordsArray.Length == 0)
           {
-            throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+            throw new BadHttpRequestException(_localizer["CSV file is empty"]);
           }
 
           var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext);
@@ -106,7 +97,7 @@ public class GtfsController : ControllerBase
       }
       catch (CsvHelper.CsvHelperException)
       {
-        throw new BadHttpRequestException(_localizer["Uploaded file is not a csv or could not be parsed"]);
+        throw new BadHttpRequestException(_localizer["Problem with parsing CSV file"]);
       }
     }
   }
