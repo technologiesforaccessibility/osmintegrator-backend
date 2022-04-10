@@ -147,7 +147,7 @@ namespace OsmIntegrator.Controllers
       ApplicationUser user = await _userManager.GetUserAsync(User);
 
       // report export in database
-      await _dbContext.ExportReports.AddAsync(new DbTileExportReport
+      await _dbContext.OsmExportReports.AddAsync(new DbTileExportReport
       {
         TileId = tileId,
         CreatedAt = DateTime.Now.ToUniversalTime(),

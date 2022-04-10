@@ -96,7 +96,7 @@ namespace OsmIntegrator.Services
 
         if (report.Stops.Count > 0)
         {
-          dbContext.ChangeReports.Add(new DbTileImportReport
+          dbContext.OsmImportReports.Add(new DbTileImportReport
           {
             CreatedAt = DateTime.Now.ToUniversalTime(),
             TileId = tile.Id,
@@ -131,7 +131,7 @@ namespace OsmIntegrator.Services
           {
             if (x.Stops.Count > 0)
             {
-              dbContext.ChangeReports.Add(new DbTileImportReport
+              dbContext.OsmImportReports.Add(new DbTileImportReport
               {
                 CreatedAt = DateTime.Now.ToUniversalTime(),
                 TileId = x.TileId, // Tile id was saved during the report creation

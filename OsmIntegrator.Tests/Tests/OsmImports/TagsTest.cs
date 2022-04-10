@@ -53,7 +53,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       Assert.DoesNotContain(actualStop2.Tags, x => x.Key == "public_transport");
 
       TileImportReport actualReportTile =
-        _dbContext.ChangeReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
+        _dbContext.OsmImportReports.AsNoTracking().FirstOrDefault(x => x.TileId == tile.Id)?.TileReport;
 
       TileImportReport expectedReportTile =
         SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(TagsTest)}/ReportTile.json");

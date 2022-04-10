@@ -1025,7 +1025,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Tile/GetStops/01bcbe50-ee42-4f88-abeb-6ec060b27b6a",
+							"raw": "{{host}}/api/Tile/GetStops/8e90114c-1f64-42e0-b6b2-0fde0b8ad8f5",
 							"host": [
 								"{{host}}"
 							],
@@ -1033,7 +1033,7 @@
 								"api",
 								"Tile",
 								"GetStops",
-								"01bcbe50-ee42-4f88-abeb-6ec060b27b6a"
+								"8e90114c-1f64-42e0-b6b2-0fde0b8ad8f5"
 							]
 						}
 					},
@@ -1488,14 +1488,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/api/Connections/13fdb85d-6039-4171-af62-cbdf0abb2b9a",
+							"raw": "{{host}}/api/Connections/6da5f324-8a55-49d8-9444-c959af8f0452",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
 								"api",
 								"Connections",
-								"13fdb85d-6039-4171-af62-cbdf0abb2b9a"
+								"6da5f324-8a55-49d8-9444-c959af8f0452"
 							]
 						}
 					},
@@ -1924,6 +1924,55 @@
 								"OsmExport",
 								"Export",
 								"080e478b-d1a5-4ab3-a62b-c7d0b55fa1ff"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GtfsImport",
+			"item": [
+				{
+					"name": "UpdateStops",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{{{token}}}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "stops.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{host}}/api/Gtfs/UpdateStops",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"api",
+								"Gtfs",
+								"UpdateStops"
 							]
 						}
 					},
