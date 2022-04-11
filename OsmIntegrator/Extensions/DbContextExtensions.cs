@@ -42,7 +42,7 @@ public static class DbContextExtensions
         MinLon = t.MinLon,
         X = t.X,
         Y = t.Y,
-        GtfsStopsCount = t.Stops.Count(s => s.StopType == StopType.Gtfs)
+        GtfsStopsCount = t.Stops.Count(s => s.StopType == StopType.Gtfs && !s.IsDeleted)
       })
       .ToListAsync();
 
@@ -62,7 +62,7 @@ public static class DbContextExtensions
         MinLon = t.MinLon,
         X = t.X,
         Y = t.Y,
-        GtfsStopsCount = t.Stops.Count(s => s.StopType == StopType.Gtfs)
+        GtfsStopsCount = t.Stops.Count(s => s.StopType == StopType.Gtfs && !s.IsDeleted)
       })
       .ToListAsync();
 }
