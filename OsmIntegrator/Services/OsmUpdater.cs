@@ -174,7 +174,7 @@ namespace OsmIntegrator.Services
         DbStop existingStop = tile.Stops?.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
 
-        if (existingStop == null && isOnTile)
+        if (existingStop == null)
         {
           DbTile otherTile = dbContext.Tiles
             .Include(t => t.Stops)
