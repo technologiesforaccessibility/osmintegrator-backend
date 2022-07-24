@@ -27,10 +27,6 @@ using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Database.QueryObjects;
-using CsvHelper;
-using System.IO;
-using System.Globalization;
-using OsmIntegrator.Database.Models.CsvObjects;
 
 namespace OsmIntegrator.Controllers;
 
