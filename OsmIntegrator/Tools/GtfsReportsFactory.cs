@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using OsmIntegrator.Database.Models;
-using OsmIntegrator.Database.Models.CsvObjects;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Interfaces;

@@ -11,7 +11,7 @@ using OsmIntegrator.Database.Models.JsonFields;
 using OsmIntegrator.Database.Models.Enums;
 using System;
 using Microsoft.EntityFrameworkCore;
-using OsmIntegrator.Database.Models.CsvObjects;
+using OsmIntegrator.Tools.Csv;
 
 namespace OsmIntegrator.Services
 {
@@ -36,7 +36,7 @@ namespace OsmIntegrator.Services
       dbContext.Connections.RemoveRange(connectionsToDelete);
     }
 
-    private bool IsChanged(GtfsStop stop, DbStop dbStop)
+    private bool IsChanged(CsvGtfsStop stop, DbStop dbStop)
     {
       return double.Parse(stop.StopLat, CultureInfo.InvariantCulture) != dbStop.Lat ||
           double.Parse(stop.StopLon, CultureInfo.InvariantCulture) != dbStop.Lon ||
@@ -44,7 +44,7 @@ namespace OsmIntegrator.Services
           stop.StopCode != dbStop.Number;
     }
 
-    public async Task<GtfsImportReport> Update(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext)
+    public async Task<GtfsImportReport> Update(CsvGtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext)
     {
       await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
       try
@@ -74,11 +74,11 @@ namespace OsmIntegrator.Services
       }
     }
 
-    private async Task<GtfsImportReport> ProcessStops(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext)
+    private async Task<GtfsImportReport> ProcessStops(CsvGtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext)
     {
       GtfsImportReport report = _reportsFactory.Create();
 
-      foreach (GtfsStop stop in stops)
+      foreach (CsvGtfsStop stop in stops)
       {
         if (tiles.Any(tile => tile.Stops.Any(s => s.StopId == stop.StopId)))
         {
@@ -125,7 +125,7 @@ namespace OsmIntegrator.Services
       {
         foreach (DbStop dbStop in tile.Stops)
         {
-          GtfsStop stopFromFile = stops.FirstOrDefault(s => s.StopId == dbStop.StopId);
+          CsvGtfsStop stopFromFile = stops.FirstOrDefault(s => s.StopId == dbStop.StopId);
           if (stopFromFile == null && dbStop.StopType == StopType.Gtfs)
           {
             await RemoveStop(dbStop, dbContext, report);
@@ -135,7 +135,7 @@ namespace OsmIntegrator.Services
 
       return report;
     }
-    private void ModifyStop(GtfsStop stop, DbStop dbStop, ApplicationDbContext dbContext, GtfsImportReport report, bool deletionReverted)
+    private void ModifyStop(CsvGtfsStop stop, DbStop dbStop, ApplicationDbContext dbContext, GtfsImportReport report, bool deletionReverted)
     {
       // Report - new stop
       ReportStop reportStop =
@@ -209,7 +209,7 @@ namespace OsmIntegrator.Services
       dbContext.Stops.Update(dbStop);
     }
 
-    private void AddStop(DbTile tile, GtfsImportReport report, GtfsStop stop)
+    private void AddStop(DbTile tile, GtfsImportReport report, CsvGtfsStop stop)
     {
       DbStop dbStop = new DbStop
       {
