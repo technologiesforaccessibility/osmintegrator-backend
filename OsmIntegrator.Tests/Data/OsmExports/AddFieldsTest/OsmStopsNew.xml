@@ -7,8 +7,8 @@
           changeset="82493028" uid="334393" user="olo81">
         <tag k="bus" v="yes"/>
         <tag k="highway" v="bus_stop"/>
-        <tag k="name" v="Brynów Orkana"/>
         <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
         <tag k="public_transport" v="stop_position"/>
+        <tag k="name" v="Brynów Orkana"/>
     </node>
 </osm>

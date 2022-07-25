@@ -12,18 +12,16 @@ namespace OsmIntegrator.OsmApi
   public class OsmExportBuilder : IOsmExportBuilder
   {
     private readonly IOsmApiClient _osmApiClient;
-    private readonly IOsmExporter _osmExporter;
+    private OsmChange _osmChange;
+    private OsmChangeset _osmChangeset;
     private string _username;
     private string _password;
-    private string _changesetComment;
     private Uri _osmApiUrl;
-    private bool _close = false;
-    private Guid? _tileId;
+    private bool _close;
 
-    public OsmExportBuilder(IOsmApiClient osmApiClient, IOsmExporter osmExporter)
+    public OsmExportBuilder(IOsmApiClient osmApiClient)
     {
       _osmApiClient = osmApiClient;
-      _osmExporter = osmExporter;
     }
 
     public IOsmExportBuilder UseOsmApiUrl(string osmApiUrl)
@@ -53,27 +51,24 @@ namespace OsmIntegrator.OsmApi
       return this;
     }
 
-    public IOsmExportBuilder UseChangesetComment(string comment)
-    {
-      _changesetComment = string.IsNullOrWhiteSpace(comment)
-        ? throw new ArgumentNullException(nameof(comment))
-        : comment;
-
-
-      return this;
-    }
-
-    public IOsmExportBuilder UseTile(Guid tileId)
-    {
-      _tileId = tileId;
-
-      return this;
-    }
-
     public IOsmExportBuilder UseClose(bool close = true)
     {
       _close = close;
 
+      return this;
+    }
+
+    public IOsmExportBuilder UseOsmChange(OsmChange osmChange)
+    {
+      ArgumentNullException.ThrowIfNull(osmChange);
+      _osmChange = osmChange;
+      return this;
+    }
+    
+    public IOsmExportBuilder UseOsmChangeset(OsmChangeset osmChangeset)
+    {
+      ArgumentNullException.ThrowIfNull(osmChangeset);
+      _osmChangeset = osmChangeset;
       return this;
     }
 
@@ -86,22 +81,21 @@ namespace OsmIntegrator.OsmApi
 
       try
       {
-        IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(_tileId.Value);
+        uint changesetId = await osmApiClient.CreateChangesetAsync(_osmChangeset);
 
-        OsmChangeset osmChangeset = _osmExporter.CreateChangeset(_changesetComment);
+        foreach (Node node in _osmChange.Mod.Nodes)
+        {
+          node.Changeset = changesetId.ToString();
+        }
 
-        uint changesetId = await osmApiClient.CreateChangesetAsync(osmChangeset);
-
-        OsmChange osmChange = _osmExporter.GetOsmChange(connections, changesetId);
-
-        await osmApiClient.UploadChangesAsync(changesetId, osmChange);
+        await osmApiClient.UploadChangesAsync(changesetId, _osmChange);
 
         if (_close)
         {
           await osmApiClient.CloseChangesetAsync(changesetId);
         }
 
-        return new OsmExportResult(OsmApiResponse.Success(changesetId), connections);
+        return new OsmExportResult(OsmApiResponse.Success(changesetId));
       }
       catch (UnauthorizedAccessException)
       {

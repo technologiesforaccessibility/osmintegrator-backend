@@ -117,34 +117,13 @@
     <resheader name="writer">
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
-    <data name="No changes" xml:space="preserve">
-        <value>BRAK ZMIAN</value>
-    </data>
-    <data name="Tile coordinates" xml:space="preserve">
-        <value>WSPÓŁRZĘDNE KAFELKA = X: {0}, Y: {1}</value>
-    </data>
-    <data name="Stop modified" xml:space="preserve">
-        <value>[PRZYSTANEK-ZMIENIONO]</value>
-    </data>
-    <data name="[TAG-ADDED]" xml:space="preserve">
-        <value>[TAG-DODANO]</value>
-    </data>
-    <data name="[TAG-MODIFIED]" xml:space="preserve">
-        <value>[TAG-ZMIENIONO]</value>
-    </data>
-    <data name="Delay required" xml:space="preserve">
-        <value>Musisz odczekać 5 min od ostatniego eksportu</value>
-    </data>
-    <data name="Selected tile doesn't exist" xml:space="preserve">
-        <value>Wybrany kafelek nie istnieje</value>
-    </data>
-    <data name="Import required" xml:space="preserve">
-        <value>Masz nieaktualne dane z mapy osm. Użyj przycisku "Pobierz z OSM", aby pobrać najnowszą wersję!</value>
-    </data>
     <data name="Invalid OSM Credentials" xml:space="preserve">
         <value>Niepoprawne dane logowania do OSM</value>
     </data>
     <data name="Changeset id is null" xml:space="preserve">
         <value>Id changeseta jest równe null</value>
+    </data>
+    <data name="Problem with saving data to the database" xml:space="preserve">
+        <value>Problem z zapisem danych w bazie</value>
     </data>
 </root>

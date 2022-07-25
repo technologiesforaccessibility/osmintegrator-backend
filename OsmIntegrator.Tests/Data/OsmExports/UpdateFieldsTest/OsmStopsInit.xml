@@ -12,5 +12,6 @@
         <tag k="public_transport" v="stop_position"/>
         <tag k="ref" v="0000"/>
         <tag k="local_ref" v="1"/>
+        <tag k="ref:metropolia" v="0000"/>
     </node>
 </osm>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<osmChange comment="Bus and tram stops tags update" generator="osm integrator v0.1" mechanical="yes" version="0.6" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modify>
+        <node id="1584594015" lat="50.2326753" lon="18.9956494" version="5">
+            <tag k="bus" v="yes"/>
+            <tag k="highway" v="bus_stop"/>
+            <tag k="local_ref" v="1"/>
+            <tag k="name" v="Brynów Dworska"/>
+            <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
+            <tag k="public_transport" v="stop_position"/>
+            <tag k="ref" v="1"/>
+            <tag k="ref:metropolia" v="159061"/>
+        </node>
+        <node id="1831941739" lat="50.2314908" lon="18.9828756" version="6">
+            <tag k="bus" v="yes"/>
+            <tag k="highway" v="bus_stop"/>
+            <tag k="local_ref" v="1"/>
+            <tag k="name" v="Stara Ligota Rolna"/>
+            <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
+            <tag k="public_transport" v="stop_position"/>
+            <tag k="ref" v="1"/>
+            <tag k="ref:metropolia" v="159541"/>
+        </node>
+        <node id="1831944331" lat="50.2313802" lon="18.9886732" version="4">
+            <tag k="bus" v="yes"/>
+            <tag k="highway" v="bus_stop"/>
+            <tag k="local_ref" v="2"/>
+            <tag k="name" v="Brynów Orkana"/>
+            <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
+            <tag k="public_transport" v="stop_position"/>
+            <tag k="ref" v="2"/>
+            <tag k="ref:metropolia" v="159077"/>
+        </node>
+        <node id="1905028012" lat="50.2314859" lon="18.983442" version="3">
+            <tag k="bus" v="yes"/>
+            <tag k="highway" v="bus_stop"/>
+            <tag k="local_ref" v="2"/>
+            <tag k="name" v="Stara Ligota Rolna"/>
+            <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
+            <tag k="public_transport" v="stop_position"/>
+            <tag k="ref" v="2"/>
+            <tag k="ref:metropolia" v="159542"/>
+        </node>
+        <node id="1905039171" lat="50.2313219" lon="18.9893556" version="3">
+            <tag k="bus" v="yes"/>
+            <tag k="highway" v="bus_stop"/>
+            <tag k="local_ref" v="1"/>
+            <tag k="name" v="Brynów Orkana"/>
+            <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
+            <tag k="public_transport" v="stop_position"/>
+            <tag k="ref" v="1"/>
+            <tag k="ref:metropolia" v="159076"/>
+        </node>
+    </modify>
+</osmChange>

@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +22,7 @@ using OsmIntegrator.ApiModels.OsmExport;
 using System.Collections.Generic;
 using System.Linq;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Interfaces;
 
 namespace OsmIntegrator.Controllers
 {
@@ -36,7 +36,6 @@ namespace OsmIntegrator.Controllers
   {
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<OsmExportController> _logger;
-    private readonly IMapper _mapper;
     private readonly IStringLocalizer<OsmExportController> _localizer;
     private readonly IOsmExporter _osmExporter;
     private readonly IConfiguration _configuration;
@@ -48,7 +47,6 @@ namespace OsmIntegrator.Controllers
     public OsmExportController(
         ApplicationDbContext dbContext,
         ILogger<OsmExportController> logger,
-        IMapper mapper,
         IStringLocalizer<OsmExportController> localizer,
         IOsmExporter osmExporter,
         IConfiguration configuration,
@@ -59,7 +57,6 @@ namespace OsmIntegrator.Controllers
     {
       _dbContext = dbContext;
       _logger = logger;
-      _mapper = mapper;
       _localizer = localizer;
       _osmExporter = osmExporter;
       _configuration = configuration;
@@ -127,12 +124,17 @@ namespace OsmIntegrator.Controllers
       {
         throw new BadHttpRequestException(_localizer["Import required"]);
       }
+      
+      IReadOnlyCollection<DbConnection> connections = 
+        await _osmExporter.GetUnexportedOsmConnectionsAsync(tileId);
+      OsmChangeset osmChangeset = _osmExporter.CreateChangeset(input.Comment);
+      OsmChange osmChange = _osmExporter.GetOsmChange(connections);
 
       // send tile's changes to OSM
       OsmExportResult exportResult = await _osmExportBuilder
-        .UseTile(tileId)
-        .UseChangesetComment(input.Comment)
         .UseOsmApiUrl(_externalServices.OsmApiUrl)
+        .UseOsmChange(osmChange)
+        .UseOsmChangeset(osmChangeset)
         .UseUsername(input.Email)
         .UsePassword(input.Password)
         .UseClose()
@@ -141,6 +143,11 @@ namespace OsmIntegrator.Controllers
       if (exportResult.ApiResponse.Status == OsmApiStatusCode.Unauthorized)
       {
         throw new BadHttpRequestException(_localizer["Invalid OSM Credentials"]);
+      }
+
+      if (exportResult.ChangesetId == null)
+      {
+        throw new BadHttpRequestException(_localizer["Changeset id is null"]);
       }
 
       // Get current user roles
@@ -156,12 +163,20 @@ namespace OsmIntegrator.Controllers
         ChangesetId = exportResult.ChangesetId.Value
       });
 
-      foreach (DbConnection connection in exportResult.ExportedConnections)
+      foreach (DbConnection connection in connections)
       {
         connection.Exported = true;
       }
 
-      await _dbContext.SaveChangesAsync();
+      try
+      {
+        await _dbContext.SaveChangesAsync();
+      }
+      catch (Exception e)
+      {
+        _logger.LogError(e, "Problem with saving data to the database");
+        throw new BadHttpRequestException(_localizer["Problem with saving data to the database"]);
+      }
 
       return Ok();
     }
