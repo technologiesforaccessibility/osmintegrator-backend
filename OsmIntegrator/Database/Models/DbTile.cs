@@ -83,20 +83,25 @@ namespace OsmIntegrator.Database.Models
       Tag oldNameTag = osmStop.GetTag(Constants.NAME);
       Tag oldRefTag = osmStop.GetTag(Constants.REF);
       Tag oldLocalRefTag = osmStop.GetTag(Constants.LOCAL_REF);
+      Tag oldMetropoliaRefTag = osmStop.GetTag(Constants.REF_METROPOLIA);
       
       string newName = connection.GtfsStop.Name;
-      string newRef = connection.GtfsStop.StopId.ToString();
+      string newRef = connection.GtfsStop.Number;
       string newLocalRef = connection.GtfsStop.Number;
+      string newMetropoliaRef = connection.GtfsStop.StopId.ToString();
       
       string nameTagDiff = GetTagDiff(Constants.NAME, oldNameTag?.Value, newName, localizer);
       string refTagDiff = GetTagDiff(Constants.REF, oldRefTag?.Value, newRef, localizer);
       string localRefTagDiff = GetTagDiff(Constants.LOCAL_REF, oldLocalRefTag?.Value,
         newLocalRef, localizer);
+      string metropoliaRefTagDiff = GetTagDiff(Constants.REF_METROPOLIA, oldMetropoliaRefTag?.Value, 
+        newMetropoliaRef, localizer);
       
       StringBuilder stopDiffBuilder = new();
       if (nameTagDiff != null) stopDiffBuilder.AppendLine(nameTagDiff);
       if(refTagDiff != null) stopDiffBuilder.AppendLine(refTagDiff);
       if(localRefTagDiff != null) stopDiffBuilder.AppendLine(localRefTagDiff);
+      if (metropoliaRefTagDiff != null) stopDiffBuilder.AppendLine(metropoliaRefTagDiff);
 
       return stopDiffBuilder.ToString();
     }

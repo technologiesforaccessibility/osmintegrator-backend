@@ -27,10 +27,6 @@ using OsmIntegrator.ApiModels.Tiles;
 using OsmIntegrator.Database.Models.Enums;
 using OsmIntegrator.Enums;
 using OsmIntegrator.Database.QueryObjects;
-using CsvHelper;
-using System.IO;
-using System.Globalization;
-using OsmIntegrator.Database.Models.CsvObjects;
 
 namespace OsmIntegrator.Controllers;
 
@@ -251,6 +247,10 @@ public class TileController : ControllerBase
     return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
+  /// <summary>
+  /// If OSM and GTFS data are "the same" mark connection as exported.
+  /// </summary>
+  /// <param name="id">tile id</param>
   private async Task UpdatedExportedConnections(Guid id)
   {
     IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(id);

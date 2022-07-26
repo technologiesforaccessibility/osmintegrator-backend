@@ -9,13 +9,10 @@ namespace OsmIntegrator.ApiModels.OsmExport
     public OsmApiResponse ApiResponse { get; }
 
     public uint? ChangesetId => ApiResponse?.Data as uint?;
-    
-    public IReadOnlyCollection<DbConnection> ExportedConnections { get; }
 
-    public OsmExportResult(OsmApiResponse apiResponse, IReadOnlyCollection<DbConnection> exportedConnections = null)
+    public OsmExportResult(OsmApiResponse apiResponse)
     {
       ApiResponse = apiResponse;
-      ExportedConnections = exportedConnections;
     }
   }
 }

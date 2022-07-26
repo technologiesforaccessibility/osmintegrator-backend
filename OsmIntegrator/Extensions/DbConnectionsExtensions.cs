@@ -16,5 +16,9 @@ namespace OsmIntegrator.Extensions
       connections
         .OnlyLatest()
         .Where(c => c.OperationType == ConnectionOperationType.Added && !c.Exported);
+
+    public static IEnumerable<DbConnection> OnlyExported(this IEnumerable<DbConnection> connections) =>
+      connections.OnlyLatest()
+        .Where(c => c.OperationType == ConnectionOperationType.Added && c.Exported);
   }
 }

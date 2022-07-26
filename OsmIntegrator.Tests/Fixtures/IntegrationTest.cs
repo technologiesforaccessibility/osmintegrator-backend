@@ -144,6 +144,13 @@ namespace OsmIntegrator.Tests.Fixtures
       string jsonResponse = await response.Content.ReadAsStringAsync();
       return SerializationHelper.XmlDeserialize<OsmChange>(jsonResponse);
     }
+    
+    public async Task<OsmChange> Get_UpdateRefsCommand_GetChangeFile()
+    {
+      HttpResponseMessage response = await _client.GetAsync($"/api/UpdateRefsCommand/GetOsmChangeFile");
+      string jsonResponse = await response.Content.ReadAsStringAsync();
+      return SerializationHelper.XmlDeserialize<OsmChange>(jsonResponse);
+    }
 
     public async Task<OsmChangeOutput> Get_OsmExport_GetChanges(string tileId)
     {

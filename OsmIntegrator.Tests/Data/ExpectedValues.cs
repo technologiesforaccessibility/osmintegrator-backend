@@ -12,12 +12,22 @@ namespace OsmIntegrator.Tests.Data
 
     public const int RIGHT_TILE_X = 2264;
     public const int RIGHT_TILE_Y = 1385;
+    
+    public const int LEFT_TILE_X = 2263;
+    public const int LEFT_TILE_Y = 1385;
+    
     public const long OSM_STOP_ID_1 = 1831944331; // Brynów Orkana (2)
     public const long OSM_STOP_ID_2 = 1905039171; // Brynów Orkana (1)
     public const long OSM_STOP_ID_3 = 1584594015; // Brynów Dworska
+    public const long OSM_STOP_ID_4 = 1905028012; // Stara Ligota Rolna (2)
+    public const long OSM_STOP_ID_5 = 1831941739; // Stara Ligota Rolna (1)
+    
     public const long GTFS_STOP_ID_1 = 159541; // Stara Ligota Rolna 1
     public const long GTFS_STOP_ID_2 = 159542; // Stara Ligota Rolna 2
     public const long GTFS_STOP_ID_3 = 159077; // Brynów Orkana 2
+    public const long GTFS_STOP_ID_4 = 159076; // Brynów Orkana 1
+    public const long GTFS_STOP_ID_5 = 159061; // Brynów Dworska 1 
+    
     public const long GTFS_MOCK_ID = 111111; // Brynów Orkana 2
   }
 }

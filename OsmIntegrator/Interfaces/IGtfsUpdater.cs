@@ -1,15 +1,14 @@
 using OsmIntegrator.Database.Models.JsonFields;
-using OsmIntegrator.Database.Models.CsvObjects;
 using System.Threading.Tasks;
 using OsmIntegrator.Database;
-using OsmIntegrator.Tools;
 using OsmIntegrator.Database.Models;
+using OsmIntegrator.Tools.Csv;
 
 
 namespace OsmIntegrator.Interfaces
 {
   public interface IGtfsUpdater
   {
-    Task<GtfsImportReport> Update(GtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext);
+    Task<GtfsImportReport> Update(CsvGtfsStop[] stops, DbTile[] tiles, ApplicationDbContext dbContext);
   }
 }

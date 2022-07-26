@@ -47,7 +47,7 @@ namespace OsmIntegrator.Tests.Tests.OsmImports
       TileImportReport expectedReportTile =
         SerializationHelper.JsonDeserialize<TileImportReport>($"{TestDataFolder}{nameof(RevertStopTest)}/ReportTile.json");
 
-      Assert.Empty(Compare<TileImportReport>(
+      Assert.Empty(Compare(
         expectedReportTile, actualReportTile, new List<string> { "TileId", "DatabaseStopId" }));
     }
 
