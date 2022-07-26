@@ -65,10 +65,7 @@ public class UpdateRefsCommandTest : IntegrationTest
       (x, y) => string.Compare(x.Id, y.Id, StringComparison.Ordinal));
     actualFile.Mod.Nodes.ForEach(
       x => x.Tag.Sort((a, b) => string.Compare(a.K, b.K, StringComparison.Ordinal)));
-
-    XmlSerializer s = new(typeof(OsmChange));
-    await using TextWriter writer = new StreamWriter("/Users/lukasz/Dev/temp2.xml");
-    s.Serialize(writer, actualFile);
+    
     OsmChange expectedFile =
       SerializationHelper.XmlDeserializeFile<OsmChange>(
         $"{TestDataFolder}{nameof(UpdateRefsCommandTest)}/osmchange.xml");
