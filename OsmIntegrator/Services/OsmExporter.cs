@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using OsmIntegrator.Database;
 using OsmIntegrator.Database.Models;
 using OsmIntegrator.Database.Models.Enums;
+using OsmIntegrator.Interfaces;
 using OsmIntegrator.Tools;
 
 namespace OsmIntegrator.Services
@@ -17,13 +18,10 @@ namespace OsmIntegrator.Services
   public class OsmExporter : IOsmExporter
   {
     public readonly ApplicationDbContext _dbContext;
-    private readonly IMapper _mapper;
-    private readonly IConfiguration _config;
-    public OsmExporter(ApplicationDbContext dbContext, IMapper mapper, IConfiguration config)
+    
+    public OsmExporter(ApplicationDbContext dbContext)
     {
       _dbContext = dbContext;
-      _mapper = mapper;
-      _config = config;
     }
 
     public async Task<IReadOnlyCollection<DbConnection>> GetUnexportedOsmConnectionsAsync(Guid tileId)
@@ -37,12 +35,12 @@ namespace OsmIntegrator.Services
       return tile.GetUnexportedGtfsConnections();
     }
 
-    public OsmChange GetOsmChange(IReadOnlyCollection<DbConnection> connections, uint? changesetId = null)
+    public OsmChange GetOsmChange(IReadOnlyCollection<DbConnection> connections)
     {
       OsmChange root = new()
       {
-        Generator = "osm integrator v0.1",
-        Version = "0.6",
+        Generator = Constants.OSM_INTEGRATOR_NAME,
+        Version = Constants.OSM_API_VERSION,
         Mod = new Modify()
         {
           Nodes = new List<Node>()
@@ -51,9 +49,9 @@ namespace OsmIntegrator.Services
 
       foreach (DbConnection connection in connections)
       {
-        if(!ContainsChanges(connection.OsmStop, connection.GtfsStop)) continue;
+        if (!ContainsChanges(connection.OsmStop, connection.GtfsStop)) continue;
 
-        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop, changesetId));
+        root.Mod.Nodes.Add(CreateNode(connection.OsmStop, connection.GtfsStop));
       }
 
       return root;
@@ -67,16 +65,20 @@ namespace OsmIntegrator.Services
 
     public bool ContainsChanges(DbStop osmStop, DbStop gtfsStop)
     {
+      Database.Models.JsonFields.Tag refMetropoliaTag = osmStop.GetTag(Constants.REF_METROPOLIA);
+      if (refMetropoliaTag == null || !int.TryParse(refMetropoliaTag.Value, out int value1) ||
+          value1 != gtfsStop.StopId) return true;
+
       Database.Models.JsonFields.Tag refTag = osmStop.GetTag(Constants.REF);
-      if (refTag == null || !int.TryParse(refTag.Value, out int value) || value != gtfsStop.StopId) return true;
+      if (refTag == null || refTag.Value != gtfsStop.Number) return true;
 
       Database.Models.JsonFields.Tag localRefTag = osmStop.GetTag(Constants.LOCAL_REF);
       if (localRefTag == null || localRefTag.Value != gtfsStop.Number) return true;
-      
+
       Database.Models.JsonFields.Tag nameTag = osmStop.GetTag(Constants.NAME);
       return nameTag == null || nameTag.Value != gtfsStop.Name;
     }
-    
+
     private Node CreateNode(DbStop osmStop, DbStop gtfsStop, uint? changesetId = null)
     {
       Node node = new()
@@ -89,7 +91,7 @@ namespace OsmIntegrator.Services
         Id = osmStop.StopId.ToString()
       };
 
-      foreach (var apiTag in osmStop.Tags)
+      foreach (Database.Models.JsonFields.Tag apiTag in osmStop.Tags)
       {
         node.Tag.Add(new Tag()
         {
@@ -98,7 +100,8 @@ namespace OsmIntegrator.Services
         });
       }
 
-      UpdateTag(node.Tag, Constants.REF, gtfsStop.StopId.ToString());
+      UpdateTag(node.Tag, Constants.REF_METROPOLIA, gtfsStop.StopId.ToString());
+      UpdateTag(node.Tag, Constants.REF, gtfsStop.Number);
       UpdateTag(node.Tag, Constants.LOCAL_REF, gtfsStop.Number);
       UpdateTag(node.Tag, Constants.NAME, gtfsStop.Name);
 
@@ -110,7 +113,7 @@ namespace OsmIntegrator.Services
       Tag tag = tags.FirstOrDefault(x => x.K.ToLower() == key);
       if (tag == null)
       {
-        tags.Add(new Tag { K = key, V = value });
+        tags.Add(new Tag {K = key, V = value});
         return;
       }
 
@@ -137,14 +140,15 @@ namespace OsmIntegrator.Services
 
     public string GetComment(long x, long y, byte zoom)
     {
-      StringBuilder sb = new StringBuilder();
+      StringBuilder sb = new();
       sb.Append("Updating ref and local_ref with GTFS data. ");
       sb.Append($"Tile X: {x}, Y: {y}, Zoom: {zoom}. ");
-      sb.Append("Wiki: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind");
+      sb.Append(Constants.IMPORT_WIKI_ADDRESS);
       return sb.ToString();
     }
 
-    public IReadOnlyDictionary<string, string> GetTags(string comment) => new Dictionary<string, string> {
+    public IReadOnlyDictionary<string, string> GetTags(string comment) => new Dictionary<string, string>
+    {
       {"comment", comment},
       {"import", "yes"},
       {"created_by", "osmintegrator"},

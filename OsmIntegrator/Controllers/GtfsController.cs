@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -21,7 +20,9 @@ using OsmIntegrator.Validators;
 using CsvHelper;
 using System.IO;
 using System.Globalization;
-using OsmIntegrator.Database.Models.CsvObjects;
+using CsvHelper.Configuration;
+using OsmIntegrator.Database.Models.JsonFields;
+using OsmIntegrator.Tools.Csv;
 
 namespace OsmIntegrator.Controllers;
 
@@ -55,7 +56,7 @@ public class GtfsController : ControllerBase
     ITileExportValidator tileExportValidator,
     IOsmExporter osmExporter,
     IGtfsUpdater gtfsUpdater
-    )
+  )
   {
     _logger = logger;
     _dbContext = dbContext;
@@ -69,36 +70,39 @@ public class GtfsController : ControllerBase
     _gtfsUpdater = gtfsUpdater;
   }
 
-  [HttpPut()]
+  [HttpPut]
   [Authorize(Roles =
     UserRoles.SUPERVISOR + "," + UserRoles.ADMIN + "," + UserRoles.COORDINATOR)]
   public async Task<ActionResult<Report>> UpdateStops(IFormFile file)
   {
     if (file == null || (file.ContentType != "text/plain" && file.ContentType != "text/csv"))
-    {
       throw new BadHttpRequestException(_localizer["Uploaded file is not in CSV format"]);
-    }
-
-    using (var reader = new StreamReader(file.OpenReadStream()))
+    try
     {
-      try
-      {
-        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-        {
-          var recordsArray = csv.GetRecords<GtfsStop>().ToArray();
-          if (recordsArray.Length == 0)
-          {
-            throw new BadHttpRequestException(_localizer["CSV file is empty"]);
-          }
+      using StreamReader reader = new(file.OpenReadStream());
 
-          var report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext);
-          return Ok(new Report { Value = report.GetResultText(_localizer) });
-        }
-      }
-      catch (CsvHelper.CsvHelperException)
+      CsvConfiguration config = new(CultureInfo.InvariantCulture)
       {
-        throw new BadHttpRequestException(_localizer["Problem with parsing CSV file"]);
+        Mode = CsvMode.NoEscape
+      };
+      
+      using CsvReader csv = new(reader, config);
+
+      csv.Context.RegisterClassMap<CsvGtfsStopMapper>();
+      
+      CsvGtfsStop[] recordsArray = csv.GetRecords<CsvGtfsStop>().ToArray();
+      if (recordsArray.Length == 0)
+      {
+        throw new BadHttpRequestException(_localizer["CSV file is empty"]);
       }
+
+      GtfsImportReport report = await _gtfsUpdater.Update(recordsArray, await GetAllTilesAsync(), _dbContext);
+      return Ok(new Report {Value = report.GetResultText(_localizer)});
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, "Problem with parsing CSV file");
+      throw new BadHttpRequestException(_localizer["Problem with parsing CSV file"]);
     }
   }
 

@@ -85,6 +85,12 @@ namespace OsmIntegrator.Services
       return false;
     }
 
+    /// <summary>
+    /// Update changes to the OSM system
+    /// </summary>
+    /// <param name="tile">Tile db object</param>
+    /// <param name="osmRoot">File with all OSM stops on that tile and the margin around</param>
+    /// <returns>Report with changes</returns>
     public async Task<TileImportReport> Update(DbTile tile, ApplicationDbContext dbContext, Osm osmRoot)
     {
       await using IDbContextTransaction transaction = await dbContext.Database.BeginTransactionAsync();
@@ -174,7 +180,7 @@ namespace OsmIntegrator.Services
         DbStop existingStop = tile.Stops?.FirstOrDefault(
           x => x.StopId == long.Parse(node.Id) && x.StopType == StopType.Osm);
 
-        if (existingStop == null && isOnTile)
+        if (existingStop == null)
         {
           DbTile otherTile = dbContext.Tiles
             .Include(t => t.Stops)
@@ -196,7 +202,7 @@ namespace OsmIntegrator.Services
             if (deletionReverted)
             {
               _reportsFactory.CreateStop(
-                report, node, existingStop, ChangeAction.Modified, deletionReverted);
+                report, node, existingStop, ChangeAction.Modified, true);
             }
             continue;
           }
