@@ -67,62 +67,12 @@ public class UpdateRefsCommandController : ControllerBase
       .OnlyExported().ToList();
     return _osmExporter.GetOsmChange(connections);
   }
-  
-  private OsmChangeset GetOsmChangeset()
-  {
-    StringBuilder sb = new();
-    sb.Append("Updating ref tags for all stops connected by osmintegrator.eu application");
-    sb.Append("ref was updated with the stop code the same as local_ref.");
-    sb.Append(
-      "New tag was added with name ref:metropolia. Tag contains stop unique identifier from ZTM public transport provider db.");
-    sb.Append(Constants.IMPORT_WIKI_ADDRESS);
 
-    return _osmExporter.CreateChangeset(sb.ToString());
-  }
-  
   [HttpGet]
   [Authorize(Roles = UserRoles.SUPERVISOR)]
   public ActionResult GetOsmChangeFile()
   {
     OsmChange osmChange = GetOsmChange();
     return File(osmChange.ToXml().ToBytes(), "text/xml", "osmchange.osc");
-  }
-
-  [HttpPost]
-  [Authorize(Roles = UserRoles.SUPERVISOR)]
-  public async Task<ActionResult<string>> UpdateRefs([FromBody] LoginData credentials)
-  {
-    // send tile's changes to OSM
-    OsmExportResult exportResult = await _osmExportBuilder
-      .UseOsmApiUrl(_externalServices.OsmApiUrl)
-      .UseOsmChange(GetOsmChange())
-      .UseOsmChangeset(GetOsmChangeset())
-      .UseUsername(credentials.Email)
-      .UsePassword(credentials.Password)
-      .UseClose()
-      .ExportAsync();
-
-    if (exportResult.ApiResponse.Status == OsmApiStatusCode.Unauthorized)
-    {
-      throw new BadHttpRequestException(_localizer["Invalid OSM Credentials"]);
-    }
-
-    if (exportResult.ChangesetId == null)
-    {
-      throw new BadHttpRequestException(_localizer["Changeset id is null"]);
-    }
-
-    // Get current user roles
-    ApplicationUser user = await _userManager.GetUserAsync(User);
-
-    // report export in database
-    await _dbContext.OsmExportReports.AddAsync(new DbTileExportReport
-    {
-      CreatedAt = DateTime.Now.ToUniversalTime(),
-      UserId = user.Id,
-      ChangesetId = exportResult.ChangesetId.Value
-    });
-
-    return Ok();
   }
 }

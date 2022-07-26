@@ -20,10 +20,6 @@ namespace OsmIntegrator.Tests.Tests.UpdateRefsCommand;
 
 public class UpdateRefsCommandTest : IntegrationTest
 {
-  string expectedComment = "Updating ref and local_ref with GTFS data. " +
-                           "Tile X: 2264, Y: 1385, Zoom: 12. " +
-                           "Wiki: https://wiki.openstreetmap.org/w/index.php?title=Automated_edits/luktar/OsmIntegrator_-_fixing_stop_signs_for_blind";
-
   public UpdateRefsCommandTest(ApiWebApplicationFactory factory) : base(factory)
   {
     TestDataFolder = "Data/";
@@ -63,28 +59,21 @@ public class UpdateRefsCommandTest : IntegrationTest
 
     await _dbContext.Connections.ForEachAsync(x => x.Exported = true);
     await _dbContext.SaveChangesAsync();
+    
+    OsmChange actualFile = await Get_UpdateRefsCommand_GetChangeFile();
+    actualFile.Mod.Nodes.Sort(
+      (x, y) => string.Compare(x.Id, y.Id, StringComparison.Ordinal));
+    actualFile.Mod.Nodes.ForEach(
+      x => x.Tag.Sort((a, b) => string.Compare(a.K, b.K, StringComparison.Ordinal)));
 
-    try
-    {
-      OsmChange actualFile = await Get_UpdateRefsCommand_GetChangeFile();
-      actualFile.Mod.Nodes.Sort(
-        (x, y) => string.Compare(x.Id, y.Id, StringComparison.Ordinal));
-      actualFile.Mod.Nodes.ForEach(
-        x => x.Tag.Sort((a, b) => string.Compare(a.K, b.K, StringComparison.Ordinal)));
+    XmlSerializer s = new(typeof(OsmChange));
+    await using TextWriter writer = new StreamWriter("/Users/lukasz/Dev/temp2.xml");
+    s.Serialize(writer, actualFile);
+    OsmChange expectedFile =
+      SerializationHelper.XmlDeserializeFile<OsmChange>(
+        $"{TestDataFolder}{nameof(UpdateRefsCommandTest)}/osmchange.xml");
+    List<Difference> differences = Compare(expectedFile, actualFile);
 
-      XmlSerializer s = new(typeof(OsmChange));
-      await using TextWriter writer = new StreamWriter("/Users/lukasz/Dev/temp2.xml");
-      s.Serialize(writer, actualFile);
-      OsmChange expectedFile =
-        SerializationHelper.XmlDeserializeFile<OsmChange>(
-          $"{TestDataFolder}{nameof(UpdateRefsCommandTest)}/osmchange.xml");
-      List<Difference> differences = Compare(expectedFile, actualFile);
-
-      Assert.Empty(differences);
-    }
-    catch (Exception e)
-    {
-      Console.WriteLine(e);
-    }
+    Assert.Empty(differences);
   }
 }
