@@ -247,6 +247,10 @@ public class TileController : ControllerBase
     return Ok(new Report { Value = tileReport.GetResultText(_localizer) });
   }
 
+  /// <summary>
+  /// If OSM and GTFS data are "the same" mark connection as exported.
+  /// </summary>
+  /// <param name="id">tile id</param>
   private async Task UpdatedExportedConnections(Guid id)
   {
     IReadOnlyCollection<DbConnection> connections = await _osmExporter.GetUnexportedOsmConnectionsAsync(id);

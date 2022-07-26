@@ -21,22 +21,21 @@ public class Overpass : IOverpass
   }
   private async Task<Osm> GetContent(HttpContent content)
   {
-    HttpResponseMessage result = new HttpResponseMessage();
     for (int i = 0; i < 5; i++)
     {
-      result = await _httpClient
+      HttpResponseMessage result = await _httpClient
         .SendAsync(
-        new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
-        {
-          Content = content
-        }
+          new HttpRequestMessage(HttpMethod.Get, Constants.OVERPASS_API_LINK)
+          {
+            Content = content
+          }
         );
 
       if (result.IsSuccessStatusCode)
       {
-        Stream responseStream = result.Content.ReadAsStream();
+        Stream responseStream = await result.Content.ReadAsStreamAsync();
 
-        XmlSerializer serializer = new XmlSerializer(typeof(Osm));
+        XmlSerializer serializer = new(typeof(Osm));
 
         return (Osm)serializer.Deserialize(responseStream);
       }
