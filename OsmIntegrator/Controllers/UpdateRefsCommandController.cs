@@ -73,6 +73,7 @@ public class UpdateRefsCommandController : ControllerBase
   public ActionResult GetOsmChangeFile()
   {
     OsmChange osmChange = GetOsmChange();
+
     return File(osmChange.ToXml().ToBytes(), "text/xml", "osmchange.osc");
   }
 }
