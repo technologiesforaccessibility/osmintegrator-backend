@@ -5,7 +5,7 @@ public class Constants
   // Osm tags
   public const string LOCAL_REF = "local_ref";
   public const string REF = "ref";
-  public const string REF_METROPOLIA = "ref:metropolia";
+  public const string REF_METROPOLIA = "ref:metropoliaztm";
   public const string NAME = "name";
 
   // Overpass
