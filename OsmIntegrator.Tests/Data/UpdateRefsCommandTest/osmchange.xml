@@ -9,7 +9,7 @@
             <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
             <tag k="public_transport" v="stop_position"/>
             <tag k="ref" v="1"/>
-            <tag k="ref:metropolia" v="159061"/>
+            <tag k="ref:metropoliaztm" v="159061"/>
         </node>
         <node id="1831941739" lat="50.2314908" lon="18.9828756" version="6">
             <tag k="bus" v="yes"/>
@@ -19,7 +19,7 @@
             <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
             <tag k="public_transport" v="stop_position"/>
             <tag k="ref" v="1"/>
-            <tag k="ref:metropolia" v="159541"/>
+            <tag k="ref:metropoliaztm" v="159541"/>
         </node>
         <node id="1831944331" lat="50.2313802" lon="18.9886732" version="4">
             <tag k="bus" v="yes"/>
@@ -29,7 +29,7 @@
             <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
             <tag k="public_transport" v="stop_position"/>
             <tag k="ref" v="2"/>
-            <tag k="ref:metropolia" v="159077"/>
+            <tag k="ref:metropoliaztm" v="159077"/>
         </node>
         <node id="1905028012" lat="50.2314859" lon="18.983442" version="3">
             <tag k="bus" v="yes"/>
@@ -39,7 +39,7 @@
             <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
             <tag k="public_transport" v="stop_position"/>
             <tag k="ref" v="2"/>
-            <tag k="ref:metropolia" v="159542"/>
+            <tag k="ref:metropoliaztm" v="159542"/>
         </node>
         <node id="1905039171" lat="50.2313219" lon="18.9893556" version="3">
             <tag k="bus" v="yes"/>
@@ -49,7 +49,7 @@
             <tag k="network" v="Zarząd Transportu Metropolitalnego"/>
             <tag k="public_transport" v="stop_position"/>
             <tag k="ref" v="1"/>
-            <tag k="ref:metropolia" v="159076"/>
+            <tag k="ref:metropoliaztm" v="159076"/>
         </node>
     </modify>
 </osmChange>

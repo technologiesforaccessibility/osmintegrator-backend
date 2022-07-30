@@ -135,7 +135,7 @@ namespace OsmIntegrator.Controllers
     [Authorize(Roles = UserRoles.ADMIN)]
     public async Task<ActionResult> Update()
     {
-      CancellationToken cancellationToken = new CancellationToken();
+      CancellationToken cancellationToken = new();
       Osm osm = await _overpass.GetFullArea(_dbContext, cancellationToken);
 
       List<DbTile> tilesToRefresh = _dbContext.Tiles.ToList();
