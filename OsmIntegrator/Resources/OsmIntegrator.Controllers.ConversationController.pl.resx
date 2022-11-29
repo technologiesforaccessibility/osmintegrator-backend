@@ -149,4 +149,12 @@
     <value>Zgłoszony przez Ciebie problem został rozpatrzony</value>
     <comment/>
   </data>
+  <data name="Conversation cannot be found" xml:space="preserve">
+    <value>Raport nie został znaleziony</value>
+    <comment/>
+  </data>
+  <data name="Conversation is outside tile margin border" xml:space="preserve">
+    <value>Raport nie może być umieszczony poza granicami kafelka</value>
+    <comment/>
+  </data>
 </root>

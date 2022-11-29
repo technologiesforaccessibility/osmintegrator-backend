@@ -87,6 +87,18 @@ public class DataInitializer
     db.SaveChanges();
   }
 
+  public void InitializeConversations(ApplicationDbContext db, List<DbConversation> conversations)
+  {
+    conversations ??= new();
+    DbTile firstTileWithStops = db.Tiles.FirstOrDefault(t => t.Stops != null && t.Stops.Count() > 0);
+    conversations.ForEach(c =>
+    {
+      c.TileId = firstTileWithStops.Id;
+    });
+    db.Conversations.AddRange(conversations);
+    db.SaveChanges();
+  }
+
   private void InitializeOsmConnections(ApplicationDbContext db, List<DbStop> gtfsStops, List<DbStop> osmStops)
   {
     if (gtfsStops == null || osmStops == null) return;
@@ -251,6 +263,17 @@ public class DataInitializer
     return result;
   }
 
+  public List<DbConversation> GetConversationsList(string fileName)
+  {
+    List<string[]> csvStopList = CsvParser.Parse(fileName);
+    List<DbConversation> ztmStopList = csvStopList.Select((x, _) => new DbConversation()
+    {
+      Id = Guid.NewGuid(),
+      Lat = double.Parse(x[0], CultureInfo.InvariantCulture.NumberFormat),
+      Lon = double.Parse(x[1], CultureInfo.InvariantCulture.NumberFormat),
+    }).ToList();
+    return ztmStopList;
+  }
   private List<DbTile> GetTiles(List<DbStop> stops)
   {
     Dictionary<Point<long>, DbTile> result = new();
